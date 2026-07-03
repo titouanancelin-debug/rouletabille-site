@@ -1,12 +1,44 @@
 {
   "equipe": [
-    { "name": "Émilie Esquerré", "role": "Comédienne, metteuse en scène", "bio": "Rejoint la Cie Rouletabille en 2024-2025 avec une ligne artistique centrée sur la déconstruction des stéréotypes de genre et la critique des systèmes patriarcaux, en écho aux luttes sociales actuelles. « Pour apporter ma petite goutte au moulin de la déconstruction, je passe par le théâtre. »" },
-    { "name": "Perrine Marillier", "role": "Intervenante artistique, chargée de communication", "bio": "Anime les ateliers Théâtre Enfants & Ados et co-encadre le Cycle d'expérimentation artistique adultes. Pilier de la médiation artistique au quotidien." },
-    { "name": "Guilhem Loupiac", "role": "Intervenant artistique — Ateliers Geste", "bio": "Anime les Ateliers Geste pour les 8–12 ans en partenariat avec L'Odyssée, et participe au Cycle d'expérimentation artistique adultes." },
-    { "name": "Mathieu Duval", "role": "Intervenant artistique", "bio": "Co-encadre le Cycle d'expérimentation artistique adultes avec Perrine Marillier et Guilhem Loupiac." },
-    { "name": "Ambre Ludwiczak", "role": "Intervenante — Expression créatrice", "bio": "Anime l'atelier Expression créatrice, centré sur les arts plastiques et l'exploration de l'imaginaire. Approche libre et sans prérequis." },
-    { "name": "Claude Danielle Morlet", "role": "Intervenante — Compagnon Vocal", "bio": "Co-anime le Compagnon Vocal avec Dominique Borie-Lagarde. Un espace pour chanter, écouter, se ressourcer — ouvert à tous les niveaux." },
-    { "name": "Dominique Borie-Lagarde", "role": "Intervenante — Compagnon Vocal", "bio": "Co-anime le Compagnon Vocal. Pratique collective douce, aucune expérience vocale nécessaire." },
-    { "name": "Adeline Stocklouser", "role": "Administration & gestion", "bio": "Pilote l'administratif et la vie associative. Garante de la bonne santé financière et organisationnelle de la compagnie." }
+    {
+      "name": "Titouan Ancelin",
+      "role": "Comédienne, metteuse en scène",
+      "bio": "Rejoint la Cie Rouletabille en 2024-2025 avec une ligne artistique centrée sur la déconstruction des stéréotypes de genre et la critique des systèmes patriarcaux, en écho aux luttes sociales actuelles. « Pour apporter ma petite goutte au moulin de la déconstruction, je passe par le théâtre. »"
+    },
+    {
+      "name": "Perrine Marillier",
+      "role": "Intervenante artistique, chargée de communication",
+      "bio": "Anime les ateliers Théâtre Enfants & Ados et co-encadre le Cycle d'expérimentation artistique adultes. Pilier de la médiation artistique au quotidien."
+    },
+    {
+      "name": "Guilhem Loupiac",
+      "role": "Intervenant artistique — Ateliers Geste",
+      "bio": "Anime les Ateliers Geste pour les 8–12 ans en partenariat avec L'Odyssée, et participe au Cycle d'expérimentation artistique adultes."
+    },
+    {
+      "name": "Mathieu Duval",
+      "role": "Intervenant artistique",
+      "bio": "Co-encadre le Cycle d'expérimentation artistique adultes avec Perrine Marillier et Guilhem Loupiac."
+    },
+    {
+      "name": "Ambre Ludwiczak",
+      "role": "Intervenante — Expression créatrice",
+      "bio": "Anime l'atelier Expression créatrice, centré sur les arts plastiques et l'exploration de l'imaginaire. Approche libre et sans prérequis."
+    },
+    {
+      "name": "Claude Danielle Morlet",
+      "role": "Intervenante — Compagnon Vocal",
+      "bio": "Co-anime le Compagnon Vocal avec Dominique Borie-Lagarde. Un espace pour chanter, écouter, se ressourcer — ouvert à tous les niveaux."
+    },
+    {
+      "name": "Dominique Borie-Lagarde",
+      "role": "Intervenante — Compagnon Vocal",
+      "bio": "Co-anime le Compagnon Vocal. Pratique collective douce, aucune expérience vocale nécessaire."
+    },
+    {
+      "name": "Adeline Stocklouser",
+      "role": "Administration & gestion",
+      "bio": "Pilote l'administratif et la vie associative. Garante de la bonne santé financière et organisationnelle de la compagnie."
+    }
   ]
 }
