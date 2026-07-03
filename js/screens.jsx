@@ -537,6 +537,7 @@ const FR_MONTHS_IDX = {Jan:0,Fév:1,Mar:2,Avr:3,Mai:4,Juin:5,Juil:6,Août:7,Sep:
 
 const getFeaturedEvents = () => {
   const seen = new Set();
+  const today = new Date(); today.setHours(0,0,0,0);
   return AGENDA
     .filter(d => {
       if (!["spectacle","événement","résidence"].includes(d.type)) return false;
@@ -545,12 +546,11 @@ const getFeaturedEvents = () => {
       seen.add(key);
       return true;
     })
-    .sort((a, b) => {
-      const da = new Date(+a.year, FR_MONTHS_IDX[a.month] ?? 0, +a.day);
-      const db = new Date(+b.year, FR_MONTHS_IDX[b.month] ?? 0, +b.day);
-      return da - db;
-    })
-    .slice(0, 6);
+    .map(d => ({ d, date: new Date(+d.year, FR_MONTHS_IDX[d.month] ?? 0, +d.day) }))
+    .filter(({ date }) => date >= today)
+    .sort((a, b) => a.date - b.date)
+    .slice(0, 6)
+    .map(({ d }) => d);
 };
 
 const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence" };
