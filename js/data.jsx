@@ -39,7 +39,7 @@ const EQUIPE = [
   { name:"Ambre Ludwiczak", role:"Intervenante — Expression créatrice", bio:"Anime l'atelier Expression créatrice, centré sur les arts plastiques et l'exploration de l'imaginaire. Approche libre et sans prérequis." },
   { name:"Claude Danielle Morlet", role:"Intervenante — Compagnon Vocal", bio:"Co-anime le Compagnon Vocal avec Dominique Borie-Lagarde. Un espace pour chanter, écouter, se ressourcer — ouvert à tous les niveaux." },
   { name:"Dominique Borie-Lagarde", role:"Intervenante — Compagnon Vocal", bio:"Co-anime le Compagnon Vocal. Pratique collective douce, aucune expérience vocale nécessaire." },
-  { name:"L'administratrice", role:"Administration & gestion", bio:"Pilote l'administratif et la vie associative. Garante de la bonne santé financière et organisationnelle de la compagnie." },
+  { name:"Adeline Stocklouser", role:"Administration & gestion", bio:"Pilote l'administratif et la vie associative. Garante de la bonne santé financière et organisationnelle de la compagnie." },
 ];
 
 const PARTENAIRES = [

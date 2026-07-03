@@ -1743,9 +1743,9 @@ const Footer = ({ setRoute }) => (
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Pratique</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
           <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Contact</li>
-          <li>Venir à l'atelier</li>
-          <li>Dossiers de presse</li>
-          <li>Mentions légales</li>
+          <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Venir à l'atelier</li>
+          <li><a href="mailto:rouletabilletheatre@gmail.com?subject=Demande%20de%20dossier%20de%20presse" style={{ color:"inherit", textDecoration:"none" }}>Dossiers de presse</a></li>
+          <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Mentions légales</li>
         </ul>
       </div>
       <div>
