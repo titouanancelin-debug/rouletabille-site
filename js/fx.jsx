@@ -25,7 +25,7 @@ const useReveal = ({ delay = 0, threshold = 0.15, once = true } = {}) => {
           el.classList.remove("is-visible");
         }
       });
-    }, { threshold, rootMargin: "0px 0px -8% 0px" });
+    }, { threshold, rootMargin: "0px 0px 120px 0px" });
     io.observe(el);
     return () => io.disconnect();
   }, [delay, threshold, once]);

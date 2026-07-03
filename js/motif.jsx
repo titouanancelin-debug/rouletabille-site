@@ -1,9 +1,12 @@
+import { useId } from 'react';
+
 /* Motif signature : la PHYSALIS (lanterne) — repris du design original Rouletabille */
 /* Lanterne en fil de fer + baie orange à l'intérieur, suspendue à une tige. */
 
 /* Une lanterne unique, dessinée à l'origine (0,0) = point d'attache de la tige,
    s'ouvrant vers le haut jusqu'à y=-132, baie au centre. */
 const Lantern = ({ x = 0, y = 0, scale = 1, color = "#F5C842", berry = "#E8571A", delay = 0, dur = 4, veins = 4, opacity = 1 }) => {
+  const gradId = `berry-grad-${useId()}`;
   const veinPaths = [
     "M-42,-30 C-15,-38,15,-38,42,-30",
     "M-60,-56 C-24,-64,24,-64,60,-56",
@@ -12,6 +15,13 @@ const Lantern = ({ x = 0, y = 0, scale = 1, color = "#F5C842", berry = "#E8571A"
   ];
   return (
     <g transform={`translate(${x},${y}) scale(${scale})`} opacity={opacity}>
+      <defs>
+        <radialGradient id={gradId} cx="32%" cy="28%" r="78%">
+          <stop offset="0%" stopColor={`color-mix(in oklab, ${berry} 55%, white)`}/>
+          <stop offset="50%" stopColor={berry}/>
+          <stop offset="100%" stopColor={`color-mix(in oklab, ${berry} 68%, black)`}/>
+        </radialGradient>
+      </defs>
       {/* inner group pivots at y=0 (attachment point) — transform-box:fill-box + transform-origin:center bottom */}
       <g className="anim-wind" style={{ animationDelay: `${delay}s`, "--wind-dur": `${(dur * 0.88).toFixed(1)}s` }}>
         {/* ribs */}
@@ -24,9 +34,9 @@ const Lantern = ({ x = 0, y = 0, scale = 1, color = "#F5C842", berry = "#E8571A"
         {veinPaths.slice(0, veins).map((d, i) => (
           <path key={i} d={d} stroke={color} strokeWidth={0.95 - i*0.08} fill="none" opacity={0.55 - i*0.06} className="anim-vein" style={{ animationDelay: `${i*0.9}s` }} vectorEffect="non-scaling-stroke"/>
         ))}
-        {/* berry */}
-        <ellipse cx="0" cy="-66" rx="25" ry="27" fill={berry} opacity=".92" className="anim-berry" style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }}/>
-        <ellipse cx="-8" cy="-74" rx="7" ry="8" fill="rgba(255,255,255,0.25)"/>
+        {/* berry — dégradé pour un effet de volume (nuance) */}
+        <ellipse cx="0" cy="-66" rx="25" ry="27" fill={`url(#${gradId})`} opacity=".94" className="anim-berry" style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }}/>
+        <ellipse cx="-8" cy="-74" rx="7" ry="8" fill="rgba(255,255,255,0.3)"/>
         {/* top bud */}
         <circle cx="0" cy="-132" r="3.2" fill={color} opacity=".6"/>
       </g>
@@ -157,7 +167,6 @@ const Poster = ({ bg = "#B84A2E", ink = "#F4E8D5", title = "", subtitle = "", nu
         ))}
       </g>
       {comps[variant % comps.length]}
-      <text x="24" y="48" fill={ink} opacity="0.6" style={{ fontFamily:"var(--ff-mono)", fontSize:"12px", letterSpacing:"2px" }}>№ {num}</text>
       <text x="24" y="442" fill={ink} style={{ fontFamily:"var(--ff-display)", fontSize:"42px", fontStyle:"italic", letterSpacing:"-0.02em" }}>{title}</text>
       {subtitle && (
         <text x="24" y="470" fill={ink} opacity="0.8" style={{ fontFamily:"var(--ff-mono)", fontSize:"11px", letterSpacing:"2px", textTransform:"uppercase" }}>{subtitle}</text>

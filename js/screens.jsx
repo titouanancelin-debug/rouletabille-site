@@ -1,9 +1,25 @@
 /* Écrans : Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Équipe, Partenaires, Contact */
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Motif, MotifMark, Poster } from './motif.jsx';
+import { Motif, MotifHero, MotifMark, Poster } from './motif.jsx';
 import { SPECTACLES, AGENDA, ATELIERS, EQUIPE, PARTENAIRES } from './data.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
+
+/* ─── Formulaires : Netlify Forms ──────────────────────────────────────────
+   Géré nativement par Netlify au déploiement — aucun compte externe requis.
+   Les formulaires statiques miroirs (mêmes name= et champs) sont déclarés
+   dans index.html pour que le bot Netlify les détecte au build, car ceux-ci
+   ne sont rendus par React qu'après chargement du JS.
+   ─────────────────────────────────────────────────────────────────────── */
+async function postForm(formName, data) {
+  const body = new URLSearchParams({ 'form-name': formName, ...data }).toString();
+  const res = await fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body,
+  });
+  if (!res.ok) throw new Error('http_error');
+}
 
 /* ======================= NAV ======================= */
 const ATELIER_CATS = [
@@ -17,11 +33,9 @@ const ATELIER_CATS = [
   { id:"insertion", label:"Insertion sociale" },
 ];
 
-const Nav = ({ route, setRoute, setAtelierAudience }) => {
+const Nav = ({ route, setRoute }) => {
   const [scrolled, setScrolled] = useState(false);
-  const [atelierOpen, setAtelierOpen] = useState(false);
-  const [mobileOpen, setMobileOpen]   = useState(false);
-  const dropdownRef = useRef(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -30,15 +44,7 @@ const Nav = ({ route, setRoute, setAtelierAudience }) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    const onClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setAtelierOpen(false);
-    };
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, []);
-
-  const go = (r) => { setRoute(r); setMobileOpen(false); setAtelierOpen(false); };
+  const go = (r) => { setRoute(r); setMobileOpen(false); };
 
   const items = [
     { id:"home", label:"Accueil" },
@@ -53,7 +59,10 @@ const Nav = ({ route, setRoute, setAtelierAudience }) => {
     <nav className={`nav ${scrolled ? "is-scrolled" : ""}`}>
       <div className="nav-logo" onClick={() => go("home")} style={{ cursor:"pointer" }}>
         <MotifMark size={32} color="var(--terra)"/>
-        <span>Cie Rouletabille</span>
+        <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
+          <span>Rouletabille</span>
+          <span style={{ fontSize:10, fontFamily:"var(--ff-mono)", letterSpacing:"0.08em", textTransform:"uppercase", opacity:0.55, marginTop:3 }}>Fabrique artistique</span>
+        </span>
       </div>
       <div className="nav-menu">
         {items.map(it => (
@@ -62,54 +71,6 @@ const Nav = ({ route, setRoute, setAtelierAudience }) => {
           </button>
         ))}
 
-        {/* Ateliers avec dropdown */}
-        <div ref={dropdownRef} style={{ position:"relative" }}
-          onMouseEnter={() => setAtelierOpen(true)}
-          onMouseLeave={() => setAtelierOpen(false)}
-        >
-          <button
-            className={`nav-link ${route === "ateliers" ? "active" : ""}`}
-            onClick={() => { setAtelierAudience(""); setRoute("ateliers"); setAtelierOpen(false); }}
-            style={{ display:"flex", alignItems:"center", gap:4 }}
-          >
-            Ateliers
-            <span style={{ fontSize:9, opacity:0.55, marginTop:1, transition:"transform 0.2s", transform: atelierOpen ? "rotate(180deg)" : "rotate(0)" }}>▾</span>
-          </button>
-          {atelierOpen && (
-            <div style={{
-              position:"absolute", top:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)",
-              background:"var(--paper)", border:"1px solid var(--rule)",
-              boxShadow:"0 12px 32px rgba(0,0,0,0.13)", minWidth:210, zIndex:200,
-              padding:"6px 0",
-            }}>
-              {/* petit triangle */}
-              <div style={{ position:"absolute", top:-6, left:"50%", transform:"translateX(-50%)",
-                width:0, height:0, borderLeft:"6px solid transparent", borderRight:"6px solid transparent",
-                borderBottom:"6px solid var(--paper)", filter:"drop-shadow(0 -1px 0 var(--rule))" }}/>
-              {ATELIER_CATS.map((cat, i) => (
-                <button key={cat.id}
-                  onClick={() => { setAtelierAudience(cat.id); setRoute("ateliers"); setAtelierOpen(false); }}
-                  style={{
-                    display:"block", width:"100%", textAlign:"left",
-                    background:"none", border:"none", cursor:"pointer",
-                    padding: i === 0 ? "10px 20px 10px" : "8px 20px",
-                    fontSize:13, fontFamily:"var(--ff-body)",
-                    color: i === 0 ? "var(--terra)" : "var(--ink)",
-                    fontWeight: i === 0 ? 600 : 400,
-                    borderBottom: i === 0 ? "1px solid var(--rule)" : "none",
-                    transition:"background 0.15s",
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = "color-mix(in oklab, var(--terra) 7%, transparent)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "none"}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <button className="nav-cta" onClick={() => setRoute("agenda")}>Réserver</button>
       </div>
 
       {/* Hamburger — mobile only */}
@@ -124,124 +85,623 @@ const Nav = ({ route, setRoute, setAtelierAudience }) => {
             {it.label}
           </button>
         ))}
-        <button className="nav-mobile-link" onClick={() => { setAtelierAudience(""); go("ateliers"); }}>Ateliers</button>
-        <button className="btn btn-amber" onClick={() => go("agenda")} style={{ marginTop:28, alignSelf:"flex-start" }}>Réserver →</button>
       </div>
     </nav>
   );
 };
 
-/* ======================= PARALLAX HERO ======================= */
-/*
- * PHOTOS PLACEHOLDER — remplacer ces 4 URLs la semaine prochaine :
- *   HERO_MAIN  : photo principale (plein écran, format paysage)
- *   HERO_F0    : photo flottante gauche haute (portrait)
- *   HERO_F1    : photo flottante droite (portrait)
- *   HERO_F2    : photo flottante gauche basse (portrait)
- */
-const HERO_MAIN = "images/p1.jpg";
-const HERO_F0   = "images/p2.jpg";
-const HERO_F1   = "images/p3.jpg";
-const HERO_F2   = "images/p4.jpg";
+/* ======================= BOTANIC HERO ======================= */
+const BotanicHero = ({ setRoute }) => (
+  <section style={{
+    minHeight: "100vh",
+    background: "var(--terra)",
+    position: "relative",
+    overflow: "hidden",
+    display: "flex",
+    alignItems: "center",
+  }}>
+    {/* Halo ambré au centre-droit */}
+    <div aria-hidden="true" style={{
+      position: "absolute",
+      right: "8%",
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: "56vw",
+      height: "56vw",
+      borderRadius: "50%",
+      background: "radial-gradient(circle, rgba(232,181,66,0.13) 0%, rgba(184,74,46,0.08) 45%, transparent 70%)",
+      zIndex: 0,
+      pointerEvents: "none",
+    }}/>
 
-const SCROLL_H = 2200;
+    {/* Grande composition physalis — occupe le tiers droit */}
+    <div aria-hidden="true" className="hero-plant">
+      <MotifHero
+        color="rgba(244,232,213,0.70)"
+        berryColor="var(--terra)"
+        style={{ width: "100%", height: "100%" }}
+      />
+    </div>
 
-const ParallaxHero = ({ setRoute }) => {
-  const centerRef = useRef(null);
-  const float0    = useRef(null);
-  const float1    = useRef(null);
-  const float2    = useRef(null);
+    {/* Dégradé gauche — assure la lisibilité du texte */}
+    <div aria-hidden="true" style={{
+      position: "absolute",
+      inset: 0,
+      background: "linear-gradient(to right, var(--terra) 44%, rgba(42,20,24,0.82) 62%, rgba(42,20,24,0.32) 78%, transparent 100%)",
+      zIndex: 2,
+      pointerEvents: "none",
+    }}/>
+
+    {/* Dégradé bas — raccord avec la section suivante */}
+    <div aria-hidden="true" style={{
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 120,
+      background: "linear-gradient(to bottom, transparent, var(--terra))",
+      zIndex: 2,
+      pointerEvents: "none",
+    }}/>
+
+    {/* Contenu texte */}
+    <div style={{
+      position: "relative",
+      zIndex: 3,
+      padding: "clamp(80px, 12vh, 140px) var(--pad-x)",
+      maxWidth: 580,
+    }}>
+      <Reveal variant="fade" delay={80}>
+        <div className="eyebrow" style={{ marginBottom: 28 }}>
+          Saison 2025 — 2026 · Périgueux & Dordogne
+        </div>
+      </Reveal>
+
+      <h1 className="display" style={{
+        fontSize: "clamp(54px, 6.5vw, 108px)",
+        lineHeight: 0.96,
+        marginBottom: 32,
+        color: "var(--paper)",
+      }}>
+        <KineticTitle lineDelay={110} baseDelay={160} lines={[
+          <>Théâtre <span className="display-italic">vivant</span>,</>,
+          <>corps & <span className="display-italic">voix</span>.</>,
+        ]}/>
+      </h1>
+
+      <Reveal variant="up" delay={520} as="p" style={{
+        fontSize: 18,
+        lineHeight: 1.65,
+        color: "color-mix(in oklab, var(--paper) 78%, transparent)",
+        maxWidth: 440,
+        marginBottom: 40,
+        textWrap: "pretty",
+      }}>
+        Compagnie de création installée à Périgueux depuis 1993. Spectacles, ateliers et rencontres artistiques ouverts à tous, ancrés dans le territoire.
+      </Reveal>
+
+      <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>
+          Découvrir les spectacles →
+        </button>
+        <button
+          className="btn btn-ghost"
+          onClick={() => setRoute("agenda")}
+          style={{ color: "var(--paper)", borderColor: "color-mix(in oklab, var(--paper) 35%, transparent)" }}
+        >
+          Voir l'agenda
+        </button>
+      </Reveal>
+
+      {/* Petit fil conducteur — date de fondation */}
+      <Reveal variant="fade" delay={900} style={{
+        marginTop: 56,
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        color: "color-mix(in oklab, var(--paper) 36%, transparent)",
+        fontSize: 11,
+        letterSpacing: "0.1em",
+        fontFamily: "var(--ff-mono)",
+        textTransform: "uppercase",
+      }}>
+        <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
+        Fondée en 1993 · Dordogne
+      </Reveal>
+    </div>
+
+    {/* Scroll cue */}
+    <div className="scroll-cue">
+      <span>Défiler</span>
+      <span className="cue-rail"><span className="cue-dot"/></span>
+    </div>
+  </section>
+);
+
+/* ======================= SCROLL EXPAND HERO ======================= */
+const ScrollExpandHero = ({ setRoute }) => {
+  const [p, setP]           = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const pRef       = useRef(0);
+  const expandedRef = useRef(false);
+  const touchRef   = useRef(0);
 
   useEffect(() => {
     if (prefersReduced()) return;
-    let raf = null;
-    const update = () => {
-      raf = null;
-      const p = Math.min(Math.max(window.scrollY / SCROLL_H, 0), 1);
-      const c = 28 * (1 - p);
-      const e = 100 - c;
-      if (centerRef.current) {
-        centerRef.current.style.clipPath = `polygon(${c}% ${c}%, ${e}% ${c}%, ${e}% ${e}%, ${c}% ${e}%)`;
-        centerRef.current.style.backgroundSize = `${170 - 70 * p}%`;
+
+    const onWheel = (e) => {
+      if (expandedRef.current) {
+        if (e.deltaY < 0 && window.scrollY <= 2) {
+          expandedRef.current = false; setExpanded(false);
+          pRef.current = 0.97;        setP(0.97);
+        }
+        return;
       }
-      const shifts = [-180, 230, -120];
-      [float0, float1, float2].forEach((r, i) => {
-        if (r.current) r.current.style.transform = `translateY(${p * shifts[i]}px)`;
-      });
+      e.preventDefault();
+      const next = Math.min(Math.max(pRef.current + e.deltaY * 0.0012, 0), 1);
+      pRef.current = next; setP(next);
+      if (next >= 1) { expandedRef.current = true; setExpanded(true); }
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
+
+    const onScroll = () => { if (!expandedRef.current) window.scrollTo(0, 0); };
+
+    const onTouchStart = (e) => { touchRef.current = e.touches[0].clientY; };
+
+    const onTouchMove = (e) => {
+      const cur = e.touches[0].clientY;
+      const delta = touchRef.current - cur;
+      if (expandedRef.current) {
+        if (delta < -20 && window.scrollY <= 2) {
+          expandedRef.current = false; setExpanded(false);
+          pRef.current = 0.97;        setP(0.97);
+        }
+        touchRef.current = cur;
+        return;
+      }
+      e.preventDefault();
+      const factor = delta < 0 ? 0.008 : 0.005;
+      const next = Math.min(Math.max(pRef.current + delta * factor, 0), 1);
+      pRef.current = next; setP(next);
+      if (next >= 1) { expandedRef.current = true; setExpanded(true); }
+      touchRef.current = cur;
+    };
+
+    const onTouchEnd = () => { touchRef.current = 0; };
+
+    window.addEventListener("wheel",      onWheel,      { passive: false });
+    window.addEventListener("scroll",     onScroll,     { passive: true  });
+    window.addEventListener("touchstart", onTouchStart, { passive: true  });
+    window.addEventListener("touchmove",  onTouchMove,  { passive: false });
+    window.addEventListener("touchend",   onTouchEnd);
+    return () => {
+      window.removeEventListener("wheel",      onWheel);
+      window.removeEventListener("scroll",     onScroll);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove",  onTouchMove);
+      window.removeEventListener("touchend",   onTouchEnd);
+    };
   }, []);
 
-  const floatStyle = (top, side, w, extra = {}) => ({
-    position:"absolute", [side[0]]:side[1], top, width:w, zIndex:3,
-    willChange:"transform", overflow:"hidden", borderRadius:3,
-    boxShadow:"0 16px 48px rgba(0,0,0,0.55)", ...extra,
-  });
+  if (prefersReduced()) return <BotanicHero setRoute={setRoute}/>;
+
+  const textShift = p * 26; // vw
 
   return (
-    <div style={{ height:`calc(${SCROLL_H}px + 100vh)`, position:"relative" }}>
-      <div style={{ position:"sticky", top:0, height:"100vh", overflow:"hidden", background:"#1A0E08" }}>
+    <section style={{
+      position: "relative",
+      minHeight: "100dvh",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      overflow: "hidden",
+      background: "var(--terra)",
+    }}>
+      {/* Halo ambré — s'intensifie pendant l'expansion */}
+      <div aria-hidden style={{
+        position: "absolute", right: "8%", top: "50%", transform: "translateY(-50%)",
+        width: "56vw", height: "56vw", borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(232,181,66,0.13) 0%, rgba(184,74,46,0.08) 45%, transparent 70%)",
+        opacity: Math.min(1, p * 1.4),
+        zIndex: 0, pointerEvents: "none",
+      }}/>
 
-        {/* Image centrale qui s'ouvre au scroll */}
-        <div ref={centerRef} style={{
-          position:"absolute", inset:0,
-          backgroundImage:`url(${HERO_MAIN})`,
-          backgroundSize:"170%", backgroundPosition:"center",
-          backgroundRepeat:"no-repeat",
-          clipPath:"polygon(28% 28%, 72% 28%, 72% 72%, 28% 72%)",
-          willChange:"clip-path, background-size",
-        }}/>
+      {/* ——— Carte physalis qui s'ouvre ——— */}
+      <div style={{
+        position: "absolute",
+        top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        width:  `${30 + p * 70}vw`,
+        height: `${38 + p * 62}vh`,
+        maxWidth: "100vw", maxHeight: "100vh",
+        overflow: "hidden",
+        zIndex: 1,
+        borderRadius: `${Math.max(0, 8 * (1 - p))}px`,
+        boxShadow: `0 ${Math.round(6*(1-p))}px ${Math.round(50*(1-p))}px rgba(0,0,0,${(0.38*(1-p)).toFixed(2)})`,
+      }}>
+        <div style={{ width: "100%", height: "100%", background: "var(--terra)", position: "relative", overflow: "hidden" }}>
 
-        {/* Image flottante droite haute */}
-        <div ref={float0} className="hero-float" style={floatStyle("7%", ["right","21%"], "18%")}>
-          <div style={{ paddingTop:"135%", background:`url(${HERO_F0}) center/cover` }}/>
+          {/* Composition physalis — hero-plant (se place à droite quand la carte s'ouvre) */}
+          <div aria-hidden className="hero-plant" style={{ opacity: 0.28 + p * 0.64, zIndex: 2 }}>
+            <MotifHero color="rgba(244,232,213,0.72)" berryColor="var(--terra)" style={{ width: "100%", height: "100%" }}/>
+          </div>
+
+          {/* Voile sombre : épais quand la carte est petite, léger quand plein écran */}
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 3,
+            background: `rgba(42,20,24,${(0.58 - p * 0.52).toFixed(2)})`,
+            pointerEvents: "none",
+          }}/>
+
+          {/* Voile central (lisibilité texte) — apparaît en fin d'expansion, léger pour laisser voir la physalis */}
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 4,
+            background: "radial-gradient(ellipse 52% 42% at center, rgba(42,20,24,0.55) 12%, rgba(42,20,24,0.4) 42%, rgba(42,20,24,0.12) 68%, transparent 88%)",
+            opacity: Math.max(0, (p - 0.68) * 3.1) * 0.75,
+            pointerEvents: "none",
+          }}/>
+
+          {/* Fade vers la section suivante */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 120, zIndex: 4,
+            background: "linear-gradient(to bottom, transparent, var(--terra))",
+            opacity: p,
+            pointerEvents: "none",
+          }}/>
+
+          {/* Mention poster (visible uniquement en petit) */}
+          <div style={{
+            position: "absolute", bottom: 18, left: 0, right: 0, zIndex: 5,
+            display: "flex", justifyContent: "space-between", padding: "0 20px",
+            opacity: Math.max(0, 1 - p * 7),
+            color: "rgba(244,232,213,0.38)",
+            fontFamily: "var(--ff-mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase",
+            pointerEvents: "none",
+          }}>
+            <span>Périgueux · Dordogne</span>
+            <span>Est. 1993</span>
+          </div>
+
+          {/* ——— Contenu hero complet — apparaît une fois la carte ouverte ——— */}
+          {expanded && (
+            <div style={{
+              position: "absolute", inset: 0, zIndex: 6,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: "clamp(80px, 12vh, 140px) var(--pad-x)",
+              textAlign: "center",
+            }}>
+              <div style={{ maxWidth: 640, margin: "0 auto" }}>
+                <Reveal variant="fade" delay={80}>
+                  <div className="eyebrow" style={{ marginBottom: 28 }}>
+                    Saison 2025 — 2026 · Périgueux & Dordogne
+                  </div>
+                </Reveal>
+                <h1 className="display" style={{ fontSize: "clamp(54px, 6.5vw, 108px)", lineHeight: 0.96, marginBottom: 32, color: "var(--paper)" }}>
+                  <KineticTitle lineDelay={110} baseDelay={160} lines={[
+                    <>Théâtre <span className="display-italic">vivant</span>,</>,
+                    <>corps & <span className="display-italic">voix</span>.</>,
+                  ]}/>
+                </h1>
+                <Reveal variant="up" delay={520} as="p" style={{ fontSize: 18, lineHeight: 1.65, color: "color-mix(in oklab, var(--paper) 78%, transparent)", maxWidth: 440, margin: "0 auto 40px", textWrap: "pretty" }}>
+                  Compagnie de création installée à Périgueux depuis 1993. Spectacles, ateliers et rencontres artistiques ouverts à tous, ancrés dans le territoire.
+                </Reveal>
+                <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+                  <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Découvrir les spectacles →</button>
+                  <button className="btn btn-ghost" onClick={() => setRoute("agenda")} style={{ color: "var(--paper)", borderColor: "color-mix(in oklab, var(--paper) 35%, transparent)" }}>Voir l'agenda</button>
+                </Reveal>
+                <Reveal variant="fade" delay={900} style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, color: "color-mix(in oklab, var(--paper) 36%, transparent)", fontSize: 11, letterSpacing: "0.1em", fontFamily: "var(--ff-mono)", textTransform: "uppercase" }}>
+                  <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
+                  Fondée en 1993 · Dordogne
+                </Reveal>
+              </div>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Image flottante droite */}
-        <div ref={float1} className="hero-float" style={floatStyle("32%", ["right","2%"], "17%")}>
-          <div style={{ paddingTop:"125%", background:`url(${HERO_F1}) center/cover` }}/>
+      {/* ——— Titre qui s'écarte pendant l'expansion ——— */}
+      {!expanded && (
+        <div aria-hidden style={{
+          position: "absolute", inset: 0, zIndex: 2,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          gap: 10, pointerEvents: "none",
+        }}>
+          <span className="display" style={{
+            fontSize: "clamp(34px, 5vw, 84px)", color: "var(--paper)", lineHeight: 0.95,
+            transform: `translateX(-${textShift}vw)`,
+            willChange: "transform",
+            mixBlendMode: "difference",
+            whiteSpace: "nowrap",
+          }}>Rouletabille</span>
+          <span className="display display-italic" style={{
+            fontSize: "clamp(20px, 3.1vw, 50px)", color: "var(--paper)", lineHeight: 0.95,
+            transform: `translateX(${textShift}vw)`,
+            willChange: "transform",
+            mixBlendMode: "difference",
+            whiteSpace: "nowrap",
+          }}>fabrique artistique</span>
         </div>
+      )}
 
-        {/* Image flottante gauche basse */}
-        <div ref={float2} className="hero-float" style={{ ...floatStyle("auto", ["left","7%"], "15%"), bottom:"18%" }}>
-          <div style={{ paddingTop:"115%", background:`url(${HERO_F2}) center/cover` }}/>
-        </div>
-
-        {/* Dégradé gauche — zIndex 4 pour couvrir les photos flottantes */}
-        <div style={{ position:"absolute", inset:0, zIndex:4,
-          background:"linear-gradient(to right, rgba(20,10,5,0.93) 0%, rgba(20,10,5,0.72) 38%, rgba(20,10,5,0.18) 62%, transparent 100%)" }}/>
-
-        {/* Dégradé bas */}
-        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:180, zIndex:4,
-          background:"linear-gradient(to bottom, transparent, #1A0E08)" }}/>
-
-        {/* Texte hero */}
-        <div style={{ position:"relative", zIndex:5, padding:"0 var(--pad-x)", maxWidth:640,
-          height:"100%", display:"flex", flexDirection:"column", justifyContent:"center" }}>
-          <Reveal variant="fade" delay={50} className="eyebrow" style={{ color:"var(--amber)", marginBottom:24 }}>
-            Saison 2025 — 2026 · Périgueux & Dordogne
-          </Reveal>
-          <h1 className="display" style={{ fontSize:"clamp(56px, 8vw, 118px)", marginBottom:28, color:"var(--paper)", textShadow:"0 2px 24px rgba(0,0,0,0.45)" }}>
-            <KineticTitle lineDelay={110} baseDelay={150} lines={[
-              <>Théâtre <span className="display-italic">vivant</span>,</>,
-              <>corps & <span className="display-italic">voix</span>.</>,
-            ]}/>
-          </h1>
-          <Reveal variant="up" delay={500} as="p" style={{ fontSize:18, lineHeight:1.6, color:"color-mix(in oklab, var(--paper) 82%, transparent)", textWrap:"pretty", maxWidth:460, marginBottom:32 }}>
-            Compagnie de création installée à Périgueux depuis 1993. Des spectacles, des ateliers et des rencontres artistiques ouverts à tous, ancrés dans le territoire.
-          </Reveal>
-          <Reveal variant="up" delay={620} style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-            <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Découvrir les spectacles →</button>
-            <button className="btn btn-ghost" onClick={() => setRoute("agenda")} style={{ color:"var(--paper)", borderColor:"color-mix(in oklab, var(--paper) 40%, transparent)" }}>Voir l'agenda</button>
-          </Reveal>
-        </div>
-
-        <div className="scroll-cue">
+      {/* Scroll cue */}
+      {!expanded && p < 0.25 && (
+        <div className="scroll-cue" style={{ opacity: Math.max(0, 1 - p * 8), zIndex: 3 }}>
           <span>Défiler</span>
           <span className="cue-rail"><span className="cue-dot"/></span>
+        </div>
+      )}
+    </section>
+  );
+};
+
+/* ======================= HISTOIRE D'UN PROJET ======================= */
+const HISTOIRE_SECTIONS = [
+  {
+    id: "immersion",
+    num: "01",
+    label: "Immersion",
+    teaser: "La compagnie est installée dans le quartier du Toulon à Périgueux depuis 1993, ancré dans un quartier façonné par l'histoire ferroviaire et ouvrière.",
+    paragraphs: [
+      "La compagnie est installée dans le quartier du Toulon à Périgueux depuis 1993. Celui-ci est marqué par son origine en 1857 au moment de l'implantation de la ligne de chemin de fer et des ateliers de réparation ferroviaire du « Paris-Orléans ». Depuis 1960, la communauté des cheminots s'est transformée, a diminué. Mais le quartier garde les traces de ce passé.",
+      "La plupart des maisons sont construites sur le principe de la loi Loucheur, lui gardant un aspect de « cité ouvrière ».",
+      "La compagnie Rouletabille a été fondée le 27 septembre 1993 par 11 personnes d'origines diverses ayant toutes un lien avec le quartier du Toulon : résidant, travailleur, liens familiaux. Toutes étaient portées par des valeurs d'Education Populaire.",
+      "Elle a pour premier partenaire le Comité de Quartier du Toulon dont la mission est « Ecouter, Proposer ». Ce comité l'a encouragé à la mise en place de propositions artistiques notamment en direction des enfants car aucune activité n'existait alors. Ainsi, la mise en place d'un atelier de pratique artistique théâtrale à l'adresse des enfants et adolescents s'est concrétisé sur le quartier dès le mois d'avril 1994. Un premier spectacle « Grandir, déjà ! » en 1994, s'en suivront une quinzaine de création.",
+      "Durant plusieurs années, la compagnie partage le bureau du Comité de Quartier du Toulon et développe ses interventions et ses projets en itinérance sur la ville de Périgueux et le département. L'équipe grandit au fil des années, se forme, se structure.",
+      "En 2008, la compagnie intègre « La Filature de l'Isle », ancienne manufacture de vêtements du quartier, où un pôle culturel et sportif communal est désormais installé. Ce lieu s'inscrit dans l'histoire des quartiers populaires, et la compagnie y développe depuis un projet global de « lieu de rencontre et d'expérimentation artistique pour Tous ».",
+      "Pourquoi Rouletabille ? Aucune référence à l'auteur Gaston Leroux ! Parce que « roule ta bosse », pour suivre les encouragements institutionnels à une forme de « décentralisation théâtrale », à l'émergence de nouvelle structure pour porter l'emploi artistique.",
+    ],
+  },
+  {
+    id: "partage",
+    num: "02",
+    label: "Partage, pratique et découverte avec et pour Tous",
+    teaser: "En automne 2023, notre compagnie a fêté ses 30 ans d'existence. Un projet de création et de transmission de l'art théâtral, ouvert à la diversité humaine et culturelle du territoire.",
+    paragraphs: [
+      "En automne 2023, notre compagnie a fêté ses 30 ans d'existence. Au cours de ces années nous avons affiné nos choix et nos orientations. Nous revendiquons une activité de création et de transmission de l'art théâtral. Ce qui nous intéresse avant tout c'est la personne dans son humanité et comment cette personne peut s'ouvrir au monde à travers d'une pratique culturelle en tant qu'acteur ou spectateur.",
+      "Théâtre social, éducation populaire, création, lien social dans les quartiers, action culturelle de proximité, ateliers, stages, spectacles, rencontres… difficile de faire bref…",
+      "Pour aborder la diversité humaine et culturelle de notre territoire (dont nous suivons l'évolution au fil des années), qui nous concerne et nous motive particulièrement : nous créons des actions culturelles de proximité, spécifiques, avec nos partenaires locaux, institutionnels et associatifs. En fonction des objectifs et des possibilités, nous proposons des actions qui nous sont propres — spectacle, ateliers, stages — et des opérations « sur mesure » que nous construisons en étroite collaboration avec les besoins identifiés sur le terrain.",
+      "Nous souhaitons dans tous les cas, concevoir et proposer de nouveaux contextes de rencontre, décomplexants, responsabilisants et de partage, grâce à un théâtre social et artisanal, convivial et festif, pluridisciplinaire (musique, conte, mouvement, images…) qui unit acteurs et spectateurs dans un temps.",
+      "Un lieu de Culture pour Tous, tel est notre projet depuis son origine.",
+    ],
+  },
+  {
+    id: "equipe",
+    num: "03",
+    label: "Une équipe — Une Compagnie",
+    teaser: "Composée de professionnels aux compétences variées et de bénévoles engagés, l'équipe de Rouletabille avance et se façonne.",
+    paragraphs: [
+      "Composée de professionnels aux compétences variées et complémentaires (comédien, musicien, vidéaste, plasticien, administrateur...) et de bénévoles engagés, l'équipe de Rouletabille avance et se façonne et aujourd'hui accueille de nouveaux membres. Un noyau fondateur reste à l'écoute des projets menés, et accompagne l'équipe dans la construction des activités.",
+    ],
+  },
+];
+
+const HistoireAccordion = () => {
+  const [open, setOpen] = useState(null);
+  return (
+    <div style={{ borderTop:"1px solid var(--rule)" }}>
+      {HISTOIRE_SECTIONS.map((s) => {
+        const isOpen = open === s.id;
+        return (
+          <div key={s.id} style={{ borderBottom:"1px solid var(--rule)" }}>
+            <button
+              onClick={() => setOpen(isOpen ? null : s.id)}
+              style={{
+                width:"100%", textAlign:"left", background:"none", border:"none", cursor:"pointer",
+                padding:"28px 0", display:"grid", gridTemplateColumns:"40px 1fr auto", gap:24, alignItems:"start",
+                transition:"color 0.2s",
+              }}
+              aria-expanded={isOpen}
+            >
+              <span className="mono" style={{ fontSize:11, opacity:0.45, paddingTop:6 }}>{s.num}</span>
+              <div>
+                <h3 className="display" style={{
+                  fontSize:"clamp(20px, 2.8vw, 32px)", lineHeight:1.05, marginBottom: isOpen ? 0 : 12,
+                  color: isOpen ? "var(--terra)" : "var(--ink)", transition:"color 0.2s",
+                }}>
+                  {s.label}
+                </h3>
+                {!isOpen && (
+                  <p style={{ fontSize:15, lineHeight:1.55, color:"var(--ink-soft)", margin:0, textWrap:"pretty" }}>
+                    {s.teaser}
+                  </p>
+                )}
+              </div>
+              <span style={{
+                fontSize:22, lineHeight:1, color:"var(--terra)", marginTop:4,
+                transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
+                transition:"transform 0.3s ease",
+                display:"block", flexShrink:0,
+              }}>+</span>
+            </button>
+            <div style={{
+              overflow:"hidden",
+              maxHeight: isOpen ? 1800 : 0,
+              transition:"max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}>
+              <div style={{ paddingLeft:64, paddingBottom:32 }}>
+                {s.paragraphs.map((p, i) => (
+                  <p key={i} style={{
+                    fontSize:16, lineHeight:1.75, color:"var(--ink-soft)",
+                    marginBottom: i < s.paragraphs.length - 1 ? 18 : 0,
+                    textWrap:"pretty",
+                  }}>{p}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+/* ======================= EVENT CAROUSEL ======================= */
+const FR_MONTHS_IDX = {Jan:0,Fév:1,Mar:2,Avr:3,Mai:4,Juin:5,Juil:6,Août:7,Sep:8,Oct:9,Nov:10,Déc:11};
+
+const getFeaturedEvents = () => {
+  const seen = new Set();
+  return AGENDA
+    .filter(d => {
+      if (!["spectacle","événement","résidence"].includes(d.type)) return false;
+      const key = d.spectacle ?? d.title;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => {
+      const da = new Date(+a.year, FR_MONTHS_IDX[a.month] ?? 0, +a.day);
+      const db = new Date(+b.year, FR_MONTHS_IDX[b.month] ?? 0, +b.day);
+      return da - db;
+    })
+    .slice(0, 6);
+};
+
+const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence" };
+
+const EventCard = ({ item, setRoute, setSpectacle }) => {
+  const sp = item.spectacle ? SPECTACLES.find(s => s.id === item.spectacle) : null;
+  const spIdx = sp ? SPECTACLES.findIndex(s => s.id === item.spectacle) : 0;
+  const ink = item.cardTextColor || "var(--paper)";
+
+  const handleClick = () => {
+    if (sp) { setSpectacle(item.spectacle); setRoute("spectacles/detail"); }
+    else setRoute("agenda");
+  };
+
+  return (
+    <article onClick={handleClick} style={{ cursor:"pointer" }}>
+      <div className="card-fx" style={{ aspectRatio:"3/4", position:"relative", overflow:"hidden" }}>
+        {sp ? (
+          <>
+            <Poster bg={sp.color} ink={sp.textColor} title={sp.title} subtitle={sp.tag} num={sp.num} variant={spIdx % 4}/>
+            <div style={{
+              position:"absolute", bottom:0, left:0, right:0,
+              background:"linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)",
+              padding:"52px 18px 18px", color:"#fff",
+            }}>
+              <div style={{ fontFamily:"var(--ff-mono)", fontSize:11, marginBottom:4, opacity:0.78 }}>{item.venue}</div>
+              <div style={{ fontFamily:"var(--ff-mono)", fontSize:11, opacity:0.58 }}>{item.time} · {item.price}</div>
+            </div>
+          </>
+        ) : (
+          <div className="noise" style={{
+            background: item.cardColor || "var(--aubergine)", color: ink,
+            width:"100%", height:"100%", padding:28,
+            display:"flex", flexDirection:"column", justifyContent:"space-between",
+            position:"relative", overflow:"hidden",
+          }}>
+            <div style={{ position:"absolute", right:-40, bottom:-40, opacity:0.14 }}>
+              <Motif size={260} color={ink} berryColor={ink} rotate={15} seed={2}/>
+            </div>
+            <div style={{ position:"relative", zIndex:1 }}>
+              <div style={{ fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.12em", padding:"3px 10px", border:`1px solid ${ink}`, display:"inline-block", marginBottom:24, opacity:0.72, textTransform:"uppercase" }}>
+                {TYPE_LABEL[item.type]}
+              </div>
+              <h3 className="display" style={{ fontSize:"clamp(22px, 2.8vw, 34px)", lineHeight:1.02 }}>{item.title}</h3>
+            </div>
+            <div style={{ position:"relative", zIndex:1 }}>
+              <div style={{ fontFamily:"var(--ff-mono)", fontSize:12, marginBottom:4, opacity:0.68 }}>{item.venue}</div>
+              <div style={{ fontFamily:"var(--ff-mono)", fontSize:12, opacity:0.5 }}>{item.time} · {item.price}</div>
+            </div>
+          </div>
+        )}
+        {item.status === "few" && (
+          <div style={{ position:"absolute", top:12, right:12, background:"var(--amber-deep)", color:"#fff", fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.08em", padding:"3px 8px", textTransform:"uppercase" }}>
+            Dernières places
+          </div>
+        )}
+        {item.status === "sold" && (
+          <div style={{ position:"absolute", top:12, right:12, background:"rgba(0,0,0,0.75)", color:"#fff", fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.08em", padding:"3px 8px", textTransform:"uppercase" }}>
+            Complet
+          </div>
+        )}
+        {(item.status === "free" && !sp) && (
+          <div style={{ position:"absolute", top:12, right:12, background:"var(--terra)", color:"#fff", fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.08em", padding:"3px 8px", textTransform:"uppercase" }}>
+            Entrée libre
+          </div>
+        )}
+      </div>
+      <div style={{ padding:"12px 0 8px", borderTop:"1px solid var(--rule)", marginTop:10 }}>
+        <div style={{ fontFamily:"var(--ff-mono)", fontSize:10, color:"var(--terra)", marginBottom:4 }}>
+          {item.day} {item.month} · {TYPE_LABEL[item.type]}
+        </div>
+        <h4 className="display" style={{ fontSize:"clamp(14px, 1.3vw, 17px)", lineHeight:1.1 }}>
+          {sp?.title || item.title}<span className="card-arrow">→</span>
+        </h4>
+      </div>
+    </article>
+  );
+};
+
+const EventCarousel = ({ setRoute, setSpectacle }) => {
+  const items = useMemo(getFeaturedEvents, []);
+  const [idx, setIdx] = useState(0);
+  const [layout, setLayout] = useState({ w:900, cols:3 });
+  const containerRef = useRef(null);
+  const GAP = 20;
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.offsetWidth;
+      setLayout({ w, cols: w < 560 ? 1 : w < 900 ? 2 : 3 });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const { w, cols } = layout;
+  const cardW = Math.floor((w - (cols - 1) * GAP) / cols);
+  const maxIdx = Math.max(0, items.length - cols);
+
+  /* Auto-avance toutes les 5s, repart à 0 en fin de liste */
+  useEffect(() => {
+    if (items.length <= cols) return;
+    const t = setTimeout(() => setIdx(i => (i >= maxIdx ? 0 : i + 1)), 5000);
+    return () => clearTimeout(t);
+  }, [idx, maxIdx, cols, items.length]);
+
+  const prev = () => setIdx(i => Math.max(0, i - 1));
+  const next = () => setIdx(i => Math.min(maxIdx, i + 1));
+
+  return (
+    <div>
+      <div ref={containerRef} style={{ overflow:"hidden" }}>
+        <div style={{
+          display:"flex", gap:GAP,
+          transform:`translateX(-${idx * (cardW + GAP)}px)`,
+          transition:"transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)",
+          willChange:"transform",
+        }}>
+          {items.map((item, i) => (
+            <div key={i} style={{ flex:`0 0 ${cardW}px`, minWidth:0 }}>
+              <EventCard item={item} setRoute={setRoute} setSpectacle={setSpectacle}/>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Contrôles : dots + flèches */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:28 }}>
+        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+          {Array.from({ length: maxIdx + 1 }, (_, i) => (
+            <button key={i} onClick={() => setIdx(i)} aria-label={`Groupe ${i + 1}`} style={{
+              width: i === idx ? 28 : 8, height:8, borderRadius:4, padding:0, flexShrink:0,
+              background: i === idx ? "var(--terra)" : "var(--rule-strong)",
+              border:"none", cursor:"pointer",
+              transition:"width 0.35s cubic-bezier(0.4,0,0.2,1), background 0.35s",
+            }}/>
+          ))}
+        </div>
+        <div style={{ display:"flex", gap:8 }}>
+          {[{ fn:prev, label:"←", dis:idx === 0 }, { fn:next, label:"→", dis:idx >= maxIdx }].map(({ fn, label, dis }) => (
+            <button key={label} onClick={fn} disabled={dis} aria-label={label === "←" ? "Précédent" : "Suivant"} style={{
+              width:40, height:40, display:"flex", alignItems:"center", justifyContent:"center",
+              borderRadius:"50%", border:"1px solid var(--rule-strong)", background:"none",
+              cursor: dis ? "default" : "pointer", fontSize:16,
+              opacity: dis ? 0.25 : 1, transition:"opacity 0.2s",
+            }}>{label}</button>
+          ))}
         </div>
       </div>
     </div>
@@ -252,59 +712,39 @@ const ParallaxHero = ({ setRoute }) => {
 const Home = ({ setRoute, setSpectacle }) => {
   return (
   <>
-    <ParallaxHero setRoute={setRoute}/>
+    <ScrollExpandHero setRoute={setRoute}/>
 
-    {/* MARQUEE */}
-    <div className="marquee">
-      <div className="marquee-track">
-        {[...Array(2)].map((_,k) => (
-          <span key={k} className="marquee-item">
-            Théâtre <span className="marquee-sep"/> Danse-théâtre <span className="marquee-sep"/> Ateliers enfants <span className="marquee-sep"/> Médiation culturelle <span className="marquee-sep"/> Création collective <span className="marquee-sep"/> Filature de l'Isle · Périgueux <span className="marquee-sep"/> Droits culturels <span className="marquee-sep"/>
-          </span>
-        ))}
-      </div>
-    </div>
-
-    {/* SPECTACLES PREVIEW */}
+    {/* ÉVÉNEMENTS CAROUSEL */}
     <section className="section">
-      <Reveal variant="up" className="section-head">
-        <div className="section-num">№ 01 / Affiche</div>
-        <h2 className="section-title">Spectacles<br/><span className="display-italic">à l'affiche.</span></h2>
-        <div className="section-meta">Six créations en répertoire, du conte musical au théâtre brut. <a className="link-underline" onClick={() => setRoute("spectacles")}>Tous les spectacles →</a></div>
+      <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
+        <div className="section-num">Au programme</div>
+        <h2 className="section-title">Prochains<br/><span className="display-italic">rendez-vous.</span></h2>
+        <div className="section-meta">Spectacles, résidences et événements de la saison. <a className="link-underline" onClick={() => setRoute("agenda")}>Calendrier complet →</a></div>
       </Reveal>
-      <div className="grid-4">
-        {SPECTACLES.slice(0,4).map((s,i) => (
-          <Reveal key={s.id} variant="up" delay={i*90}>
-            <SpectacleCard s={s} variant={i % 4} onClick={() => { setSpectacle(s.id); setRoute("spectacles/detail"); }}/>
-          </Reveal>
-        ))}
-      </div>
+      <EventCarousel setRoute={setRoute} setSpectacle={setSpectacle}/>
     </section>
 
-    {/* PROCHAINES DATES */}
-    <section className="section" style={{ background:"var(--paper-warm)" }}>
-      <Reveal variant="up" className="section-head">
-        <div className="section-num">№ 02 / Agenda</div>
-        <h2 className="section-title">Prochaines<br/><span className="display-italic">dates.</span></h2>
-        <div className="section-meta">Une saison de tournée entre Provence, Languedoc et Avignon. <a className="link-underline" onClick={() => setRoute("agenda")}>Calendrier complet →</a></div>
-      </Reveal>
-      <div style={{ display:"flex", flexDirection:"column" }}>
-        {AGENDA.slice(0,5).map((d,i) => (
-          <Reveal key={i} variant="up" delay={i*60}>
-            <AgendaRow d={d} onClick={() => { setSpectacle(d.spectacle); setRoute("spectacles/detail"); }}/>
-          </Reveal>
-        ))}
+    {/* HISTOIRE D'UN PROJET */}
+    <section className="section" style={{ background:"var(--paper-warm)", position:"relative", overflow:"hidden" }}>
+      <div ref={useParallax(0.1, 60)} className="motif-bg" style={{ right:-80, bottom:-60, opacity:0.1 }}>
+        <Motif size={360} color="var(--terra)" berryColor="var(--amber)" rotate={-10} seed={4}/>
       </div>
+      <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
+        <div className="section-num">Histoire</div>
+        <h2 className="section-title">Histoire<br/><span className="display-italic">d'un projet.</span></h2>
+        <div className="section-meta">Depuis 1993, un projet culturel ancré dans le quartier du Toulon, à Périgueux.</div>
+      </Reveal>
+      <HistoireAccordion/>
     </section>
 
     {/* ABOUT BAND */}
     <section className="section" style={{ background:"var(--aubergine)", color:"var(--paper)", position:"relative", overflow:"hidden" }}>
       <div ref={useParallax(0.22, 130)} className="motif-bg" style={{ right:-100, top:-80, opacity:0.4 }}>
-        <Motif size={500} color="var(--paper)" berryColor="var(--amber)" rotate={20} seed={3.2}/>
+        <Motif size={500} color="var(--paper)" berryColor="var(--terra)" rotate={20} seed={3.2}/>
       </div>
       <div className="col-duo" style={{ gap:80, alignItems:"center", position:"relative", zIndex:2 }}>
         <Reveal variant="left">
-          <div className="eyebrow" style={{ color:"var(--amber)", marginBottom:24 }}>La compagnie</div>
+          <div className="eyebrow" style={{ marginBottom:24 }}>La compagnie</div>
           <h2 className="display" style={{ fontSize:"clamp(48px, 6vw, 84px)" }}>
             Faire théâtre <span className="display-italic">avec</span>
             <br/>les gens, <span className="display-italic">pour</span>
@@ -380,18 +820,37 @@ const AgendaRow = ({ d, onClick }) => {
 
 /* ======================= SPECTACLES (liste) ======================= */
 const TRAVAIL_TABS = [
-  { id:"creations",  label:"Créations",   num:"01", title:"Nos créations",       sub:"Des formes vivantes en répertoire et en tournée." },
-  { id:"fabrique",   label:"La fabrique", num:"02", title:"La fabrique",          sub:"Les résidences de création en cours." },
-  { id:"mediations", label:"Médiations",  num:"03", title:"Médiations & pratiques", sub:"Ateliers, transmissions, actions de territoire." },
+  { id:"residences",  label:"Résidences artistiques", num:"01", title:"Résidences artistiques",  sub:"Les résidences de création en cours." },
+  { id:"mediations",  label:"Médiations",             num:"02", title:"Médiations & pratiques",   sub:"Ateliers, transmissions, actions de territoire." },
+  { id:"evenements",  label:"Événements",              num:"03", title:"Événements",                sub:"Rencontres, restitutions et rendez-vous ouverts." },
+  { id:"ateliers",    label:"Ateliers",                num:"04", title:"Ateliers & pratique",       sub:"Pratiques artistiques régulières, stages et cycles." },
 ];
 
 const Spectacles = ({ setRoute, setSpectacle }) => {
-  const [tab, setTab] = useState("creations");
+  const [tab, setTab] = useState("residences");
+  const [atelierFilter, setAtelierFilter] = useState("");
+  const [selectedAtelier, setSelectedAtelier] = useState(null);
+  const [formStates, setFormStates] = useState({});
   const residences = AGENDA.filter(d => d.type === "résidence");
+  const evenements  = AGENDA.filter(d => d.type === "événement");
+
+  const handleAtelierSubmit = async (e, atelier) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFormStates(s => ({ ...s, [atelier.num]: 'loading' }));
+    const fd = new FormData(e.target);
+    try {
+      await postForm('atelier', { atelier: atelier.title, ...Object.fromEntries(fd) });
+      setFormStates(s => ({ ...s, [atelier.num]: 'sent' }));
+    } catch {
+      setFormStates(s => ({ ...s, [atelier.num]: 'error' }));
+    }
+  };
+
+  const atelierList = atelierFilter ? ATELIERS.filter(a => a.audience === atelierFilter) : ATELIERS;
 
   const getStatus = (s) => {
     const hasDates = AGENDA.some(d => d.spectacle === s.id);
-    if (s.id === "frontieres") return { label:"Création 2026", color:"var(--plum)" };
     if (hasDates) return { label:"En diffusion", color:"var(--terra)" };
     return { label:"Répertoire", color:"var(--ink-soft)" };
   };
@@ -402,8 +861,8 @@ const Spectacles = ({ setRoute, setSpectacle }) => {
       <div className="section" style={{ paddingBottom:0 }}>
         <Reveal variant="up" className="section-head">
           <div className="section-num">Notre travail</div>
-          <h2 className="section-title">Créations, <span className="display-italic">fabrique</span><br/>& médiations.</h2>
-          <div className="section-meta">Un lieu de fabrication artistique ancré sur son territoire — de la résidence de création aux ateliers de pratique.</div>
+          <h2 className="section-title">Résidences, <span className="display-italic">médiations</span><br/>& événements.</h2>
+          <div className="section-meta">Un lieu de fabrication artistique ancré sur son territoire — de la résidence de création aux ateliers de pratique ouverts à tous.</div>
         </Reveal>
       </div>
 
@@ -437,44 +896,11 @@ const Spectacles = ({ setRoute, setSpectacle }) => {
         </div>
       </div>
 
-      {/* ── Onglet 1 : Créations ── */}
-      {tab === "creations" && (
-        <section className="section" style={{ position:"relative", overflow:"hidden" }}>
-          <div ref={useParallax(0.2, 120)} className="motif-bg" style={{ right:-50, top:0, opacity:0.2 }}>
-            <Motif size={420} color="var(--terra)" berryColor="var(--amber)" rotate={15} seed={2}/>
-          </div>
-          <div className="grid-3">
-            {SPECTACLES.map((s, i) => {
-              const status = getStatus(s);
-              return (
-                <Reveal key={s.id} variant="up" delay={(i % 3) * 80}>
-                  <article className="card card-fx" onClick={() => { setSpectacle(s.id); setRoute("spectacles/detail"); }} style={{ cursor:"pointer", background:"transparent", border:"none" }}>
-                    <div className="card-img noise" style={{ aspectRatio:"4/5", position:"relative" }}>
-                      <Poster bg={s.color} ink={s.textColor} title={s.title} subtitle={s.tag} num={s.num} variant={i % 4}/>
-                      <div style={{ position:"absolute", top:12, left:12, background:status.color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase" }}>
-                        {status.label}
-                      </div>
-                    </div>
-                    <div style={{ padding:"16px 4px 8px", display:"flex", justifyContent:"space-between", alignItems:"baseline", borderTop:"1px solid var(--rule)", marginTop:12 }}>
-                      <div>
-                        <div className="tag" style={{ color:"var(--terra)", marginBottom:4 }}>{s.tag} · {s.duration}</div>
-                        <h3 className="display" style={{ fontSize:24, lineHeight:1.05 }}>{s.title}<span className="card-arrow">→</span></h3>
-                      </div>
-                      <div className="mono" style={{ opacity:0.6 }}>{s.ages}</div>
-                    </div>
-                  </article>
-                </Reveal>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* ── Onglet 2 : La fabrique ── */}
-      {tab === "fabrique" && (
+      {/* ── Onglet 1 : Résidences artistiques ── */}
+      {tab === "residences" && (
         <section className="section" style={{ background:"var(--aubergine)", color:"var(--paper)", position:"relative", overflow:"hidden", minHeight:"60vh" }}>
           <div ref={useParallax(0.18, 100)} className="motif-bg" style={{ left:-80, bottom:-60, opacity:0.3 }}>
-            <Motif size={460} color="var(--paper)" berryColor="var(--amber)" rotate={-25} seed={1.8}/>
+            <Motif size={460} color="var(--paper)" berryColor="var(--terra)" rotate={-25} seed={1.8}/>
           </div>
           <Reveal variant="up" style={{ marginBottom:48, maxWidth:640 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"rgba(242,228,200,0.75)", textWrap:"pretty" }}>
@@ -501,7 +927,7 @@ const Spectacles = ({ setRoute, setSpectacle }) => {
         </section>
       )}
 
-      {/* ── Onglet 3 : Médiations ── */}
+      {/* ── Onglet 2 : Médiations ── */}
       {tab === "mediations" && (
         <section className="section" style={{ background:"var(--paper-warm)", position:"relative", overflow:"hidden" }}>
           <div ref={useParallax(0.15, 90)} className="motif-bg" style={{ right:-60, top:-40, opacity:0.2 }}>
@@ -529,9 +955,122 @@ const Spectacles = ({ setRoute, setSpectacle }) => {
               </Reveal>
             ))}
           </div>
-          <Reveal variant="up">
-            <button className="btn" onClick={() => setRoute("ateliers")}>Voir tous les ateliers & médiations →</button>
+        </section>
+      )}
+
+      {/* ── Onglet 3 : Événements ── */}
+      {tab === "evenements" && (
+        <section className="section" style={{ position:"relative", overflow:"hidden" }}>
+          <div ref={useParallax(0.16, 90)} className="motif-bg" style={{ right:-60, top:-40, opacity:0.18 }}>
+            <Motif size={380} color="var(--terra)" berryColor="var(--amber)" rotate={25} seed={2.4}/>
+          </div>
+          <Reveal variant="up" style={{ marginBottom:48, maxWidth:560 }}>
+            <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
+              Rencontres avec l'équipe, restitutions publiques, ouvertures de résidences… Des moments partagés, ouverts à tous.
+            </p>
           </Reveal>
+          {evenements.length > 0 ? (
+            <div style={{ display:"flex", flexDirection:"column" }}>
+              {evenements.map((d, i) => (
+                <Reveal key={i} variant="up" delay={i * 80}>
+                  <div style={{ padding:"28px 0", borderTop:"1px solid var(--rule)", display:"flex", gap:32, alignItems:"flex-start" }}>
+                    <div style={{ minWidth:64, textAlign:"center" }}>
+                      <div className="display" style={{ fontSize:42, lineHeight:1 }}>{d.day}</div>
+                      <div className="mono" style={{ fontSize:11, marginTop:4, opacity:0.55 }}>{d.month} {d.year}</div>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:"inline-block", background:d.cardColor || "var(--amber)", color:d.cardTextColor || "var(--ink)", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"3px 10px", textTransform:"uppercase", marginBottom:10 }}>
+                        {d.type}
+                      </div>
+                      <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }}>{d.title}</h3>
+                      <div style={{ fontSize:14, color:"var(--ink-soft)" }}>{d.venue}</div>
+                      <div className="mono" style={{ fontSize:12, marginTop:6, opacity:0.55 }}>{d.time} · {d.price}</div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>Aucun événement à venir pour le moment.</p>
+          )}
+        </section>
+      )}
+
+      {/* ── Onglet 4 : Ateliers ── */}
+      {tab === "ateliers" && (
+        <section className="section" style={{ position:"relative", overflow:"hidden" }}>
+          <div ref={useParallax(0.2, 120)} className="motif-bg" style={{ left:-60, top:0, opacity:0.3 }}>
+            <Motif size={380} color="var(--amber-deep)" berryColor="var(--terra)" rotate={-30} seed={3}/>
+          </div>
+          <Reveal variant="up" style={{ marginBottom:32, maxWidth:560 }}>
+            <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
+              {ATELIERS.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes pour la saison 2025–2026.
+            </p>
+          </Reveal>
+          <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
+            {AUDIENCE_FILTERS.map(f => (
+              <button key={f.id}
+                className={`tweak-pill ${atelierFilter === f.id ? "active" : ""}`}
+                onClick={() => { setAtelierFilter(f.id); setSelectedAtelier(null); }}
+              >
+                {f.label}
+                {f.id !== "" && (
+                  <span style={{ marginLeft:6, fontSize:10, opacity:0.65 }}>
+                    {ATELIERS.filter(a => a.audience === f.id).length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+          {atelierList.length === 0 ? (
+            <p style={{ color:"var(--ink-soft)", fontStyle:"italic" }}>Aucun atelier dans cette catégorie pour le moment.</p>
+          ) : (
+            <div className="grid-3">
+              {atelierList.map((a,i) => (
+                <Reveal key={a.num} variant="scale" delay={(i % 3) * 80} style={{ display:"flex" }}>
+                  <article className="noise" style={{ flex:1, background:a.color, color:a.textColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
+                    onClick={() => setSelectedAtelier(selectedAtelier === a.num ? null : a.num)}
+                  >
+                    <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
+                      <Motif size={220} color={a.textColor} berryColor={a.textColor} rotate={20} seed={parseInt(a.num.slice(1))}/>
+                    </div>
+                    <div style={{ position:"relative", zIndex:2 }}>
+                      <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
+                      <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
+                      <p style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}>{a.desc}</p>
+                    </div>
+                    <div style={{ position:"relative", zIndex:2, paddingTop:24, marginTop:24, borderTop:`1px solid ${a.textColor}`, opacity:0.95 }}>
+                      <div className="mono" style={{ marginBottom:6 }}>{a.when}</div>
+                      <div className="mono" style={{ marginBottom:6, opacity:0.7 }}>{a.where}</div>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginTop:12 }}>
+                        <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }}>{a.price}</strong>
+                        <span>{selectedAtelier === a.num ? "S'inscrire ↓" : "→"}</span>
+                      </div>
+                      {selectedAtelier === a.num && (
+                        formStates[a.num] === 'sent' ? (
+                          <div onClick={e => e.stopPropagation()} style={{ marginTop:16, fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:18, opacity:0.9 }}>
+                            Demande envoyée — nous revenons vers vous sous 48h.
+                          </div>
+                        ) : (
+                          <form style={{ marginTop:16, display:"grid", gap:8 }} onClick={e => e.stopPropagation()} onSubmit={e => handleAtelierSubmit(e, a)}>
+                            <input type="text" name="bot-field" style={{ display:"none" }} tabIndex="-1" autoComplete="off"/>
+                            <input className="input" name="nom" placeholder="Nom" style={{ borderColor:a.textColor, color:a.textColor }} required/>
+                            <input className="input" name="email" placeholder="Email" type="email" style={{ borderColor:a.textColor, color:a.textColor }} required/>
+                            {formStates[a.num] === 'error' && (
+                              <p style={{ fontSize:11, margin:0, opacity:0.8 }}>Erreur — réessayez ou écrivez à rouletabilletheatre@gmail.com</p>
+                            )}
+                            <button className="btn btn-amber" type="submit" disabled={formStates[a.num] === 'loading'} style={{ width:"100%", justifyContent:"center", opacity: formStates[a.num] === 'loading' ? 0.6 : 1 }}>
+                              {formStates[a.num] === 'loading' ? 'Envoi…' : 'Envoyer la demande'}
+                            </button>
+                          </form>
+                        )
+                      )}
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          )}
         </section>
       )}
     </>
@@ -551,7 +1090,7 @@ const FicheSpectacle = ({ id, setRoute, setSpectacle }) => {
             <Poster bg={s.color} ink={s.textColor} title={s.title} subtitle={s.tag} num={s.num} variant={2}/>
           </div>
           <div>
-            <div className="eyebrow" style={{ marginBottom:20 }}>№ {s.num} · {s.tag} · {s.duration} · {s.ages}</div>
+            <div className="eyebrow" style={{ marginBottom:20 }}>{s.tag} · {s.duration} · {s.ages}</div>
             <h1 className="display" style={{ fontSize:"clamp(60px, 8vw, 120px)", marginBottom:32 }}>
               {s.title.split(" ").map((w,i) => i === 1 ? <span key={i} className="display-italic">{w} </span> : <span key={i}>{w} </span>)}
             </h1>
@@ -572,7 +1111,7 @@ const FicheSpectacle = ({ id, setRoute, setSpectacle }) => {
       {dates.length > 0 && (
         <section className="section" style={{ background:"var(--paper-warm)" }}>
           <div className="section-head">
-            <div className="section-num">№ — / Dates</div>
+            <div className="section-num">Dates</div>
             <h2 className="section-title">En <span className="display-italic">tournée.</span></h2>
             <div className="section-meta">{dates.length} dates programmées</div>
           </div>
@@ -662,18 +1201,21 @@ const AGENDA_FILTERS = [
 ];
 
 const SEASON_MONTHS = [
+  { key:"Sep 2025",  label:"Septembre" },
+  { key:"Oct 2025",  label:"Octobre" },
+  { key:"Nov 2025",  label:"Novembre" },
+  { key:"Déc 2025",  label:"Décembre" },
+  { key:"Jan 2026",  label:"Janvier" },
+  { key:"Fév 2026",  label:"Février" },
   { key:"Mar 2026",  label:"Mars" },
   { key:"Avr 2026",  label:"Avril" },
   { key:"Mai 2026",  label:"Mai" },
   { key:"Juin 2026", label:"Juin" },
-  { key:"Juil 2026", label:"Juillet" },
-  { key:"Août 2026", label:"Août" },
-  { key:"Sep 2026",  label:"Septembre" },
 ];
 
 const Agenda = ({ setRoute, setSpectacle }) => {
   const [filter, setFilter] = useState("tout");
-  const [month, setMonth] = useState("Mar 2026");
+  const [month, setMonth] = useState("Sep 2025");
 
   const list = useMemo(() => {
     const base = filter === "tout" ? AGENDA : AGENDA.filter(d => d.type === filter);
@@ -689,7 +1231,7 @@ const Agenda = ({ setRoute, setSpectacle }) => {
       </div>
 
       <Reveal variant="up" className="section-head">
-        <div className="section-num">№ 02 / Saison</div>
+        <div className="section-num">Saison</div>
         <h2 className="section-title">Agenda<br/><span className="display-italic">2025 — 2026.</span></h2>
         <div className="section-meta">{AGENDA.length} rendez-vous · spectacles, ateliers, résidences & événements.</div>
       </Reveal>
@@ -778,6 +1320,20 @@ const AUDIENCE_FILTERS = [
 const Ateliers = ({ audience = "" }) => {
   const [filter, setFilter] = useState(audience);
   const [selected, setSelected] = useState(null);
+  const [formStates, setFormStates] = useState({}); // num -> idle | loading | sent | error
+
+  const handleAtelierSubmit = async (e, atelier) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFormStates(s => ({ ...s, [atelier.num]: 'loading' }));
+    const fd = new FormData(e.target);
+    try {
+      await postForm('atelier', { atelier: atelier.title, ...Object.fromEntries(fd) });
+      setFormStates(s => ({ ...s, [atelier.num]: 'sent' }));
+    } catch {
+      setFormStates(s => ({ ...s, [atelier.num]: 'error' }));
+    }
+  };
 
   useEffect(() => { setFilter(audience); setSelected(null); }, [audience]);
 
@@ -790,7 +1346,7 @@ const Ateliers = ({ audience = "" }) => {
           <Motif size={380} color="var(--amber-deep)" berryColor="var(--terra)" rotate={-30} seed={3}/>
         </div>
         <Reveal variant="up" className="section-head">
-          <div className="section-num">№ 03 / Pratiques</div>
+          <div className="section-num">Pratiques</div>
           <h2 className="section-title">Ateliers<br/><span className="display-italic">& pratiques.</span></h2>
           <div className="section-meta">{ATELIERS.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes pour la saison 2025–2026.</div>
         </Reveal>
@@ -825,7 +1381,6 @@ const Ateliers = ({ audience = "" }) => {
                   <Motif size={220} color={a.textColor} berryColor={a.textColor} rotate={20} seed={parseInt(a.num.slice(1))}/>
                 </div>
                 <div style={{ position:"relative", zIndex:2 }}>
-                  <div className="mono" style={{ marginBottom:24 }}>№ {a.num}</div>
                   <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
                   <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
                   <p style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}>{a.desc}</p>
@@ -838,11 +1393,23 @@ const Ateliers = ({ audience = "" }) => {
                     <span>{selected === a.num ? "S'inscrire ↓" : "→"}</span>
                   </div>
                   {selected === a.num && (
-                    <form style={{ marginTop:16, display:"grid", gap:8 }} onClick={e => e.stopPropagation()} onSubmit={e => { e.preventDefault(); alert("Demande envoyée — nous revenons vers vous sous 48h."); setSelected(null); }}>
-                      <input className="input" placeholder="Nom" style={{ borderColor:a.textColor, color:a.textColor }} required/>
-                      <input className="input" placeholder="Email" type="email" style={{ borderColor:a.textColor, color:a.textColor }} required/>
-                      <button className="btn btn-amber" type="submit" style={{ width:"100%", justifyContent:"center" }}>Envoyer la demande</button>
-                    </form>
+                    formStates[a.num] === 'sent' ? (
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop:16, fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:18, opacity:0.9 }}>
+                        Demande envoyée — nous revenons vers vous sous 48h.
+                      </div>
+                    ) : (
+                      <form style={{ marginTop:16, display:"grid", gap:8 }} onClick={e => e.stopPropagation()} onSubmit={e => handleAtelierSubmit(e, a)}>
+                        <input type="text" name="bot-field" style={{ display:"none" }} tabIndex="-1" autoComplete="off"/>
+                        <input className="input" name="nom" placeholder="Nom" style={{ borderColor:a.textColor, color:a.textColor }} required/>
+                        <input className="input" name="email" placeholder="Email" type="email" style={{ borderColor:a.textColor, color:a.textColor }} required/>
+                        {formStates[a.num] === 'error' && (
+                          <p style={{ fontSize:11, margin:0, opacity:0.8 }}>Erreur — réessayez ou écrivez à rouletabilletheatre@gmail.com</p>
+                        )}
+                        <button className="btn btn-amber" type="submit" disabled={formStates[a.num] === 'loading'} style={{ width:"100%", justifyContent:"center", opacity: formStates[a.num] === 'loading' ? 0.6 : 1 }}>
+                          {formStates[a.num] === 'loading' ? 'Envoi…' : 'Envoyer la demande'}
+                        </button>
+                      </form>
+                    )
                   )}
                 </div>
               </article>
@@ -861,7 +1428,7 @@ const Equipe = () => {
   return (
     <section className="section" style={{ position:"relative" }}>
       <div className="section-head">
-        <div className="section-num">№ 04 / Équipe</div>
+        <div className="section-num">Équipe</div>
         <h2 className="section-title">Huit <span className="display-italic">artistes,</span><br/>une compagnie.</h2>
         <div className="section-meta">L'équipe permanente et associée de la compagnie. Survolez ou cliquez pour lire la biographie.</div>
       </div>
@@ -896,52 +1463,140 @@ const Equipe = () => {
 };
 
 /* ======================= PARTENAIRES ======================= */
+const TYPE_META = {
+  'Soutien institutionnel': {
+    accent: 'var(--terra)',
+    bg: 'var(--terra)',
+    desc: "Financeurs et soutiens officiels. La Cie Rouletabille est labellisée « Lieu de fabrique » par la Région et l'Agence Culturelle de la Dordogne.",
+  },
+  'Partenaires artistiques': {
+    accent: 'var(--plum)',
+    bg: 'var(--plum)',
+    desc: "Compagnies et lieux avec lesquels nous créons, co-produisons et co-diffusons en territoire.",
+  },
+  'Action culturelle & territoire': {
+    accent: 'var(--aubergine)',
+    bg: 'var(--aubergine)',
+    desc: "Associations, centres sociaux et acteurs de terrain qui portent avec nous les projets de médiation culturelle en Dordogne.",
+  },
+  'Éducation': {
+    accent: '#7A6010',
+    bg: 'var(--amber)',
+    desc: "Établissements scolaires et structures éducatives partenaires de nos interventions artistiques.",
+  },
+};
+
+const PartnerLogo = ({ name, bg }) => {
+  const initials = name.split(/[\s&–-]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  return (
+    <div aria-hidden="true" style={{
+      width: 44, height: 44, borderRadius: '50%', background: bg, color: '#F4E8D5',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: 'var(--ff-display)', fontSize: 14, fontWeight: 700, flexShrink: 0,
+      opacity: 0.9,
+    }}>
+      {initials}
+    </div>
+  );
+};
+
 const Partenaires = () => {
+  const motifRef = useParallax(0.16, 100);
   const groups = useMemo(() => {
     const g = {};
     PARTENAIRES.forEach(p => { if (!g[p.type]) g[p.type] = []; g[p.type].push(p); });
     return g;
   }, []);
+
   return (
     <section className="section" style={{ position:"relative", overflow:"hidden" }}>
-      <div ref={useParallax(0.16, 100)} className="motif-bg" style={{ right:-50, bottom:-100, opacity:0.3 }}>
+      <div ref={motifRef} className="motif-bg" style={{ right:-50, bottom:-100, opacity:0.3 }}>
         <Motif size={420} color="var(--terra)" berryColor="var(--amber)" rotate={180} seed={3.5}/>
       </div>
       <div className="section-head">
-        <div className="section-num">№ 05 / Soutiens</div>
+        <div className="section-num">Soutiens</div>
         <h2 className="section-title">Partenaires<br/><span className="display-italic">& soutiens.</span></h2>
-        <div className="section-meta">La compagnie est labellisée « Lieu de fabrique » par la Région Nouvelle-Aquitaine et l'Agence Culturelle de la Dordogne. Plus de 20 partenaires contribuent activement à la vie du lieu et des projets.</div>
+        <div className="section-meta">Plus de 30 partenaires contribuent activement à la vie de la compagnie — institutions, artistes, associations de quartier, écoles.</div>
       </div>
-      {Object.entries(groups).map(([type, list]) => (
-        <div key={type} style={{ marginBottom:48 }}>
-          <div className="eyebrow" style={{ marginBottom:24 }}>{type}</div>
-          <div className="grid-4" style={{ gap:0, borderTop:"1px solid var(--rule-strong)" }}>
-            {list.map(p => (
-              <div key={p.name} style={{
-                padding:"32px 24px", borderRight:"1px solid var(--rule)", borderBottom:"1px solid var(--rule)",
-                minHeight:140, display:"flex", alignItems:"center"
-              }}>
-                <div className="display" style={{ fontSize:24, lineHeight:1.05 }}>{p.name}</div>
+
+      {Object.entries(groups).map(([type, list]) => {
+        const meta = TYPE_META[type] || { accent:'var(--ink)', bg:'var(--ink)', desc:'' };
+        return (
+          <div key={type} style={{ marginBottom:64 }}>
+            {/* En-tête de groupe */}
+            <div style={{ display:'flex', alignItems:'flex-start', gap:24, marginBottom:32, paddingBottom:20, borderBottom:`2px solid ${meta.accent}` }}>
+              <div style={{ flex:1 }}>
+                <div className="eyebrow" style={{ color: meta.accent, marginBottom:8 }}>{type}</div>
+                <p style={{ fontSize:14, color:'var(--ink-soft)', maxWidth:560, margin:0, lineHeight:1.6 }}>{meta.desc}</p>
               </div>
-            ))}
+              <div className="mono" style={{ fontSize:11, color:'var(--ink-soft)', flexShrink:0, paddingTop:4 }}>
+                {list.length} structure{list.length > 1 ? 's' : ''}
+              </div>
+            </div>
+
+            {/* Grille des partenaires */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:2 }}>
+              {list.map(p => {
+                const Tag = p.url ? 'a' : 'div';
+                return (
+                  <Tag
+                    key={p.name}
+                    {...(p.url ? { href: p.url, target:'_blank', rel:'noopener noreferrer' } : {})}
+                    style={{
+                      display:'flex', alignItems:'center', gap:14,
+                      padding:'16px 20px',
+                      background:'var(--paper-warm)',
+                      border:'1px solid var(--rule)',
+                      textDecoration:'none', color:'inherit',
+                      transition:'background 0.15s, border-color 0.15s',
+                      cursor: p.url ? 'pointer' : 'default',
+                    }}
+                    onMouseEnter={p.url ? e => { e.currentTarget.style.background='var(--paper-deep)'; e.currentTarget.style.borderColor=meta.accent; } : undefined}
+                    onMouseLeave={p.url ? e => { e.currentTarget.style.background='var(--paper-warm)'; e.currentTarget.style.borderColor='var(--rule)'; } : undefined}
+                  >
+                    <PartnerLogo name={p.name} bg={meta.bg} />
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }}>{p.name}</div>
+                    </div>
+                    {p.url && (
+                      <span style={{ fontSize:12, opacity:0.35, flexShrink:0 }}>↗</span>
+                    )}
+                  </Tag>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </section>
   );
 };
 
 /* ======================= CONTACT ======================= */
 const Contact = () => {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState('idle'); // idle | loading | sent | error
+  const motifRef = useParallax(0.18, 110);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    const fd = new FormData(e.target);
+    try {
+      await postForm('contact', Object.fromEntries(fd));
+      setStatus('sent');
+    } catch {
+      setStatus('error');
+    }
+  };
+
   return (
     <>
       <section className="section" style={{ position:"relative", overflow:"hidden" }}>
-        <div ref={useParallax(0.18, 110)} className="motif-bg" style={{ left:-100, top:-50, opacity:0.35 }}>
+        <div ref={motifRef} className="motif-bg" style={{ left:-100, top:-50, opacity:0.35 }}>
           <Motif size={460} color="var(--terra)" berryColor="var(--amber)" rotate={-15} seed={4}/>
         </div>
         <div className="section-head">
-          <div className="section-num">№ 06 / Nous joindre</div>
+          <div className="section-num">Nous joindre</div>
           <h2 className="section-title">Écrivez-<span className="display-italic">nous,</span><br/>passez nous voir.</h2>
           <div className="section-meta">Bureau ouvert du lundi au vendredi, 9h–17h. Pour les ateliers et l'action culturelle, écrivez-nous à l'adresse ci-dessous.</div>
         </div>
@@ -969,35 +1624,43 @@ const Contact = () => {
             <div>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Accès</div>
               <div style={{ fontSize:14, lineHeight:1.7, color:"var(--ink-soft)" }}>
-                🚲 Points d'accroche autour de la Filature de l'Isle<br/>
-                🚌 Bus : « Salle Omnisports » (ligne A) ou « Privilège » (ligne e1)<br/>
-                🚗 Parking autour de la Filature de l'Isle<br/>
-                ♿ Rampe d'accès mobilité réduite disponible
+                Vélo · Points d'accroche autour de la Filature de l'Isle<br/>
+                Bus · « Salle Omnisports » (ligne A) ou « Privilège » (ligne e1)<br/>
+                Voiture · Parking autour de la Filature de l'Isle<br/>
+                Accessibilité · Rampe d'accès mobilité réduite disponible
               </div>
             </div>
           </div>
           <div>
-            {sent ? (
+            {status === 'sent' ? (
               <div style={{ padding:48, background:"var(--amber)", color:"var(--ink)" }}>
                 <h3 className="display" style={{ fontSize:48, marginBottom:12 }}>Merci.</h3>
                 <p>Votre message est arrivé. Nous revenons vers vous sous 48h.</p>
               </div>
             ) : (
-              <form onSubmit={e => { e.preventDefault(); setSent(true); }} style={{ display:"grid", gap:16 }}>
+              <form onSubmit={handleSubmit} style={{ display:"grid", gap:16 }}>
+                <input type="text" name="bot-field" style={{ display:"none" }} tabIndex="-1" autoComplete="off"/>
                 <div className="grid-2" style={{ gap:16 }}>
-                  <input className="input" placeholder="Nom" required/>
-                  <input className="input" placeholder="Email" type="email" required/>
+                  <input className="input" name="nom" placeholder="Nom" required/>
+                  <input className="input" name="email" placeholder="Email" type="email" required/>
                 </div>
-                <select className="input" required>
-                  <option>Objet du message</option>
+                <select className="input" name="objet" required defaultValue="">
+                  <option value="" disabled>Objet du message</option>
                   <option>Information spectacle</option>
                   <option>Inscription atelier</option>
                   <option>Diffusion / Programmation</option>
                   <option>Presse</option>
                   <option>Autre</option>
                 </select>
-                <textarea className="textarea" rows={8} placeholder="Votre message" required/>
-                <button className="btn" type="submit" style={{ justifySelf:"start" }}>Envoyer →</button>
+                <textarea className="textarea" name="message" rows={8} placeholder="Votre message" required/>
+                {status === 'error' && (
+                  <p style={{ fontSize:13, color:"var(--terra)", margin:0 }}>
+                    Une erreur est survenue. Réessayez ou écrivez directement à <strong>rouletabilletheatre@gmail.com</strong>
+                  </p>
+                )}
+                <button className="btn" type="submit" disabled={status === 'loading'} style={{ justifySelf:"start", opacity: status === 'loading' ? 0.6 : 1 }}>
+                  {status === 'loading' ? 'Envoi en cours…' : 'Envoyer →'}
+                </button>
               </form>
             )}
           </div>
@@ -1011,7 +1674,19 @@ const Contact = () => {
 /* ======================= NEWSLETTER ======================= */
 const Newsletter = () => {
   const [email, setEmail] = useState("");
-  const [done, setDone] = useState(false);
+  const [status, setStatus] = useState('idle'); // idle | loading | done | error
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      await postForm('newsletter', { email });
+      setStatus('done');
+    } catch {
+      setStatus('error');
+    }
+  };
+
   return (
     <section className="section" style={{ background:"var(--amber)", color:"var(--ink)", paddingTop:64, paddingBottom:64 }}>
       <div className="col-newsletter">
@@ -1020,13 +1695,23 @@ const Newsletter = () => {
         </h2>
         <div>
           <p style={{ fontSize:18, marginBottom:24, maxWidth:480 }}>Une lettre par mois. Les nouvelles dates, les coulisses des créations, les ateliers à venir. Pas de spam, promis.</p>
-          {done ? (
+          {status === 'done' ? (
             <div className="display-italic" style={{ fontSize:32 }}>Inscrit. À très vite ✦</div>
           ) : (
-            <form onSubmit={e => { e.preventDefault(); setDone(true); }} style={{ display:"flex", gap:8, maxWidth:520 }}>
-              <input className="input" type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" style={{ background:"transparent", borderColor:"var(--ink)", flex:1 }}/>
-              <button className="btn" type="submit">S'inscrire →</button>
-            </form>
+            <>
+              <form onSubmit={handleSubmit} style={{ display:"flex", gap:8, maxWidth:520 }}>
+                <input type="text" name="bot-field" style={{ display:"none" }} tabIndex="-1" autoComplete="off"/>
+                <input className="input" type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" style={{ background:"transparent", borderColor:"var(--ink)", flex:1 }}/>
+                <button className="btn" type="submit" disabled={status === 'loading'} style={{ opacity: status === 'loading' ? 0.6 : 1 }}>
+                  {status === 'loading' ? '…' : "S'inscrire →"}
+                </button>
+              </form>
+              {status === 'error' && (
+                <p style={{ fontSize:13, marginTop:10, opacity:0.7 }}>
+                  Une erreur est survenue. Réessayez dans un instant.
+                </p>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -1040,7 +1725,7 @@ const Footer = ({ setRoute }) => (
     <div className="col-footer" style={{ marginBottom:48 }}>
       <div>
         <div className="nav-logo" style={{ color:"var(--paper)", fontSize:32, marginBottom:16 }}>
-          <MotifMark size={36} color="var(--amber)"/>
+          <MotifMark size={36} color="var(--paper)"/>
           <span>Cie Rouletabille</span>
         </div>
         <p style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}>Compagnie de théâtre fondée en 1993 à Périgueux. Labellisée « Lieu de fabrique » Région Nouvelle-Aquitaine.</p>

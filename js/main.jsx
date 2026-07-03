@@ -12,7 +12,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 function App() {
   const [route, setRouteRaw] = useState(() => localStorage.getItem("rt-route") || "home");
-  const [spectacle, setSpectacle] = useState(() => localStorage.getItem("rt-spectacle") || "gens-de-peu");
+  const [spectacle, setSpectacle] = useState(() => localStorage.getItem("rt-spectacle") || "3-fantastiques");
   const [atelierAudience, setAtelierAudience] = useState("");
   const setRoute = (r) => { setRouteRaw(r); localStorage.setItem("rt-route", r); window.scrollTo({ top:0, behavior:"smooth" }); };
   useEffect(() => { localStorage.setItem("rt-spectacle", spectacle); }, [spectacle]);
@@ -62,7 +62,7 @@ function App() {
 
   return (
     <div className="app" data-screen-label={route}>
-      <Nav route={route} setRoute={setRoute} setAtelierAudience={setAtelierAudience}/>
+      <Nav route={route} setRoute={setRoute}/>
       {screen}
       <Footer setRoute={setRoute}/>
       {tweaksOpen && (

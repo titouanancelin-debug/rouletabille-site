@@ -3,8 +3,18 @@
 <meta charset="utf-8">
 <title>Cie Rouletabille — Théâtre vivant, corps &amp; voix</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Compagnie de théâtre de création installée à Toulon depuis 2014. Spectacles, ateliers, médiation culturelle. Saison 2025–2026.">
+<meta name="description" content="Compagnie de théâtre installée à Périgueux depuis 1993. Spectacles, ateliers, médiation culturelle et résidences de création en Dordogne. Saison 2025–2026.">
 <meta name="theme-color" content="#B84A2E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cie Rouletabille Théâtre">
+<meta property="og:title" content="Cie Rouletabille — Théâtre vivant, corps & voix">
+<meta property="og:description" content="Compagnie de théâtre installée à Périgueux depuis 1993. Spectacles, ateliers, médiation culturelle et résidences de création en Dordogne.">
+<meta property="og:image" content="images/p1.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cie Rouletabille — Théâtre vivant, corps & voix">
+<meta name="twitter:description" content="Compagnie de théâtre installée à Périgueux depuis 1993. Spectacles, ateliers, médiation culturelle.">
+<meta name="twitter:image" content="images/p1.jpg">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -90,6 +100,35 @@
 <!-- Barre de progression de lecture -->
 <div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
 
+<!-- Formulaires Netlify : miroirs statiques pour la détection au build.
+     Le site est une SPA React : ces formulaires JS ne sont rendus qu'après
+     chargement du script, donc invisibles pour le bot Netlify au moment du
+     build. Ces copies statiques (mêmes name= et champs) permettent à
+     Netlify de les enregistrer ; les vraies soumissions viennent des
+     formulaires React qui postent en fetch vers "/" (voir js/screens.jsx). -->
+<form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="bot-field"/>
+  <input type="text" name="nom"/>
+  <input type="email" name="email"/>
+  <select name="objet">
+    <option>Information spectacle</option>
+    <option>Inscription atelier</option>
+    <option>Diffusion / Programmation</option>
+    <option>Presse</option>
+    <option>Autre</option>
+  </select>
+  <textarea name="message"></textarea>
+</form>
+<form name="newsletter" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="bot-field"/>
+  <input type="email" name="email"/>
+</form>
+<form name="atelier" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="bot-field"/>
+  <input type="text" name="atelier"/>
+  <input type="text" name="nom"/>
+  <input type="email" name="email"/>
+</form>
 
 <div id="root"></div>
 

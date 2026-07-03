@@ -64,6 +64,7 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {
+  overflow-x: hidden;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--ff-body);
@@ -177,8 +178,8 @@ h1, h2, h3 { font-family: var(--ff-display); font-weight: 400; letter-spacing:-0
   transition: transform 0.15s, background 0.15s;
 }
 .btn:hover { transform: translateY(-1px); background: var(--terra-deep); }
-.btn-amber { background: var(--amber); color: var(--ink); }
-.btn-amber:hover { background: var(--amber-deep); }
+.btn-amber { background: var(--terra); color: var(--paper); }
+.btn-amber:hover { background: var(--terra-deep); }
 .btn-ghost {
   background: transparent; color: var(--ink);
   border: 1px solid var(--rule-strong);
@@ -443,6 +444,13 @@ body.curtain-active { overflow: hidden; }
 @keyframes kineticRise { to { transform: translateY(0); } }
 
 /* ---- Hero : halo, vignette, indice de scroll ---- */
+/* Botanic hero — composition physalis */
+.hero-plant {
+  position: absolute; right: -4%; top: 0;
+  width: 58%; height: 100%;
+  z-index: 1; opacity: 0.92; pointer-events: none;
+}
+
 .hero-halo {
   position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background:
@@ -586,6 +594,7 @@ html { scroll-behavior: smooth; }
   .col-footer { grid-template-columns: 1fr 1fr; gap: 24px; }
 
   .hero-float { display: none !important; }
+  .hero-plant { width: 100%; right: -20%; opacity: 0.25; }
 
   .agenda-row-grid { grid-template-columns: 72px 1fr auto; }
   .agenda-col-venue, .agenda-col-price, .agenda-col-arrow { display: none; }
@@ -595,5 +604,196 @@ html { scroll-behavior: smooth; }
   :root { --pad-x: 14px; }
   .grid-4 { grid-template-columns: 1fr; }
   .col-footer { grid-template-columns: 1fr; }
+}
+
+/* ===================== ARCHIVES ===================== */
+
+/* Ligne de liste */
+.archive-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 24px;
+  align-items: baseline;
+  gap: 20px;
+  padding: 14px 10px;
+  border-top: 1px solid var(--rule);
+  cursor: pointer;
+  transition: background 0.15s, padding-left 0.15s;
+}
+.ar-day { opacity: 0.4; line-height: 1; }
+.ar-title { font-size: 16px; line-height: 1.25; }
+
+/* Contenu article importé depuis Overblog */
+.article-content {
+  font-family: var(--ff-body);
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+/* Aplatir les tables de mise en page email */
+.article-content table,
+.article-content tbody,
+.article-content thead,
+.article-content tr {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.article-content td,
+.article-content th {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
+  padding: 4px 0 !important;
+  background-color: transparent !important;
+  background: none !important;
+  color: inherit !important;
+  font-family: var(--ff-body) !important;
+  font-size: inherit !important;
+  vertical-align: top !important;
+}
+
+/* Typographie éditoriale */
+.article-content p {
+  margin-bottom: 1.1em;
+  text-wrap: pretty;
+}
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin: 1.5em 0 0.4em;
+  line-height: 1;
+}
+.article-content h2 { font-size: clamp(24px, 3vw, 36px); color: var(--terra); }
+.article-content h3 { font-size: clamp(20px, 2.5vw, 28px); color: var(--terra-deep); }
+.article-content h4 { color: var(--ink-soft); }
+
+/* Images */
+.article-content img {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  display: block;
+  margin: 24px auto;
+  border-radius: 2px;
+}
+.article-content figure,
+.article-content .image-align-center {
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.article-content figcaption {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Liens */
+.article-content a[href] {
+  color: var(--terra);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color 0.15s;
+}
+.article-content a[href]:hover { color: var(--terra-deep); }
+
+/* Listes */
+.article-content ul,
+.article-content ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+.article-content li { margin-bottom: 0.3em; }
+
+/* Citation */
+.article-content blockquote {
+  border-left: 3px solid var(--terra);
+  padding-left: 20px;
+  margin: 28px 0;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/* Espacement vertical entre blocs */
+.article-content > * + * { margin-top: 0; }
+
+/* Contenus embarqués */
+.article-content iframe {
+  max-width: 100%;
+  border: none;
+  margin: 24px 0;
+}
+
+@media (max-width: 768px) {
+  .archive-row { grid-template-columns: 28px 1fr 20px; gap: 12px; padding: 12px 8px; }
+  .ar-title { font-size: 14px; }
+  .article-content { font-size: 16px; }
+}
+
+/* ── Article reader enrichi ─────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Liens colorés dans le contenu riche */
+.article-content-rich a[href] {
+  color: var(--terra);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color 0.15s;
+}
+.article-content-rich a[href]:hover { color: var(--amber-deep); }
+
+/* Premier paragraphe légèrement mis en valeur */
+.article-content-rich > p:first-of-type {
+  font-size: 1.08em;
+  color: var(--ink);
+  line-height: 1.8;
+}
+
+/* Blockquote stylé */
+.article-content-rich blockquote {
+  border-left: 4px solid var(--amber);
+  background: color-mix(in oklab, var(--amber) 8%, transparent);
+  padding: 16px 24px;
+  margin: 24px 0;
+  font-family: var(--ff-display);
+  font-style: italic;
+  font-size: 1.1em;
+  color: var(--ink);
+}
+
+/* Sidebar : collapse en mobile */
+@media (max-width: 900px) {
+  .article-reader-body {
+    grid-template-columns: 1fr !important;
+  }
+  .article-reader-body aside {
+    position: static !important;
+    order: -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+@media (max-width: 600px) {
+  .article-reader-body aside {
+    grid-template-columns: 1fr;
+  }
 }
 
