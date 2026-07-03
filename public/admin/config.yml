@@ -1,0 +1,116 @@
+backend:
+  name: git-gateway
+  # branche déployée en production sur Netlify — à changer ici si vous basculez vers "main"
+  branch: claude/installed-skills-overview-j4il8o
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "spectacles"
+    label: "Spectacles"
+    files:
+      - file: "content/spectacles.json"
+        label: "Liste des spectacles"
+        name: "spectacles"
+        fields:
+          - label: "Spectacles"
+            name: "spectacles"
+            widget: "list"
+            summary: "{{title}}"
+            fields:
+              - { label: "Identifiant (unique, sans espace)", name: "id", widget: "string" }
+              - { label: "Numéro", name: "num", widget: "string" }
+              - { label: "Titre", name: "title", widget: "string" }
+              - { label: "Catégorie", name: "tag", widget: "string" }
+              - { label: "Date", name: "date", widget: "string" }
+              - { label: "Durée", name: "duration", widget: "string" }
+              - { label: "Âge conseillé", name: "ages", widget: "string" }
+              - { label: "Couleur fond", name: "color", widget: "color" }
+              - { label: "Couleur texte", name: "textColor", widget: "color" }
+              - { label: "Description", name: "desc", widget: "text" }
+              - { label: "Auteur", name: "auteur", widget: "string" }
+              - { label: "Mise en scène", name: "mes", widget: "string" }
+              - { label: "Avec (interprètes)", name: "with", widget: "string" }
+
+  - name: "agenda"
+    label: "Agenda"
+    files:
+      - file: "content/agenda.json"
+        label: "Dates de l'agenda"
+        name: "agenda"
+        fields:
+          - label: "Dates"
+            name: "agenda"
+            widget: "list"
+            summary: "{{title}} — {{day}}/{{month}}/{{year}}"
+            fields:
+              - { label: "Jour", name: "day", widget: "string" }
+              - { label: "Mois (3 lettres)", name: "month", widget: "string" }
+              - { label: "Année", name: "year", widget: "string" }
+              - { label: "Titre", name: "title", widget: "string" }
+              - { label: "Lieu", name: "venue", widget: "string" }
+              - { label: "Horaire / détail", name: "time", widget: "string" }
+              - { label: "Prix", name: "price", widget: "string" }
+              - { label: "Statut", name: "status", widget: "select", options: ["free", "available"] }
+              - { label: "Type", name: "type", widget: "select", options: ["résidence", "événement", "spectacle", "atelier"] }
+              - { label: "Couleur carte", name: "cardColor", widget: "color" }
+              - { label: "Couleur texte carte", name: "cardTextColor", widget: "color" }
+
+  - name: "ateliers"
+    label: "Ateliers"
+    files:
+      - file: "content/ateliers.json"
+        label: "Liste des ateliers"
+        name: "ateliers"
+        fields:
+          - label: "Ateliers"
+            name: "ateliers"
+            widget: "list"
+            summary: "{{title}}"
+            fields:
+              - { label: "Numéro", name: "num", widget: "string" }
+              - { label: "Titre", name: "title", widget: "string" }
+              - { label: "Public", name: "who", widget: "string" }
+              - { label: "Horaires", name: "when", widget: "string" }
+              - { label: "Lieu", name: "where", widget: "string" }
+              - { label: "Prix", name: "price", widget: "string" }
+              - { label: "Couleur fond", name: "color", widget: "color" }
+              - { label: "Couleur texte", name: "textColor", widget: "color" }
+              - { label: "Description", name: "desc", widget: "text" }
+              - { label: "Public cible", name: "audience", widget: "select", options: ["enfants", "ados", "adultes", "quartier"] }
+
+  - name: "equipe"
+    label: "Équipe"
+    files:
+      - file: "content/equipe.json"
+        label: "Membres de l'équipe"
+        name: "equipe"
+        fields:
+          - label: "Membres"
+            name: "equipe"
+            widget: "list"
+            summary: "{{name}}"
+            fields:
+              - { label: "Nom", name: "name", widget: "string" }
+              - { label: "Rôle", name: "role", widget: "string" }
+              - { label: "Bio", name: "bio", widget: "text" }
+
+  - name: "partenaires"
+    label: "Partenaires"
+    files:
+      - file: "content/partenaires.json"
+        label: "Liste des partenaires"
+        name: "partenaires"
+        fields:
+          - label: "Partenaires"
+            name: "partenaires"
+            widget: "list"
+            summary: "{{name}}"
+            fields:
+              - { label: "Nom", name: "name", widget: "string" }
+              - label: "Type"
+                name: "type"
+                widget: "select"
+                options: ["Soutien institutionnel", "Partenaires artistiques", "Action culturelle & territoire", "Éducation"]
+              - { label: "Site web (optionnel)", name: "url", widget: "string", required: false }
