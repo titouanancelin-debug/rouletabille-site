@@ -155,19 +155,6 @@
       "type": "atelier",
       "day": "16",
       "year": "2026"
-    },
-    {
-      "month": "jan",
-      "cardTextColor": "#28ba4d",
-      "price": "l",
-      "time": "lol",
-      "venue": "porto",
-      "status": "free",
-      "cardColor": "#da7b7b",
-      "title": "caca",
-      "type": "résidence",
-      "day": "05",
-      "year": "2027"
     }
   ]
 }
