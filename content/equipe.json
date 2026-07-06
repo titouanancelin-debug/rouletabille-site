@@ -1,11 +1,10 @@
 {
   "equipe": [
     {
-      "name": "Claude Danielle Morlet",
-      "role": "Fondatrice • Comédienne • Metteuse en scène",
-      "categorie": "permanente",
-      "bio": "Claude accompagne Rouletabille depuis sa création en 1993. Elle développe une pratique artistique où le théâtre devient un espace d'émancipation, de transmission et de rencontre. Son parcours est nourri par l'éducation populaire, les enseignements du Théâtre du Soleil et une recherche permanente autour de la voix, du corps et de la relation aux publics.",
-      "quote": "Faire du théâtre un espace où chacun trouve sa place."
+      "name": "Ambre Ludwiczak",
+      "role": "Intervenante — Expression créatrice",
+      "categorie": "associee",
+      "bio": "Anime l'atelier Expression créatrice, centré sur les arts plastiques et l'exploration de l'imaginaire. Approche libre et sans prérequis."
     },
     {
       "name": "Adeline Stocklouser",
@@ -14,15 +13,9 @@
       "bio": "Adeline accompagne le développement de Rouletabille depuis plus de vingt ans. Elle veille à rendre possibles les projets artistiques, en assurant leur organisation, leur financement et leur visibilité. Son travail relie les artistes, les partenaires et les habitants autour d'un même projet."
     },
     {
-      "name": "Perrine Marillier",
-      "role": "Intervenante artistique, chargée de communication",
+      "name": "Delphine Luriaud",
+      "role": "Médiatrice socio-culturelle",
       "categorie": "permanente",
-      "bio": "Anime les ateliers Théâtre Enfants & Ados et co-encadre le Cycle d'expérimentation artistique adultes. Pilier de la médiation artistique au quotidien."
-    },
-    {
-      "name": "Titouan Ancelin",
-      "role": "Comédienne, metteuse en scène",
-      "categorie": "associee",
       "bio": "Rejoint la Cie Rouletabille en 2024-2025 avec une ligne artistique centrée sur la déconstruction des stéréotypes de genre et la critique des systèmes patriarcaux, en écho aux luttes sociales actuelles. « Pour apporter ma petite goutte au moulin de la déconstruction, je passe par le théâtre. »"
     },
     {
@@ -38,16 +31,23 @@
       "bio": "Co-encadre le Cycle d'expérimentation artistique adultes avec Perrine Marillier et Guilhem Loupiac."
     },
     {
-      "name": "Ambre Ludwiczak",
-      "role": "Intervenante — Expression créatrice",
-      "categorie": "associee",
-      "bio": "Anime l'atelier Expression créatrice, centré sur les arts plastiques et l'exploration de l'imaginaire. Approche libre et sans prérequis."
-    },
-    {
       "name": "Dominique Borie-Lagarde",
       "role": "Intervenante — Compagnon Vocal",
       "categorie": "associee",
       "bio": "Co-anime le Compagnon Vocal avec Claude Danielle Morlet. Pratique collective douce, aucune expérience vocale nécessaire."
+    },
+    {
+      "name": "Perrine Marillier",
+      "role": "Intervenante artistique, chargée de communication",
+      "categorie": "permanente",
+      "bio": "Anime les ateliers Théâtre Enfants & Ados et co-encadre le Cycle d'expérimentation artistique adultes. Pilier de la médiation artistique au quotidien."
+    },
+    {
+      "name": "Claude Danielle Morlet",
+      "role": "Fondatrice • Comédienne • Metteuse en scène",
+      "categorie": "permanente",
+      "bio": "Claude accompagne Rouletabille depuis sa création en 1993. Elle développe une pratique artistique où le théâtre devient un espace d'émancipation, de transmission et de rencontre. Son parcours est nourri par l'éducation populaire, les enseignements du Théâtre du Soleil et une recherche permanente autour de la voix, du corps et de la relation aux publics.",
+      "quote": "Faire du théâtre un espace où chacun trouve sa place."
     }
   ]
 }
