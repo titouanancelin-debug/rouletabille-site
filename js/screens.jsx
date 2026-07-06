@@ -1833,6 +1833,72 @@ const Newsletter = () => {
   );
 };
 
+/* ======================= MENTIONS LÉGALES ======================= */
+const MentionsLegales = () => (
+  <section className="section">
+    <div className="section-head">
+      <div className="section-num">Légal</div>
+      <h2 className="section-title">Mentions <span className="display-italic">légales.</span></h2>
+      <div className="section-meta">Informations légales et politique de confidentialité.</div>
+    </div>
+    <div style={{ maxWidth:720, display:"grid", gap:40 }}>
+      <div>
+        <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Éditeur du site</h3>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
+          Cie Rouletabille — association loi 1901<br/>
+          Siège social : 110 rue du Cluzeau, 24110 Périgueux<br/>
+          SIRET : 394 282 016 00028<br/>
+          Représentante légale : Françoise Marquer<br/>
+          Contact : <a href="mailto:rouletabilletheatre@gmail.com" style={{ color:"var(--terra)" }}>rouletabilletheatre@gmail.com</a>
+        </p>
+      </div>
+
+      <div>
+        <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Directeur de la publication</h3>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
+          Françoise Marquer, en qualité de représentante légale de l'association.
+        </p>
+      </div>
+
+      <div>
+        <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Hébergement</h3>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
+          Netlify, Inc.<br/>
+          44 Montgomery Street, Suite 300, San Francisco, California 94104, USA<br/>
+          <a href="https://www.netlify.com" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>netlify.com</a>
+        </p>
+      </div>
+
+      <div>
+        <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Propriété intellectuelle</h3>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
+          L'ensemble des contenus de ce site (textes, photographies, logo, motifs graphiques) est la propriété de la Cie Rouletabille, sauf mention contraire. Toute reproduction, même partielle, est soumise à autorisation préalable.
+        </p>
+      </div>
+
+      <div>
+        <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Données personnelles</h3>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)", marginBottom:16 }}>
+          Les formulaires de ce site (contact, inscription à un atelier, newsletter) collectent votre nom et votre adresse email — ainsi que l'objet et le message pour le formulaire de contact. Ces informations sont utilisées uniquement pour répondre à votre demande, traiter votre inscription ou vous envoyer la newsletter si vous vous y êtes inscrit·e.
+        </p>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)", marginBottom:16 }}>
+          Ces données sont conservées par la Cie Rouletabille le temps nécessaire au traitement de votre demande, et transitent techniquement par Netlify (hébergeur du site et de ses formulaires) en tant que sous-traitant. Elles ne sont ni vendues ni transmises à d'autres tiers.
+        </p>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
+          Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition sur vos données. Pour l'exercer, écrivez à <a href="mailto:rouletabilletheatre@gmail.com" style={{ color:"var(--terra)" }}>rouletabilletheatre@gmail.com</a>. Vous pouvez également introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>CNIL</a>.
+        </p>
+      </div>
+
+      <div>
+        <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Cookies et traceurs</h3>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
+          Ce site ne dépose aucun cookie de mesure d'audience ni de traceur publicitaire. Il utilise uniquement le stockage local de votre navigateur (localStorage) pour retenir la page consultée d'une visite à l'autre — une donnée purement technique, jamais transmise à un tiers.
+        </p>
+      </div>
+    </div>
+  </section>
+);
+
 /* ======================= FOOTER ======================= */
 const Footer = ({ setRoute }) => (
   <footer className="footer">
@@ -1859,7 +1925,7 @@ const Footer = ({ setRoute }) => (
           <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Contact</li>
           <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Venir à l'atelier</li>
           <li onClick={() => setRoute("presse")} style={{ cursor:"pointer" }}>Dossiers de presse</li>
-          <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Mentions légales</li>
+          <li onClick={() => setRoute("mentions-legales")} style={{ cursor:"pointer" }}>Mentions légales</li>
         </ul>
       </div>
       <div>
@@ -1879,4 +1945,4 @@ const Footer = ({ setRoute }) => (
   </footer>
 );
 
-export { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, Contact, Footer };
+export { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer };

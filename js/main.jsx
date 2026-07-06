@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { initFX } from './fx.jsx';
-import { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, Contact, Footer } from './screens.jsx';
+import { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer } from './screens.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "default",
@@ -58,6 +58,7 @@ function App() {
   else if (route === "equipe") screen = <Equipe setRoute={setRoute}/>;
   else if (route === "partenaires") screen = <Partenaires/>;
   else if (route === "presse") screen = <Presse/>;
+  else if (route === "mentions-legales") screen = <MentionsLegales/>;
   else if (route === "contact") screen = <Contact/>;
   else screen = <Home setRoute={setRoute} setSpectacle={setSpectacle}/>;
 
