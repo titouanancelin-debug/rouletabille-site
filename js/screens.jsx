@@ -1102,7 +1102,7 @@ const FicheSpectacle = ({ id, setRoute, setSpectacle }) => {
             </div>
             <div style={{ display:"flex", gap:12 }}>
               <button className="btn" onClick={() => setRoute("agenda")}>Voir les dates ({dates.length})</button>
-              <button className="btn btn-ghost">Dossier de presse ↓</button>
+              <button className="btn btn-ghost" onClick={() => setRoute("presse")}>Dossier de presse ↓</button>
             </div>
           </div>
         </div>
@@ -1572,6 +1572,49 @@ const Partenaires = () => {
   );
 };
 
+/* ======================= PRESSE ======================= */
+const PRESS_KIT = [
+  { file: "logo-cie-rouletabille.svg", label: "Logo (SVG)", desc: "Motif physalis, fond transparent" },
+  { file: "photo-physalis-1.jpg", label: "Photo 1 (JPG)", desc: "Haute définition, libre de droits pour la presse" },
+  { file: "photo-physalis-2.jpg", label: "Photo 2 (JPG)", desc: "Haute définition, libre de droits pour la presse" },
+];
+
+const Presse = () => (
+  <section className="section">
+    <div className="section-head">
+      <div className="section-num">Presse</div>
+      <h2 className="section-title">Dossier de <span className="display-italic">presse.</span></h2>
+      <div className="section-meta">Présentation de la compagnie et visuels libres de droits pour la presse.</div>
+    </div>
+    <div className="col-split" style={{ gap:64, alignItems:"start" }}>
+      <div>
+        <p style={{ fontSize:20, lineHeight:1.6, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}>
+          La Cie Rouletabille est une compagnie de théâtre fondée en 1993 à Périgueux, labellisée « Lieu de fabrique » par la Région Nouvelle-Aquitaine. Elle mène en parallèle un travail de création (spectacles, résidences) et un travail d'ateliers auprès de publics variés — enfants, ados, adultes, milieu scolaire, quartiers, insertion sociale.
+        </p>
+        <p style={{ fontSize:16, lineHeight:1.6, color:"var(--ink-soft)" }}>
+          Pour toute demande d'interview, de photo supplémentaire ou d'accréditation, écrivez-nous directement : <a href="mailto:rouletabilletheatre@gmail.com?subject=Demande%20presse" style={{ color:"var(--terra)" }}>rouletabilletheatre@gmail.com</a>.
+        </p>
+      </div>
+      <div>
+        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Téléchargements</div>
+        {PRESS_KIT.map(item => (
+          <a key={item.file} href={`/presse/${item.file}`} download
+            style={{
+              display:"flex", justifyContent:"space-between", alignItems:"center", gap:16,
+              padding:"18px 0", borderTop:"1px solid var(--rule)", textDecoration:"none", color:"inherit",
+            }}>
+            <div>
+              <div style={{ fontSize:17 }}>{item.label}</div>
+              <div className="mono" style={{ fontSize:12, opacity:0.5, marginTop:4 }}>{item.desc}</div>
+            </div>
+            <span style={{ fontSize:20, opacity:0.5, flexShrink:0 }}>↓</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
 /* ======================= CONTACT ======================= */
 const Contact = () => {
   const [status, setStatus] = useState('idle'); // idle | loading | sent | error
@@ -1744,7 +1787,7 @@ const Footer = ({ setRoute }) => (
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
           <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Contact</li>
           <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Venir à l'atelier</li>
-          <li><a href="mailto:rouletabilletheatre@gmail.com?subject=Demande%20de%20dossier%20de%20presse" style={{ color:"inherit", textDecoration:"none" }}>Dossiers de presse</a></li>
+          <li onClick={() => setRoute("presse")} style={{ cursor:"pointer" }}>Dossiers de presse</li>
           <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Mentions légales</li>
         </ul>
       </div>
@@ -1765,4 +1808,4 @@ const Footer = ({ setRoute }) => (
   </footer>
 );
 
-export { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Contact, Footer };
+export { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, Contact, Footer };
