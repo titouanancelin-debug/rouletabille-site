@@ -1,6 +1,7 @@
 /* Écrans : Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Équipe, Partenaires, Contact */
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { Motif, MotifHero, MotifMark, Poster } from './motif.jsx';
 import { SPECTACLES, AGENDA, ATELIERS, EQUIPE, PARTENAIRES } from './data.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
@@ -555,13 +556,13 @@ const getFeaturedEvents = () => {
 
 const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence" };
 
-const EventCard = ({ item, setRoute, setSpectacle }) => {
+const EventCard = ({ item, setRoute }) => {
   const sp = item.spectacle ? SPECTACLES.find(s => s.id === item.spectacle) : null;
   const spIdx = sp ? SPECTACLES.findIndex(s => s.id === item.spectacle) : 0;
   const ink = item.cardTextColor || "var(--paper)";
 
   const handleClick = () => {
-    if (sp) { setSpectacle(item.spectacle); setRoute("spectacles/detail"); }
+    if (sp) setRoute("spectacles/" + item.spectacle);
     else setRoute("agenda");
   };
 
@@ -630,7 +631,7 @@ const EventCard = ({ item, setRoute, setSpectacle }) => {
   );
 };
 
-const EventCarousel = ({ setRoute, setSpectacle }) => {
+const EventCarousel = ({ setRoute }) => {
   const items = useMemo(getFeaturedEvents, []);
   const [idx, setIdx] = useState(0);
   const [layout, setLayout] = useState({ w:900, cols:3 });
@@ -675,7 +676,7 @@ const EventCarousel = ({ setRoute, setSpectacle }) => {
         }}>
           {items.map((item, i) => (
             <div key={i} style={{ flex:`0 0 ${cardW}px`, minWidth:0 }}>
-              <EventCard item={item} setRoute={setRoute} setSpectacle={setSpectacle}/>
+              <EventCard item={item} setRoute={setRoute}/>
             </div>
           ))}
         </div>
@@ -709,7 +710,7 @@ const EventCarousel = ({ setRoute, setSpectacle }) => {
 };
 
 /* ======================= HOME ======================= */
-const Home = ({ setRoute, setSpectacle }) => {
+const Home = ({ setRoute }) => {
   return (
   <>
     <ScrollExpandHero setRoute={setRoute}/>
@@ -721,7 +722,7 @@ const Home = ({ setRoute, setSpectacle }) => {
         <h2 className="section-title">Prochains<br/><span className="display-italic">rendez-vous.</span></h2>
         <div className="section-meta">Spectacles, résidences et événements de la saison. <a className="link-underline" onClick={() => setRoute("agenda")}>Calendrier complet →</a></div>
       </Reveal>
-      <EventCarousel setRoute={setRoute} setSpectacle={setSpectacle}/>
+      <EventCarousel setRoute={setRoute}/>
     </section>
 
     {/* HISTOIRE D'UN PROJET */}
@@ -844,7 +845,7 @@ const TRAVAIL_TABS = [
   { id:"ateliers",    label:"Ateliers",                num:"04", title:"Ateliers & pratique",       sub:"Pratiques artistiques régulières, stages et cycles." },
 ];
 
-const Spectacles = ({ setRoute, setSpectacle }) => {
+const Spectacles = ({ setRoute }) => {
   const [tab, setTab] = useState("residences");
   const [atelierFilter, setAtelierFilter] = useState("");
   const [selectedAtelier, setSelectedAtelier] = useState(null);
@@ -1096,7 +1097,8 @@ const Spectacles = ({ setRoute, setSpectacle }) => {
 };
 
 /* ======================= FICHE SPECTACLE ======================= */
-const FicheSpectacle = ({ id, setRoute, setSpectacle }) => {
+const FicheSpectacle = ({ setRoute }) => {
+  const { id } = useParams();
   const s = SPECTACLES.find(x => x.id === id) || SPECTACLES[0];
   const dates = AGENDA.filter(a => a.spectacle === s.id);
   return (
@@ -1231,7 +1233,7 @@ const SEASON_MONTHS = [
   { key:"Juin 2026", label:"Juin" },
 ];
 
-const Agenda = ({ setRoute, setSpectacle }) => {
+const Agenda = ({ setRoute }) => {
   const [filter, setFilter] = useState("tout");
   const [month, setMonth] = useState("Sep 2025");
 
@@ -1312,7 +1314,7 @@ const Agenda = ({ setRoute, setSpectacle }) => {
               <Reveal key={i} variant="up" delay={(i % 3) * 70}>
                 <AgendaCard
                   d={d}
-                  onClick={d.spectacle ? () => { setSpectacle(d.spectacle); setRoute("spectacles/detail"); } : null}
+                  onClick={d.spectacle ? () => setRoute("spectacles/" + d.spectacle) : null}
                 />
               </Reveal>
             ))}

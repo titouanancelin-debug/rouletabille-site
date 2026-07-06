@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { initFX } from './fx.jsx';
 import { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer } from './screens.jsx';
 
@@ -11,11 +12,12 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 }/*EDITMODE-END*/;
 
 function App() {
-  const [route, setRouteRaw] = useState(() => localStorage.getItem("rt-route") || "home");
-  const [spectacle, setSpectacle] = useState(() => localStorage.getItem("rt-spectacle") || "3-fantastiques");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const screenLabel = location.pathname === "/" ? "home" : location.pathname.slice(1);
+  const setRoute = (r) => { navigate(r === "home" ? "/" : "/" + r); window.scrollTo({ top:0, behavior:"smooth" }); };
+
   const [atelierAudience, setAtelierAudience] = useState("");
-  const setRoute = (r) => { setRouteRaw(r); localStorage.setItem("rt-route", r); window.scrollTo({ top:0, behavior:"smooth" }); };
-  useEffect(() => { localStorage.setItem("rt-spectacle", spectacle); }, [spectacle]);
 
   useEffect(() => { initFX(); }, []);
 
@@ -49,23 +51,22 @@ function App() {
     if (tweaks.anim === "low") root.classList.add("anim-low");
   }, [tweaks]);
 
-  let screen;
-  if (route === "home") screen = <Home setRoute={setRoute} setSpectacle={setSpectacle}/>;
-  else if (route === "spectacles") screen = <Spectacles setRoute={setRoute} setSpectacle={setSpectacle}/>;
-  else if (route === "spectacles/detail") screen = <FicheSpectacle id={spectacle} setRoute={setRoute} setSpectacle={setSpectacle}/>;
-  else if (route === "agenda") screen = <Agenda setRoute={setRoute} setSpectacle={setSpectacle}/>;
-  else if (route === "ateliers") screen = <Ateliers audience={atelierAudience}/>;
-  else if (route === "equipe") screen = <Equipe setRoute={setRoute}/>;
-  else if (route === "partenaires") screen = <Partenaires/>;
-  else if (route === "presse") screen = <Presse/>;
-  else if (route === "mentions-legales") screen = <MentionsLegales/>;
-  else if (route === "contact") screen = <Contact/>;
-  else screen = <Home setRoute={setRoute} setSpectacle={setSpectacle}/>;
-
   return (
-    <div className="app" data-screen-label={route}>
-      <Nav route={route} setRoute={setRoute}/>
-      {screen}
+    <div className="app" data-screen-label={screenLabel}>
+      <Nav route={screenLabel} setRoute={setRoute}/>
+      <Routes>
+        <Route path="/" element={<Home setRoute={setRoute}/>}/>
+        <Route path="/spectacles" element={<Spectacles setRoute={setRoute}/>}/>
+        <Route path="/spectacles/:id" element={<FicheSpectacle setRoute={setRoute}/>}/>
+        <Route path="/agenda" element={<Agenda setRoute={setRoute}/>}/>
+        <Route path="/ateliers" element={<Ateliers audience={atelierAudience}/>}/>
+        <Route path="/equipe" element={<Equipe setRoute={setRoute}/>}/>
+        <Route path="/partenaires" element={<Partenaires/>}/>
+        <Route path="/presse" element={<Presse/>}/>
+        <Route path="/mentions-legales" element={<MentionsLegales/>}/>
+        <Route path="/contact" element={<Contact/>}/>
+        <Route path="*" element={<Home setRoute={setRoute}/>}/>
+      </Routes>
       <Footer setRoute={setRoute}/>
       {tweaksOpen && (
         <div className="tweaks-panel">
@@ -107,4 +108,8 @@ function App() {
   );
 }
 
-createRoot(document.getElementById("root")).render(<App/>);
+createRoot(document.getElementById("root")).render(
+  <BrowserRouter>
+    <App/>
+  </BrowserRouter>
+);
