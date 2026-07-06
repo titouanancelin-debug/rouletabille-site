@@ -745,6 +745,7 @@ const Home = ({ setRoute, setSpectacle }) => {
       <div className="col-duo" style={{ gap:80, alignItems:"center", position:"relative", zIndex:2 }}>
         <Reveal variant="left">
           <div className="eyebrow" style={{ marginBottom:24 }}>La compagnie</div>
+          <div className="mono" style={{ marginBottom:16, color:"color-mix(in oklab, var(--paper) 65%, transparent)" }}>Créer. Transmettre. Faire lien.</div>
           <h2 className="display" style={{ fontSize:"clamp(48px, 6vw, 84px)" }}>
             Faire théâtre <span className="display-italic">avec</span>
             <br/>les gens, <span className="display-italic">pour</span>
@@ -760,6 +761,23 @@ const Home = ({ setRoute, setSpectacle }) => {
           </p>
           <button className="btn btn-amber" onClick={() => setRoute("equipe")}>Rencontrer l'équipe →</button>
         </Reveal>
+      </div>
+    </section>
+
+    {/* PUBLICS */}
+    <section className="section">
+      <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
+        <div className="section-num">Publics</div>
+        <h2 className="section-title">Un lieu ouvert <span className="display-italic">à toutes et tous.</span></h2>
+        <div className="section-meta">Notre projet s'adresse à tous les publics. Nous défendons une culture accessible, exigeante et accueillante — parce que chacun peut trouver sa place dans une aventure artistique.</div>
+      </Reveal>
+      <div style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
+        {["Enfants","Jeunes","Adultes","Habitants","Professionnels","Amateurs","Écoles","Structures sociales et médico-sociales","Collectivités"].map(label => (
+          <span key={label} className="mono" style={{
+            padding:"10px 20px", border:"1px solid var(--rule)", borderRadius:999,
+            color:"var(--ink-soft)",
+          }}>{label}</span>
+        ))}
       </div>
     </section>
 
@@ -1423,42 +1441,95 @@ const Ateliers = ({ audience = "" }) => {
 };
 
 /* ======================= ÉQUIPE ======================= */
-const Equipe = () => {
+const TEAM_PALETTE = ["#B84A2E","#9B7AA8","#E8B542","#3A1B2E","#8E3620","#C89420","#9B7AA8","#3A1B2E"];
+
+const Equipe = ({ setRoute }) => {
+  const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), []);
+  const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), []);
   const [active, setActive] = useState(0);
+  const current = permanents[active] || permanents[0];
+
   return (
-    <section className="section" style={{ position:"relative" }}>
-      <div className="section-head">
-        <div className="section-num">Équipe</div>
-        <h2 className="section-title">Huit <span className="display-italic">artistes,</span><br/>une compagnie.</h2>
-        <div className="section-meta">L'équipe permanente et associée de la compagnie. Survolez ou cliquez pour lire la biographie.</div>
-      </div>
-      <div className="col-split" style={{ gap:64, alignItems:"start" }}>
-        <div>
-          {EQUIPE.map((p,i) => (
-            <div key={p.name}
-              onClick={() => setActive(i)}
-              style={{
-                padding:"24px 0", borderTop:"1px solid var(--rule)", cursor:"pointer",
-                opacity: active === i ? 1 : 0.6,
-                transition:"opacity 0.2s, transform 0.2s",
-                transform: active === i ? "translateX(8px)" : "translateX(0)"
-              }}
-            >
-              <h3 className="display" style={{ fontSize: active === i ? 44 : 32, lineHeight:1, transition:"font-size 0.2s" }}>
-                {p.name.split(" ").map((w,j) => j === 1 ? <span key={j} className="display-italic">{w} </span> : <span key={j}>{w} </span>)}
-              </h3>
-              <div className="mono" style={{ marginTop:8, color:"var(--terra)" }}>{p.role}</div>
+    <>
+      <section className="section" style={{ paddingBottom:40 }}>
+        <div className="section-head">
+          <div className="section-num">Équipe</div>
+          <h2 className="section-title">Un collectif <span className="display-italic">au service</span><br/>de la création.</h2>
+          <div className="section-meta">Rouletabille est une association portée par un conseil d'administration, une équipe permanente et un réseau d'artistes associés. Les décisions artistiques et le développement du projet se construisent collectivement, dans une logique de coopération et de responsabilité partagée.</div>
+        </div>
+      </section>
+
+      <section className="section" style={{ paddingTop:0 }}>
+        <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
+        <div className="col-split" style={{ gap:64, alignItems:"start" }}>
+          <div>
+            {permanents.map((p,i) => (
+              <div key={p.name}
+                onClick={() => setActive(i)}
+                style={{
+                  padding:"24px 0", borderTop:"1px solid var(--rule)", cursor:"pointer",
+                  opacity: active === i ? 1 : 0.6,
+                  transition:"opacity 0.2s, transform 0.2s",
+                  transform: active === i ? "translateX(8px)" : "translateX(0)"
+                }}
+              >
+                <h3 className="display" style={{ fontSize: active === i ? 44 : 32, lineHeight:1, transition:"font-size 0.2s" }}>
+                  {p.name.split(" ").map((w,j) => j === 1 ? <span key={j} className="display-italic">{w} </span> : <span key={j}>{w} </span>)}
+                </h3>
+                <div className="mono" style={{ marginTop:8, color:"var(--terra)" }}>{p.role}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ position:"sticky", top:100 }}>
+            <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:24 }}>
+              <Poster bg={TEAM_PALETTE[active] || "#B84A2E"} ink="#F4E8D5" title={current.name.split(" ")[0]} subtitle={current.role.split(" • ")[0]} num={String(active+1).padStart(2,"0")} variant={active % 4} motifOpacity={0.5}/>
+            </div>
+            <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty", marginBottom: current.quote ? 16 : 0 }}>{current.bio}</p>
+            {current.quote && (
+              <p className="display display-italic" style={{ fontSize:22, color:"var(--terra)" }}>« {current.quote} »</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section" style={{ background:"var(--paper-warm)" }}>
+        <div className="section-head">
+          <div className="section-num">Artistes</div>
+          <h2 className="section-title">Les artistes <span className="display-italic">associé·es.</span></h2>
+          <div className="section-meta">Chaque saison, des artistes rejoignent le projet pour créer, transmettre ou accompagner des résidences. Ils enrichissent notre démarche par leurs univers, leurs disciplines et leurs recherches.</div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:32 }}>
+          {associes.map((p, i) => (
+            <div key={p.name}>
+              <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
+                <Poster bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>
+              </div>
+              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
+              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+              <p style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}>{p.bio}</p>
             </div>
           ))}
         </div>
-        <div style={{ position:"sticky", top:100 }}>
-          <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:24 }}>
-            <Poster bg={["#B84A2E","#9B7AA8","#E8B542","#3A1B2E","#8E3620","#C89420","#9B7AA8","#3A1B2E"][active] || "#B84A2E"} ink="#F4E8D5" title={EQUIPE[active].name.split(" ")[0]} subtitle={EQUIPE[active].role.split(",")[0]} num={String(active+1).padStart(2,"0")} variant={active % 4} motifOpacity={0.5}/>
+      </section>
+
+      <section className="section">
+        <div className="col-duo" style={{ gap:80, alignItems:"start" }}>
+          <div>
+            <div className="eyebrow" style={{ marginBottom:20 }}>Compagnons de route</div>
+            <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty" }}>
+              Depuis plus de trente ans, Rouletabille avance grâce à celles et ceux qui croisent son chemin. Techniciens, costumières, constructeurs, bénévoles, artistes, anciens salariés, services civiques... Ils ont participé à faire de ce lieu ce qu'il est aujourd'hui. Parce qu'une fabrique artistique se construit aussi avec celles et ceux qui restent dans son histoire.
+            </p>
           </div>
-          <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty" }}>{EQUIPE[active].bio}</p>
+          <div>
+            <div className="eyebrow" style={{ marginBottom:20 }}>Bénévoles</div>
+            <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", marginBottom:24, textWrap:"pretty" }}>
+              Ils accueillent. Ils construisent. Ils installent. Ils cuisinent. Ils transportent. Ils discutent avec le public. Ils ouvrent les portes. Ils font vivre Rouletabille — sans eux, beaucoup de projets n'existeraient pas.
+            </p>
+            <button className="btn btn-amber" onClick={() => setRoute("contact")}>Devenir bénévole →</button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
@@ -1797,7 +1868,7 @@ const Footer = ({ setRoute }) => (
           <li><a href="https://www.instagram.com/rouletabilletheatre" target="_blank" rel="noopener" style={{ color:"inherit", textDecoration:"none" }}>Instagram</a></li>
           <li>Facebook</li>
           <li>HelloAsso</li>
-          <li onClick={() => {}} style={{ cursor:"pointer" }}>Newsletter</li>
+          <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Newsletter</li>
         </ul>
       </div>
     </div>

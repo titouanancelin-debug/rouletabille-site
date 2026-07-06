@@ -55,7 +55,7 @@ function App() {
   else if (route === "spectacles/detail") screen = <FicheSpectacle id={spectacle} setRoute={setRoute} setSpectacle={setSpectacle}/>;
   else if (route === "agenda") screen = <Agenda setRoute={setRoute} setSpectacle={setSpectacle}/>;
   else if (route === "ateliers") screen = <Ateliers audience={atelierAudience}/>;
-  else if (route === "equipe") screen = <Equipe/>;
+  else if (route === "equipe") screen = <Equipe setRoute={setRoute}/>;
   else if (route === "partenaires") screen = <Partenaires/>;
   else if (route === "presse") screen = <Presse/>;
   else if (route === "contact") screen = <Contact/>;
