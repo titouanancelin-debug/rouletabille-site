@@ -110,7 +110,7 @@ const MotifHero = ({ color = "#F5C842", berryColor = "#E8571A", anim = true, sty
       <path d="M178,445 C158,432 134,424 108,420" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity=".4"/>
       <path d="M418,435 C440,422 462,415 482,412" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity=".4"/>
 
-      <Lantern x={290} y={545} scale={1.05} color={color} berry={berryColor} delay={0} dur={4} veins={4} image="/icon-512.png"/>
+      <Lantern x={290} y={545} scale={1.05} color={color} berry={berryColor} delay={0} dur={4} veins={4} image="/favicon.png"/>
       <Lantern x={162} y={378} scale={0.68} color={color} berry={berryColor} delay={1.5} dur={5} veins={4} opacity={0.92}/>
       <Lantern x={456} y={362} scale={0.64} color={color} berry={berryColor} delay={0.7} dur={4.5} veins={4} opacity={0.88}/>
       <Lantern x={80}  y={218} scale={0.44} color={color} berry={berryColor} delay={2.2} dur={6} veins={3} opacity={0.82}/>
