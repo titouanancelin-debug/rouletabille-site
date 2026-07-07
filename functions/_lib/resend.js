@@ -17,7 +17,7 @@ export function isValidEmail(email) {
 export async function sendEmail(env, { subject, html, replyTo }) {
   const payload = {
     from: env.RESEND_FROM,
-    to: env.CONTACT_TO_EMAIL,
+    to: [env.CONTACT_TO_EMAIL],
     subject,
     html,
   };
@@ -31,7 +31,9 @@ export async function sendEmail(env, { subject, html, replyTo }) {
     },
     body: JSON.stringify(payload),
   });
-  return res.ok;
+  if (res.ok) return { ok: true };
+  const detail = await res.text().catch(() => '');
+  return { ok: false, status: res.status, detail };
 }
 
 /* Honeypot anti-spam : si ce champ caché est rempli, c'est un bot.

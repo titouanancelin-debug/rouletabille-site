@@ -15,11 +15,11 @@ export async function onRequestPost({ request, env }) {
 
   const html = `<p>Nouvelle inscription à la newsletter :</p><p><strong>${escapeHtml(email)}</strong></p>`;
 
-  const sent = await sendEmail(env, {
+  const result = await sendEmail(env, {
     subject: 'Nouvelle inscription newsletter',
     html,
     replyTo: email,
   });
 
-  return sent ? jsonBody(200, { ok: true }) : jsonBody(502, { error: 'send_failed' });
+  return result.ok ? jsonBody(200, { ok: true }) : jsonBody(502, { error: 'send_failed', detail: result.detail });
 }
