@@ -53,7 +53,7 @@ function App() {
 
   return (
     <div className="app" data-screen-label={screenLabel}>
-      <Nav route={screenLabel} setRoute={setRoute}/>
+      <Nav route={screenLabel}/>
       <Routes>
         <Route path="/" element={<Home setRoute={setRoute}/>}/>
         <Route path="/spectacles" element={<Spectacles setRoute={setRoute}/>}/>
@@ -67,7 +67,7 @@ function App() {
         <Route path="/contact" element={<Contact/>}/>
         <Route path="*" element={<Home setRoute={setRoute}/>}/>
       </Routes>
-      <Footer setRoute={setRoute}/>
+      <Footer/>
       {tweaksOpen && (
         <div className="tweaks-panel">
           <h4>Tweaks</h4>

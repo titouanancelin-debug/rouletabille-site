@@ -1,7 +1,7 @@
 /* Écrans : Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Équipe, Partenaires, Contact */
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Motif, MotifHero, MotifMark, Poster } from './motif.jsx';
 import { SPECTACLES, AGENDA, ATELIERS, EQUIPE, PARTENAIRES } from './data.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
@@ -23,6 +23,8 @@ async function postForm(formName, data) {
 }
 
 /* ======================= NAV ======================= */
+const toPath = (id) => (id === "home" ? "/" : "/" + id);
+
 const ATELIER_CATS = [
   { id:"", label:"Tous les ateliers" },
   { id:"enfants", label:"Enfants (6–11 ans)" },
@@ -34,7 +36,7 @@ const ATELIER_CATS = [
   { id:"insertion", label:"Insertion sociale" },
 ];
 
-const Nav = ({ route, setRoute }) => {
+const Nav = ({ route }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -44,8 +46,6 @@ const Nav = ({ route, setRoute }) => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const go = (r) => { setRoute(r); setMobileOpen(false); };
 
   const items = [
     { id:"home", label:"Accueil" },
@@ -58,18 +58,18 @@ const Nav = ({ route, setRoute }) => {
 
   return (
     <nav className={`nav ${scrolled ? "is-scrolled" : ""}`}>
-      <div className="nav-logo" onClick={() => go("home")} style={{ cursor:"pointer" }}>
+      <Link to="/" className="nav-logo" style={{ textDecoration:"none" }}>
         <MotifMark size={32} color="var(--terra)"/>
         <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
           <span>Rouletabille</span>
           <span style={{ fontSize:10, fontFamily:"var(--ff-mono)", letterSpacing:"0.08em", textTransform:"uppercase", opacity:0.55, marginTop:3 }}>Fabrique artistique</span>
         </span>
-      </div>
+      </Link>
       <div className="nav-menu">
         {items.map(it => (
-          <button key={it.id} className={`nav-link ${route.startsWith(it.id) ? "active" : ""}`} onClick={() => setRoute(it.id)}>
+          <Link key={it.id} to={toPath(it.id)} className={`nav-link ${route.startsWith(it.id) ? "active" : ""}`}>
             {it.label}
-          </button>
+          </Link>
         ))}
 
       </div>
@@ -82,9 +82,9 @@ const Nav = ({ route, setRoute }) => {
       {/* Overlay mobile */}
       <div className={`nav-mobile ${mobileOpen ? "open" : ""}`}>
         {items.map(it => (
-          <button key={it.id} className={`nav-mobile-link ${route.startsWith(it.id) ? "active" : ""}`} onClick={() => go(it.id)}>
+          <Link key={it.id} to={toPath(it.id)} className={`nav-mobile-link ${route.startsWith(it.id) ? "active" : ""}`} onClick={() => setMobileOpen(false)} style={{ textDecoration:"none" }}>
             {it.label}
-          </button>
+          </Link>
         ))}
       </div>
     </nav>
@@ -1648,8 +1648,8 @@ const Partenaires = () => {
 /* ======================= PRESSE ======================= */
 const PRESS_KIT = [
   { file: "logo-cie-rouletabille.svg", label: "Logo (SVG)", desc: "Motif physalis, fond transparent" },
-  { file: "photo-physalis-1.jpg", label: "Photo 1 (JPG)", desc: "Haute définition, libre de droits pour la presse" },
-  { file: "photo-physalis-2.jpg", label: "Photo 2 (JPG)", desc: "Haute définition, libre de droits pour la presse" },
+  { file: "photo-physalis-1.jpg", label: "Visuel physalis 1 (JPG)", desc: "Macro du motif végétal de la compagnie — haute définition, libre de droits" },
+  { file: "photo-physalis-2.jpg", label: "Visuel physalis 2 (JPG)", desc: "Macro du motif végétal de la compagnie — haute définition, libre de droits" },
 ];
 
 const Presse = () => (
@@ -1902,41 +1902,43 @@ const MentionsLegales = () => (
 );
 
 /* ======================= FOOTER ======================= */
-const Footer = ({ setRoute }) => (
+const footerLinkStyle = { color:"inherit", textDecoration:"none" };
+
+const Footer = () => (
   <footer className="footer">
     <div className="col-footer" style={{ marginBottom:48 }}>
       <div>
-        <div className="nav-logo" style={{ color:"var(--paper)", fontSize:32, marginBottom:16 }}>
+        <Link to="/" className="nav-logo" style={{ color:"var(--paper)", fontSize:32, marginBottom:16, textDecoration:"none" }}>
           <MotifMark size={36} color="var(--paper)"/>
           <span>Cie Rouletabille</span>
-        </div>
+        </Link>
         <p style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}>Compagnie de théâtre fondée en 1993 à Périgueux. Labellisée « Lieu de fabrique » Région Nouvelle-Aquitaine.</p>
       </div>
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Découvrir</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li onClick={() => setRoute("spectacles")} style={{ cursor:"pointer" }}>Spectacles</li>
-          <li onClick={() => setRoute("agenda")} style={{ cursor:"pointer" }}>Agenda</li>
-          <li onClick={() => setRoute("ateliers")} style={{ cursor:"pointer" }}>Ateliers</li>
-          <li onClick={() => setRoute("equipe")} style={{ cursor:"pointer" }}>Équipe</li>
+          <li><Link to="/spectacles" style={footerLinkStyle}>Spectacles</Link></li>
+          <li><Link to="/agenda" style={footerLinkStyle}>Agenda</Link></li>
+          <li><Link to="/ateliers" style={footerLinkStyle}>Ateliers</Link></li>
+          <li><Link to="/equipe" style={footerLinkStyle}>Équipe</Link></li>
         </ul>
       </div>
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Pratique</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Contact</li>
-          <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Venir à l'atelier</li>
-          <li onClick={() => setRoute("presse")} style={{ cursor:"pointer" }}>Dossiers de presse</li>
-          <li onClick={() => setRoute("mentions-legales")} style={{ cursor:"pointer" }}>Mentions légales</li>
+          <li><Link to="/contact" style={footerLinkStyle}>Contact</Link></li>
+          <li><Link to="/contact" style={footerLinkStyle}>Venir à l'atelier</Link></li>
+          <li><Link to="/presse" style={footerLinkStyle}>Dossiers de presse</Link></li>
+          <li><Link to="/mentions-legales" style={footerLinkStyle}>Mentions légales</Link></li>
         </ul>
       </div>
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Suivre</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li><a href="https://www.instagram.com/rouletabilletheatre" target="_blank" rel="noopener" style={{ color:"inherit", textDecoration:"none" }}>Instagram</a></li>
+          <li><a href="https://www.instagram.com/rouletabilletheatre" target="_blank" rel="noopener" style={footerLinkStyle}>Instagram</a></li>
           <li>Facebook</li>
           <li>HelloAsso</li>
-          <li onClick={() => setRoute("contact")} style={{ cursor:"pointer" }}>Newsletter</li>
+          <li><Link to="/contact" style={footerLinkStyle}>Newsletter</Link></li>
         </ul>
       </div>
     </div>

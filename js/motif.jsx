@@ -5,8 +5,9 @@ import { useId } from 'react';
 
 /* Une lanterne unique, dessinée à l'origine (0,0) = point d'attache de la tige,
    s'ouvrant vers le haut jusqu'à y=-132, baie au centre. */
-const Lantern = ({ x = 0, y = 0, scale = 1, color = "#F5C842", berry = "#E8571A", delay = 0, dur = 4, veins = 4, opacity = 1 }) => {
+const Lantern = ({ x = 0, y = 0, scale = 1, color = "#F5C842", berry = "#E8571A", delay = 0, dur = 4, veins = 4, opacity = 1, image = null }) => {
   const gradId = `berry-grad-${useId()}`;
+  const clipId = `berry-clip-${useId()}`;
   const veinPaths = [
     "M-42,-30 C-15,-38,15,-38,42,-30",
     "M-60,-56 C-24,-64,24,-64,60,-56",
@@ -21,6 +22,11 @@ const Lantern = ({ x = 0, y = 0, scale = 1, color = "#F5C842", berry = "#E8571A"
           <stop offset="50%" stopColor={berry}/>
           <stop offset="100%" stopColor={`color-mix(in oklab, ${berry} 68%, black)`}/>
         </radialGradient>
+        {image && (
+          <clipPath id={clipId}>
+            <ellipse cx="0" cy="-66" rx="25" ry="27"/>
+          </clipPath>
+        )}
       </defs>
       {/* inner group pivots at y=0 (attachment point) — transform-box:fill-box + transform-origin:center bottom */}
       <g className="anim-wind" style={{ animationDelay: `${delay}s`, "--wind-dur": `${(dur * 0.88).toFixed(1)}s` }}>
@@ -34,9 +40,17 @@ const Lantern = ({ x = 0, y = 0, scale = 1, color = "#F5C842", berry = "#E8571A"
         {veinPaths.slice(0, veins).map((d, i) => (
           <path key={i} d={d} stroke={color} strokeWidth={0.95 - i*0.08} fill="none" opacity={0.55 - i*0.06} className="anim-vein" style={{ animationDelay: `${i*0.9}s` }} vectorEffect="non-scaling-stroke"/>
         ))}
-        {/* berry — dégradé pour un effet de volume (nuance) */}
-        <ellipse cx="0" cy="-66" rx="25" ry="27" fill={`url(#${gradId})`} opacity=".94" className="anim-berry" style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }}/>
-        <ellipse cx="-8" cy="-74" rx="7" ry="8" fill="rgba(255,255,255,0.3)"/>
+        {/* berry — photo réelle de la lanterne (favicon) si fournie, sinon dégradé de couleur */}
+        {image ? (
+          <g className="anim-berry" style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }}>
+            <image href={image} x="-35" y="-103" width="70" height="74" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clipId})`} opacity=".96"/>
+          </g>
+        ) : (
+          <>
+            <ellipse cx="0" cy="-66" rx="25" ry="27" fill={`url(#${gradId})`} opacity=".94" className="anim-berry" style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }}/>
+            <ellipse cx="-8" cy="-74" rx="7" ry="8" fill="rgba(255,255,255,0.3)"/>
+          </>
+        )}
         {/* top bud */}
         <circle cx="0" cy="-132" r="3.2" fill={color} opacity=".6"/>
       </g>
@@ -96,7 +110,7 @@ const MotifHero = ({ color = "#F5C842", berryColor = "#E8571A", anim = true, sty
       <path d="M178,445 C158,432 134,424 108,420" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity=".4"/>
       <path d="M418,435 C440,422 462,415 482,412" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity=".4"/>
 
-      <Lantern x={290} y={545} scale={1.05} color={color} berry={berryColor} delay={0} dur={4} veins={4}/>
+      <Lantern x={290} y={545} scale={1.05} color={color} berry={berryColor} delay={0} dur={4} veins={4} image="/icon-512.png"/>
       <Lantern x={162} y={378} scale={0.68} color={color} berry={berryColor} delay={1.5} dur={5} veins={4} opacity={0.92}/>
       <Lantern x={456} y={362} scale={0.64} color={color} berry={berryColor} delay={0.7} dur={4.5} veins={4} opacity={0.88}/>
       <Lantern x={80}  y={218} scale={0.44} color={color} berry={berryColor} delay={2.2} dur={6} veins={3} opacity={0.82}/>
