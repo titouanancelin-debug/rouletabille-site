@@ -7,7 +7,8 @@
    CONTACT_TO_EMAIL temporairement sur titouan.ancelin@gmail.com en attendant
    la vérification du domaine rouletabilletheatre.com sur Resend.
    Build command Cloudflare Pages : "npm run build", sortie : "dist".
-   Branche indexée sur Tina Cloud le 07/07/2026. */
+   Branche claude/installed-skills-overview-j4il8o indexée sur Tina Cloud
+   le 07/07/2026 (retry #2). */
 
 export function escapeHtml(str = '') {
   return String(str).replace(/[&<>"']/g, (c) => ({
