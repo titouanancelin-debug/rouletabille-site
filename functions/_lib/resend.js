@@ -3,7 +3,9 @@
    CONTACT_TO_EMAIL, configurées dans le dashboard Cloudflare Pages
    (Settings > Environment variables).
    NB: un changement de variable d'environnement seul ne redéploie pas — il
-   faut un nouveau build (push, ou "Retry" sur le DERNIER déploiement). */
+   faut un nouveau build (push, ou "Retry" sur le DERNIER déploiement).
+   CONTACT_TO_EMAIL temporairement sur titouan.ancelin@gmail.com en attendant
+   la vérification du domaine rouletabilletheatre.com sur Resend. */
 
 export function escapeHtml(str = '') {
   return String(str).replace(/[&<>"']/g, (c) => ({
