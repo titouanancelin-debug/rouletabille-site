@@ -1,7 +1,9 @@
 /* Envoi d'email via l'API Resend — utilisé par les fonctions functions/api/*.
    Nécessite les variables d'environnement RESEND_API_KEY, RESEND_FROM et
    CONTACT_TO_EMAIL, configurées dans le dashboard Cloudflare Pages
-   (Settings > Environment variables). */
+   (Settings > Environment variables).
+   NB: un changement de variable d'environnement seul ne redéploie pas — il
+   faut un nouveau build (push, ou "Retry" sur le DERNIER déploiement). */
 
 export function escapeHtml(str = '') {
   return String(str).replace(/[&<>"']/g, (c) => ({
