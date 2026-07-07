@@ -6,18 +6,16 @@ import { Motif, MotifHero, MotifMark, Poster } from './motif.jsx';
 import { SPECTACLES, AGENDA, ATELIERS, EQUIPE, PARTENAIRES } from './data.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
 
-/* ─── Formulaires : Netlify Forms ──────────────────────────────────────────
-   Géré nativement par Netlify au déploiement — aucun compte externe requis.
-   Les formulaires statiques miroirs (mêmes name= et champs) sont déclarés
-   dans index.html pour que le bot Netlify les détecte au build, car ceux-ci
-   ne sont rendus par React qu'après chargement du JS.
+/* ─── Formulaires : Cloudflare Pages Functions ─────────────────────────────
+   Chaque formulaire poste en JSON vers /api/<nom> (voir functions/api/),
+   qui envoie l'email via Resend. Le champ caché "bot-field" sert de
+   honeypot anti-spam, vérifié côté fonction.
    ─────────────────────────────────────────────────────────────────────── */
 async function postForm(formName, data) {
-  const body = new URLSearchParams({ 'form-name': formName, ...data }).toString();
-  const res = await fetch('/', {
+  const res = await fetch(`/api/${formName}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('http_error');
 }

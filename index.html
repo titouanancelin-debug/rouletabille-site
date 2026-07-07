@@ -109,53 +109,7 @@
 <!-- Barre de progression de lecture -->
 <div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
 
-<!-- Formulaires Netlify : miroirs statiques pour la détection au build.
-     Le site est une SPA React : ces formulaires JS ne sont rendus qu'après
-     chargement du script, donc invisibles pour le bot Netlify au moment du
-     build. Ces copies statiques (mêmes name= et champs) permettent à
-     Netlify de les enregistrer ; les vraies soumissions viennent des
-     formulaires React qui postent en fetch vers "/" (voir js/screens.jsx). -->
-<form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input type="text" name="bot-field"/>
-  <input type="text" name="nom"/>
-  <input type="email" name="email"/>
-  <select name="objet">
-    <option>Information spectacle</option>
-    <option>Inscription atelier</option>
-    <option>Diffusion / Programmation</option>
-    <option>Presse</option>
-    <option>Autre</option>
-  </select>
-  <textarea name="message"></textarea>
-</form>
-<form name="newsletter" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input type="text" name="bot-field"/>
-  <input type="email" name="email"/>
-</form>
-<form name="atelier" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input type="text" name="bot-field"/>
-  <input type="text" name="atelier"/>
-  <input type="text" name="nom"/>
-  <input type="email" name="email"/>
-</form>
-
 <div id="root"></div>
 
 <script type="module" src="/js/main.jsx"></script>
-
-<!-- Netlify Identity : gère les invitations/connexions de l'équipe à /admin
-     (Decap CMS). Redirige vers /admin après un clic sur un lien d'invitation
-     ou de confirmation reçu par email. -->
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", user => {
-      if (!user) {
-        window.netlifyIdentity.on("login", () => {
-          document.location.href = "/admin/";
-        });
-      }
-    });
-  }
-</script>
 </body></html>
