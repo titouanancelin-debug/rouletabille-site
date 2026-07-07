@@ -5,7 +5,8 @@
    NB: un changement de variable d'environnement seul ne redéploie pas — il
    faut un nouveau build (push, ou "Retry" sur le DERNIER déploiement).
    CONTACT_TO_EMAIL temporairement sur titouan.ancelin@gmail.com en attendant
-   la vérification du domaine rouletabilletheatre.com sur Resend. */
+   la vérification du domaine rouletabilletheatre.com sur Resend.
+   Build command Cloudflare Pages : "npm run build", sortie : "dist". */
 
 export function escapeHtml(str = '') {
   return String(str).replace(/[&<>"']/g, (c) => ({
