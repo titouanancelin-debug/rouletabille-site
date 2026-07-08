@@ -1,6 +1,6 @@
 {
   "agenda": [
-    {"image": null, "day": "04", "month": "Sep", "year": "2026", "title": "Mascarade — Cie Estomaquées", "venue": "Filature de l'Isle, Périgueux", "time": "Résidence 4–12 sept · sortie le 12", "price": "Sortie de résidence", "status": "free", "type": "résidence", "cardColor": "#3A1B2E", "cardTextColor": "#F4E8D5"},
+    {"image": null, "day": "04", "month": "Sep", "year": "2025", "title": "Mascarade — Cie Estomaquées", "venue": "Filature de l'Isle, Périgueux", "time": "Résidence 4–12 sept · sortie le 12", "price": "Sortie de résidence", "status": "free", "type": "résidence", "cardColor": "#3A1B2E", "cardTextColor": "#F4E8D5"},
     {"image": null, "day": "20", "month": "Sep", "year": "2026", "title": "Bal Salé — Cie Emilbus", "venue": "Filature de l'Isle, Périgueux", "time": "Résidence 20–27 sept", "price": "Sortie de résidence festive", "status": "free", "type": "résidence", "cardColor": "#3A1B2E", "cardTextColor": "#F4E8D5"},
     {"image": null, "day": "24", "month": "Oct", "year": "2026", "title": "Entre Tour et Bourg — Voix de femmes, regards croisés", "venue": "Périgueux & Mensignac", "time": "24–26 octobre", "price": "Voir programme", "status": "available", "type": "événement", "cardColor": "#8E3620", "cardTextColor": "#F4E8D5"},
     {"image": null, "day": "25", "month": "Nov", "year": "2026", "title": "Un Récit — Cie Lilo", "venue": "Auditorium François Mitterrand, Bergerac", "time": "18h00", "price": "Voir Cie Lilo", "status": "available", "type": "spectacle", "cardColor": "#B84A2E", "cardTextColor": "#F4E8D5"},
