@@ -1254,23 +1254,31 @@ const AGENDA_FILTERS = [
   { id:"événement", label:"Évènement" },
 ];
 
-const SEASON_MONTHS = [
-  { key:"Sep 2025",  label:"Septembre" },
-  { key:"Oct 2025",  label:"Octobre" },
-  { key:"Nov 2025",  label:"Novembre" },
-  { key:"Déc 2025",  label:"Décembre" },
-  { key:"Jan 2026",  label:"Janvier" },
-  { key:"Fév 2026",  label:"Février" },
-  { key:"Mar 2026",  label:"Mars" },
-  { key:"Avr 2026",  label:"Avril" },
-  { key:"Mai 2026",  label:"Mai" },
-  { key:"Juin 2026", label:"Juin" },
-];
+const FR_MONTHS_ORDER = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
+const FR_MONTHS_FULL = {
+  Jan:"Janvier", Fév:"Février", Mar:"Mars", Avr:"Avril", Mai:"Mai", Juin:"Juin",
+  Juil:"Juillet", Août:"Août", Sep:"Septembre", Oct:"Octobre", Nov:"Novembre", Déc:"Décembre",
+};
+
+/* Fenêtre glissante de 12 mois à partir du mois en cours — plutôt qu'une
+   liste de mois figée sur une saison qui finit par se retrouver entièrement
+   dans le passé. */
+function getRollingSeasonMonths(monthsAhead = 12) {
+  const now = new Date();
+  const out = [];
+  for (let i = 0; i < monthsAhead; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const abbr = FR_MONTHS_ORDER[d.getMonth()];
+    out.push({ key: `${abbr} ${d.getFullYear()}`, label: FR_MONTHS_FULL[abbr] });
+  }
+  return out;
+}
 
 const Agenda = ({ setRoute }) => {
   const { AGENDA } = useContent();
+  const seasonMonths = getRollingSeasonMonths();
   const [filter, setFilter] = useState("tout");
-  const [month, setMonth] = useState("Sep 2025");
+  const [month, setMonth] = useState(seasonMonths[0].key);
 
   const list = useMemo(() => {
     const base = filter === "tout" ? AGENDA : AGENDA.filter(d => d.type === filter);
@@ -1287,7 +1295,7 @@ const Agenda = ({ setRoute }) => {
 
       <Reveal variant="up" className="section-head">
         <div className="section-num">Saison</div>
-        <h2 className="section-title">Agenda<br/><span className="display-italic">2025 — 2026.</span></h2>
+        <h2 className="section-title">Agenda<br/><span className="display-italic">{seasonMonths[0].label} {seasonMonths[0].key.split(" ")[1]} — {seasonMonths[seasonMonths.length - 1].label} {seasonMonths[seasonMonths.length - 1].key.split(" ")[1]}.</span></h2>
         <div className="section-meta">{AGENDA.length} rendez-vous · spectacles, ateliers, résidences & événements.</div>
       </Reveal>
 
@@ -1301,7 +1309,7 @@ const Agenda = ({ setRoute }) => {
         padding:"0 var(--pad-x)",
       }}>
         <div style={{ display:"flex", overflowX:"auto", scrollbarWidth:"none" }}>
-          {SEASON_MONTHS.map(m => {
+          {seasonMonths.map(m => {
             const count = countForMonth(m.key);
             const active = month === m.key;
             return (
