@@ -13,13 +13,25 @@ import agendaData from '../content/agenda.json';
 import ateliersData from '../content/ateliers.json';
 import equipeData from '../content/equipe.json';
 import partenairesData from '../content/partenaires.json';
+import homeData from '../content/home.json';
+import contactData from '../content/contact.json';
+import mentionsLegalesData from '../content/mentionsLegales.json';
+import presseData from '../content/presse.json';
+import footerData from '../content/footer.json';
+import newsletterData from '../content/newsletter.json';
 
 const COLLECTIONS = {
-  spectacles:  { staticDoc: spectaclesData,  relativePath: 'spectacles.json' },
-  agenda:      { staticDoc: agendaData,      relativePath: 'agenda.json' },
-  ateliers:    { staticDoc: ateliersData,    relativePath: 'ateliers.json' },
-  equipe:      { staticDoc: equipeData,      relativePath: 'equipe.json' },
-  partenaires: { staticDoc: partenairesData, relativePath: 'partenaires.json' },
+  spectacles:      { staticDoc: spectaclesData,      relativePath: 'spectacles.json' },
+  agenda:          { staticDoc: agendaData,          relativePath: 'agenda.json' },
+  ateliers:        { staticDoc: ateliersData,        relativePath: 'ateliers.json' },
+  equipe:          { staticDoc: equipeData,          relativePath: 'equipe.json' },
+  partenaires:     { staticDoc: partenairesData,     relativePath: 'partenaires.json' },
+  home:            { staticDoc: homeData,            relativePath: 'home.json' },
+  contact:         { staticDoc: contactData,         relativePath: 'contact.json' },
+  mentionsLegales: { staticDoc: mentionsLegalesData, relativePath: 'mentionsLegales.json' },
+  presse:          { staticDoc: presseData,          relativePath: 'presse.json' },
+  footer:          { staticDoc: footerData,          relativePath: 'footer.json' },
+  newsletter:      { staticDoc: newsletterData,      relativePath: 'newsletter.json' },
 };
 
 function useLiveCollection(name) {
@@ -55,6 +67,12 @@ export function ContentProvider({ children }) {
     ATELIERS: useLiveCollection('ateliers'),
     EQUIPE: useLiveCollection('equipe'),
     PARTENAIRES: useLiveCollection('partenaires'),
+    HOME: useLiveCollection('home'),
+    CONTACT: useLiveCollection('contact'),
+    MENTIONS_LEGALES: useLiveCollection('mentionsLegales'),
+    PRESSE: useLiveCollection('presse'),
+    FOOTER: useLiveCollection('footer'),
+    NEWSLETTER: useLiveCollection('newsletter'),
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
 }

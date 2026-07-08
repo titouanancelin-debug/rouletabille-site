@@ -21,6 +21,15 @@ async function postForm(formName, data) {
   if (!res.ok) throw new Error('http_error');
 }
 
+/* Italicise le dernier mot d'une ligne de titre éditable (garde l'accent
+   typographique du site sans figer un découpage mot-à-mot en dur). */
+const italicLastWord = (text) => {
+  const words = (text || "").trim().split(" ");
+  if (words.length === 0) return null;
+  const last = words.pop();
+  return <>{words.length ? words.join(" ") + " " : ""}<span className="display-italic">{last}</span></>;
+};
+
 /* ======================= NAV ======================= */
 const toPath = (id) => (id === "home" ? "/" : "/" + id);
 
@@ -91,7 +100,9 @@ const Nav = ({ route }) => {
 };
 
 /* ======================= BOTANIC HERO ======================= */
-const BotanicHero = ({ setRoute }) => (
+const BotanicHero = ({ setRoute }) => {
+  const { HOME } = useContent();
+  return (
   <section style={{
     minHeight: "100vh",
     background: "var(--terra)",
@@ -152,8 +163,8 @@ const BotanicHero = ({ setRoute }) => (
       maxWidth: 580,
     }}>
       <Reveal variant="fade" delay={80}>
-        <div className="eyebrow" style={{ marginBottom: 28 }}>
-          Saison 2025 — 2026 · Périgueux & Dordogne
+        <div className="eyebrow" style={{ marginBottom: 28 }} data-tina-field={tinaField(HOME, "heroEyebrow")}>
+          {HOME.heroEyebrow}
         </div>
       </Reveal>
 
@@ -162,10 +173,10 @@ const BotanicHero = ({ setRoute }) => (
         lineHeight: 0.96,
         marginBottom: 32,
         color: "var(--paper)",
-      }}>
+      }} data-tina-field={tinaField(HOME, "heroLine1")}>
         <KineticTitle lineDelay={110} baseDelay={160} lines={[
-          <>Théâtre <span className="display-italic">vivant</span>,</>,
-          <>corps & <span className="display-italic">voix</span>.</>,
+          italicLastWord(HOME.heroLine1),
+          italicLastWord(HOME.heroLine2),
         ]}/>
       </h1>
 
@@ -176,8 +187,8 @@ const BotanicHero = ({ setRoute }) => (
         maxWidth: 440,
         marginBottom: 40,
         textWrap: "pretty",
-      }}>
-        Compagnie de création installée à Périgueux depuis 1993. Spectacles, ateliers et rencontres artistiques ouverts à tous, ancrés dans le territoire.
+      }} data-tina-field={tinaField(HOME, "heroIntro")}>
+        {HOME.heroIntro}
       </Reveal>
 
       <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -206,7 +217,7 @@ const BotanicHero = ({ setRoute }) => (
         textTransform: "uppercase",
       }}>
         <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
-        Fondée en 1993 · Dordogne
+        <span data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
       </Reveal>
     </div>
 
@@ -216,10 +227,12 @@ const BotanicHero = ({ setRoute }) => (
       <span className="cue-rail"><span className="cue-dot"/></span>
     </div>
   </section>
-);
+  );
+};
 
 /* ======================= SCROLL EXPAND HERO ======================= */
 const ScrollExpandHero = ({ setRoute }) => {
+  const { HOME } = useContent();
   const [p, setP]           = useState(0);
   const [expanded, setExpanded] = useState(false);
   const pRef       = useRef(0);
@@ -369,18 +382,18 @@ const ScrollExpandHero = ({ setRoute }) => {
             }}>
               <div style={{ maxWidth: 640, margin: "0 auto" }}>
                 <Reveal variant="fade" delay={80}>
-                  <div className="eyebrow" style={{ marginBottom: 28 }}>
-                    Saison 2025 — 2026 · Périgueux & Dordogne
+                  <div className="eyebrow" style={{ marginBottom: 28 }} data-tina-field={tinaField(HOME, "heroEyebrow")}>
+                    {HOME.heroEyebrow}
                   </div>
                 </Reveal>
-                <h1 className="display" style={{ fontSize: "clamp(54px, 6.5vw, 108px)", lineHeight: 0.96, marginBottom: 32, color: "var(--paper)" }}>
+                <h1 className="display" style={{ fontSize: "clamp(54px, 6.5vw, 108px)", lineHeight: 0.96, marginBottom: 32, color: "var(--paper)" }} data-tina-field={tinaField(HOME, "heroLine1")}>
                   <KineticTitle lineDelay={110} baseDelay={160} lines={[
-                    <>Théâtre <span className="display-italic">vivant</span>,</>,
-                    <>corps & <span className="display-italic">voix</span>.</>,
+                    italicLastWord(HOME.heroLine1),
+                    italicLastWord(HOME.heroLine2),
                   ]}/>
                 </h1>
-                <Reveal variant="up" delay={520} as="p" style={{ fontSize: 18, lineHeight: 1.65, color: "color-mix(in oklab, var(--paper) 78%, transparent)", maxWidth: 440, margin: "0 auto 40px", textWrap: "pretty" }}>
-                  Compagnie de création installée à Périgueux depuis 1993. Spectacles, ateliers et rencontres artistiques ouverts à tous, ancrés dans le territoire.
+                <Reveal variant="up" delay={520} as="p" style={{ fontSize: 18, lineHeight: 1.65, color: "color-mix(in oklab, var(--paper) 78%, transparent)", maxWidth: 440, margin: "0 auto 40px", textWrap: "pretty" }} data-tina-field={tinaField(HOME, "heroIntro")}>
+                  {HOME.heroIntro}
                 </Reveal>
                 <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
                   <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Découvrir les spectacles →</button>
@@ -388,7 +401,7 @@ const ScrollExpandHero = ({ setRoute }) => {
                 </Reveal>
                 <Reveal variant="fade" delay={900} style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, color: "color-mix(in oklab, var(--paper) 36%, transparent)", fontSize: 11, letterSpacing: "0.1em", fontFamily: "var(--ff-mono)", textTransform: "uppercase" }}>
                   <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
-                  Fondée en 1993 · Dordogne
+                  <span data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
                 </Reveal>
               </div>
             </div>
@@ -432,56 +445,17 @@ const ScrollExpandHero = ({ setRoute }) => {
 };
 
 /* ======================= HISTOIRE D'UN PROJET ======================= */
-const HISTOIRE_SECTIONS = [
-  {
-    id: "immersion",
-    num: "01",
-    label: "Immersion",
-    teaser: "La compagnie est installée dans le quartier du Toulon à Périgueux depuis 1993, ancré dans un quartier façonné par l'histoire ferroviaire et ouvrière.",
-    paragraphs: [
-      "La compagnie est installée dans le quartier du Toulon à Périgueux depuis 1993. Celui-ci est marqué par son origine en 1857 au moment de l'implantation de la ligne de chemin de fer et des ateliers de réparation ferroviaire du « Paris-Orléans ». Depuis 1960, la communauté des cheminots s'est transformée, a diminué. Mais le quartier garde les traces de ce passé.",
-      "La plupart des maisons sont construites sur le principe de la loi Loucheur, lui gardant un aspect de « cité ouvrière ».",
-      "La compagnie Rouletabille a été fondée le 27 septembre 1993 par 11 personnes d'origines diverses ayant toutes un lien avec le quartier du Toulon : résidant, travailleur, liens familiaux. Toutes étaient portées par des valeurs d'Education Populaire.",
-      "Elle a pour premier partenaire le Comité de Quartier du Toulon dont la mission est « Ecouter, Proposer ». Ce comité l'a encouragé à la mise en place de propositions artistiques notamment en direction des enfants car aucune activité n'existait alors. Ainsi, la mise en place d'un atelier de pratique artistique théâtrale à l'adresse des enfants et adolescents s'est concrétisé sur le quartier dès le mois d'avril 1994. Un premier spectacle « Grandir, déjà ! » en 1994, s'en suivront une quinzaine de création.",
-      "Durant plusieurs années, la compagnie partage le bureau du Comité de Quartier du Toulon et développe ses interventions et ses projets en itinérance sur la ville de Périgueux et le département. L'équipe grandit au fil des années, se forme, se structure.",
-      "En 2008, la compagnie intègre « La Filature de l'Isle », ancienne manufacture de vêtements du quartier, où un pôle culturel et sportif communal est désormais installé. Ce lieu s'inscrit dans l'histoire des quartiers populaires, et la compagnie y développe depuis un projet global de « lieu de rencontre et d'expérimentation artistique pour Tous ».",
-      "Pourquoi Rouletabille ? Aucune référence à l'auteur Gaston Leroux ! Parce que « roule ta bosse », pour suivre les encouragements institutionnels à une forme de « décentralisation théâtrale », à l'émergence de nouvelle structure pour porter l'emploi artistique.",
-    ],
-  },
-  {
-    id: "partage",
-    num: "02",
-    label: "Partage, pratique et découverte avec et pour Tous",
-    teaser: "En automne 2023, notre compagnie a fêté ses 30 ans d'existence. Un projet de création et de transmission de l'art théâtral, ouvert à la diversité humaine et culturelle du territoire.",
-    paragraphs: [
-      "En automne 2023, notre compagnie a fêté ses 30 ans d'existence. Au cours de ces années nous avons affiné nos choix et nos orientations. Nous revendiquons une activité de création et de transmission de l'art théâtral. Ce qui nous intéresse avant tout c'est la personne dans son humanité et comment cette personne peut s'ouvrir au monde à travers d'une pratique culturelle en tant qu'acteur ou spectateur.",
-      "Théâtre social, éducation populaire, création, lien social dans les quartiers, action culturelle de proximité, ateliers, stages, spectacles, rencontres… difficile de faire bref…",
-      "Pour aborder la diversité humaine et culturelle de notre territoire (dont nous suivons l'évolution au fil des années), qui nous concerne et nous motive particulièrement : nous créons des actions culturelles de proximité, spécifiques, avec nos partenaires locaux, institutionnels et associatifs. En fonction des objectifs et des possibilités, nous proposons des actions qui nous sont propres — spectacle, ateliers, stages — et des opérations « sur mesure » que nous construisons en étroite collaboration avec les besoins identifiés sur le terrain.",
-      "Nous souhaitons dans tous les cas, concevoir et proposer de nouveaux contextes de rencontre, décomplexants, responsabilisants et de partage, grâce à un théâtre social et artisanal, convivial et festif, pluridisciplinaire (musique, conte, mouvement, images…) qui unit acteurs et spectateurs dans un temps.",
-      "Un lieu de Culture pour Tous, tel est notre projet depuis son origine.",
-    ],
-  },
-  {
-    id: "equipe",
-    num: "03",
-    label: "Une équipe — Une Compagnie",
-    teaser: "Composée de professionnels aux compétences variées et de bénévoles engagés, l'équipe de Rouletabille avance et se façonne.",
-    paragraphs: [
-      "Composée de professionnels aux compétences variées et complémentaires (comédien, musicien, vidéaste, plasticien, administrateur...) et de bénévoles engagés, l'équipe de Rouletabille avance et se façonne et aujourd'hui accueille de nouveaux membres. Un noyau fondateur reste à l'écoute des projets menés, et accompagne l'équipe dans la construction des activités.",
-    ],
-  },
-];
-
 const HistoireAccordion = () => {
+  const { HOME } = useContent();
   const [open, setOpen] = useState(null);
   return (
     <div style={{ borderTop:"1px solid var(--rule)" }}>
-      {HISTOIRE_SECTIONS.map((s) => {
-        const isOpen = open === s.id;
+      {HOME.histoire.map((s, idx) => {
+        const isOpen = open === idx;
         return (
-          <div key={s.id} style={{ borderBottom:"1px solid var(--rule)" }}>
+          <div key={idx} style={{ borderBottom:"1px solid var(--rule)" }}>
             <button
-              onClick={() => setOpen(isOpen ? null : s.id)}
+              onClick={() => setOpen(isOpen ? null : idx)}
               style={{
                 width:"100%", textAlign:"left", background:"none", border:"none", cursor:"pointer",
                 padding:"28px 0", display:"grid", gridTemplateColumns:"40px 1fr auto", gap:24, alignItems:"start",
@@ -489,16 +463,16 @@ const HistoireAccordion = () => {
               }}
               aria-expanded={isOpen}
             >
-              <span className="mono" style={{ fontSize:11, opacity:0.45, paddingTop:6 }}>{s.num}</span>
+              <span className="mono" style={{ fontSize:11, opacity:0.45, paddingTop:6 }}>{String(idx + 1).padStart(2, "0")}</span>
               <div>
                 <h3 className="display" style={{
                   fontSize:"clamp(20px, 2.8vw, 32px)", lineHeight:1.05, marginBottom: isOpen ? 0 : 12,
                   color: isOpen ? "var(--terra)" : "var(--ink)", transition:"color 0.2s",
-                }}>
+                }} data-tina-field={tinaField(s, "label")}>
                   {s.label}
                 </h3>
                 {!isOpen && (
-                  <p style={{ fontSize:15, lineHeight:1.55, color:"var(--ink-soft)", margin:0, textWrap:"pretty" }}>
+                  <p style={{ fontSize:15, lineHeight:1.55, color:"var(--ink-soft)", margin:0, textWrap:"pretty" }} data-tina-field={tinaField(s, "teaser")}>
                     {s.teaser}
                   </p>
                 )}
@@ -521,7 +495,7 @@ const HistoireAccordion = () => {
                     fontSize:16, lineHeight:1.75, color:"var(--ink-soft)",
                     marginBottom: i < s.paragraphs.length - 1 ? 18 : 0,
                     textWrap:"pretty",
-                  }}>{p}</p>
+                  }} data-tina-field={tinaField(s, "paragraphs", i)}>{p}</p>
                 ))}
               </div>
             </div>
@@ -712,6 +686,7 @@ const EventCarousel = ({ setRoute }) => {
 
 /* ======================= HOME ======================= */
 const Home = ({ setRoute }) => {
+  const { HOME } = useContent();
   return (
   <>
     <ScrollExpandHero setRoute={setRoute}/>
@@ -747,20 +722,17 @@ const Home = ({ setRoute }) => {
       <div className="col-duo" style={{ gap:80, alignItems:"center", position:"relative", zIndex:2 }}>
         <Reveal variant="left">
           <div className="eyebrow" style={{ marginBottom:24 }}>La compagnie</div>
-          <div className="mono" style={{ marginBottom:16, color:"color-mix(in oklab, var(--paper) 65%, transparent)" }}>Créer. Transmettre. Faire lien.</div>
-          <h2 className="display" style={{ fontSize:"clamp(48px, 6vw, 84px)" }}>
-            Faire théâtre <span className="display-italic">avec</span>
-            <br/>les gens, <span className="display-italic">pour</span>
-            <br/>les gens.
+          <div className="mono" style={{ marginBottom:16, color:"color-mix(in oklab, var(--paper) 65%, transparent)" }} data-tina-field={tinaField(HOME, "aboutTag")}>{HOME.aboutTag}</div>
+          <h2 className="display" style={{ fontSize:"clamp(48px, 6vw, 84px)" }} data-tina-field={tinaField(HOME, "aboutTitle")}>
+            {italicLastWord(HOME.aboutTitle)}
           </h2>
         </Reveal>
         <Reveal variant="right" delay={120}>
-          <p style={{ fontSize:18, lineHeight:1.6, color:"color-mix(in oklab, var(--paper) 88%, transparent)", marginBottom:24, textWrap:"pretty" }}>
-            Depuis 1993, la Cie Rouletabille crée des projets artistiques pour permettre à chacun de découvrir, pratiquer et partager la culture. Son action s'inscrit dans une réflexion permanente autour de l'accès à la culture pour tous, en particulier pour les publics éloignés des institutions culturelles traditionnelles.
-          </p>
-          <p style={{ fontSize:18, lineHeight:1.6, color:"color-mix(in oklab, var(--paper) 88%, transparent)", marginBottom:32 }}>
-            Installée à la Filature de l'Isle à Périgueux depuis 2008 — labellisée « Lieu de fabrique » par la Région Nouvelle-Aquitaine — la compagnie mène chaque saison plus de 17 projets d'interventions artistiques en partenariat avec des structures sociales, éducatives et médico-sociales du territoire.
-          </p>
+          {HOME.aboutParagraphs.map((p, i) => (
+            <p key={i} style={{ fontSize:18, lineHeight:1.6, color:"color-mix(in oklab, var(--paper) 88%, transparent)", marginBottom: i < HOME.aboutParagraphs.length - 1 ? 24 : 32, textWrap:"pretty" }} data-tina-field={tinaField(HOME, "aboutParagraphs", i)}>
+              {p}
+            </p>
+          ))}
           <button className="btn btn-amber" onClick={() => setRoute("equipe")}>Rencontrer l'équipe →</button>
         </Reveal>
       </div>
@@ -771,7 +743,7 @@ const Home = ({ setRoute }) => {
       <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
         <div className="section-num">Publics</div>
         <h2 className="section-title">Un lieu ouvert <span className="display-italic">à toutes et tous.</span></h2>
-        <div className="section-meta">Notre projet s'adresse à tous les publics. Nous défendons une culture accessible, exigeante et accueillante — parce que chacun peut trouver sa place dans une aventure artistique.</div>
+        <div className="section-meta" data-tina-field={tinaField(HOME, "publicsIntro")}>{HOME.publicsIntro}</div>
       </Reveal>
       <div style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
         {["Enfants","Jeunes","Adultes","Habitants","Professionnels","Amateurs","Écoles","Structures sociales et médico-sociales","Collectivités"].map(label => (
@@ -1660,7 +1632,9 @@ const PRESS_KIT = [
   { file: "photo-physalis-2.jpg", label: "Visuel physalis 2 (JPG)", desc: "Macro du motif végétal de la compagnie — haute définition, libre de droits" },
 ];
 
-const Presse = () => (
+const Presse = () => {
+  const { PRESSE } = useContent();
+  return (
   <section className="section">
     <div className="section-head">
       <div className="section-num">Presse</div>
@@ -1669,11 +1643,11 @@ const Presse = () => (
     </div>
     <div className="col-split" style={{ gap:64, alignItems:"start" }}>
       <div>
-        <p style={{ fontSize:20, lineHeight:1.6, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}>
-          La Cie Rouletabille est une compagnie de théâtre fondée en 1993 à Périgueux, labellisée « Lieu de fabrique » par la Région Nouvelle-Aquitaine. Elle mène en parallèle un travail de création (spectacles, résidences) et un travail d'ateliers auprès de publics variés — enfants, ados, adultes, milieu scolaire, quartiers, insertion sociale.
+        <p style={{ fontSize:20, lineHeight:1.6, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }} data-tina-field={tinaField(PRESSE, "intro")}>
+          {PRESSE.intro}
         </p>
         <p style={{ fontSize:16, lineHeight:1.6, color:"var(--ink-soft)" }}>
-          Pour toute demande d'interview, de photo supplémentaire ou d'accréditation, écrivez-nous directement : <a href="mailto:rouletabilletheatre@gmail.com?subject=Demande%20presse" style={{ color:"var(--terra)" }}>rouletabilletheatre@gmail.com</a>.
+          Pour toute demande d'interview, de photo supplémentaire ou d'accréditation, écrivez-nous directement : <a href={`mailto:${PRESSE.contactEmail}?subject=Demande%20presse`} style={{ color:"var(--terra)" }} data-tina-field={tinaField(PRESSE, "contactEmail")}>{PRESSE.contactEmail}</a>.
         </p>
       </div>
       <div>
@@ -1694,10 +1668,12 @@ const Presse = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 /* ======================= CONTACT ======================= */
 const Contact = () => {
+  const { CONTACT } = useContent();
   const [status, setStatus] = useState('idle'); // idle | loading | sent | error
   const motifRef = useParallax(0.18, 110);
 
@@ -1722,36 +1698,35 @@ const Contact = () => {
         <div className="section-head">
           <div className="section-num">Nous joindre</div>
           <h2 className="section-title">Écrivez-<span className="display-italic">nous,</span><br/>passez nous voir.</h2>
-          <div className="section-meta">Bureau ouvert du lundi au vendredi, 9h–17h. Pour les ateliers et l'action culturelle, écrivez-nous à l'adresse ci-dessous.</div>
+          <div className="section-meta" data-tina-field={tinaField(CONTACT, "meta")}>{CONTACT.meta}</div>
         </div>
         <div className="col-duo" style={{ gap:80 }}>
           <div>
             <div style={{ marginBottom:32 }}>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Adresse</div>
               <div style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:28, lineHeight:1.2 }}>
-                Compagnie Rouletabille Théâtre<br/>
-                15 ch. des feutres du Toulon<br/>
-                24000 Périgueux
+                <span data-tina-field={tinaField(CONTACT, "addressName")}>{CONTACT.addressName}</span><br/>
+                <span data-tina-field={tinaField(CONTACT, "addressLine1")}>{CONTACT.addressLine1}</span><br/>
+                <span data-tina-field={tinaField(CONTACT, "addressLine2")}>{CONTACT.addressLine2}</span>
               </div>
             </div>
             <div style={{ marginBottom:32 }}>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Contact général</div>
-              <div style={{ fontSize:18, color:"var(--terra)" }}>rouletabilletheatre@gmail.com</div>
-              <div style={{ fontSize:18, color:"var(--terra)" }}>www.rouletabilletheatre.com</div>
-              <div className="mono" style={{ marginTop:8 }}>06 95 60 34 89</div>
-              <div className="mono">05 53 06 07 45</div>
+              <div style={{ fontSize:18, color:"var(--terra)" }} data-tina-field={tinaField(CONTACT, "email")}>{CONTACT.email}</div>
+              <div style={{ fontSize:18, color:"var(--terra)" }} data-tina-field={tinaField(CONTACT, "website")}>{CONTACT.website}</div>
+              <div className="mono" style={{ marginTop:8 }} data-tina-field={tinaField(CONTACT, "phone1")}>{CONTACT.phone1}</div>
+              <div className="mono" data-tina-field={tinaField(CONTACT, "phone2")}>{CONTACT.phone2}</div>
             </div>
             <div style={{ marginBottom:32 }}>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Horaires bureau</div>
-              <div style={{ fontSize:16, lineHeight:1.7 }}>Lundi – Vendredi : 9h–17h</div>
+              <div style={{ fontSize:16, lineHeight:1.7 }} data-tina-field={tinaField(CONTACT, "hours")}>{CONTACT.hours}</div>
             </div>
             <div>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Accès</div>
               <div style={{ fontSize:14, lineHeight:1.7, color:"var(--ink-soft)" }}>
-                Vélo · Points d'accroche autour de la Filature de l'Isle<br/>
-                Bus · « Salle Omnisports » (ligne A) ou « Privilège » (ligne e1)<br/>
-                Voiture · Parking autour de la Filature de l'Isle<br/>
-                Accessibilité · Rampe d'accès mobilité réduite disponible
+                {CONTACT.access.map((line, i) => (
+                  <span key={i} data-tina-field={tinaField(CONTACT, "access", i)}>{line}{i < CONTACT.access.length - 1 && <br/>}</span>
+                ))}
               </div>
             </div>
           </div>
@@ -1797,6 +1772,7 @@ const Contact = () => {
 
 /* ======================= NEWSLETTER ======================= */
 const Newsletter = () => {
+  const { NEWSLETTER } = useContent();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState('idle'); // idle | loading | done | error
 
@@ -1815,10 +1791,11 @@ const Newsletter = () => {
     <section className="section" style={{ background:"var(--amber)", color:"var(--ink)", paddingTop:64, paddingBottom:64 }}>
       <div className="col-newsletter">
         <h2 className="display" style={{ fontSize:"clamp(40px, 5vw, 72px)" }}>
-          La saison<br/><span className="display-italic">par lettre.</span>
+          <span data-tina-field={tinaField(NEWSLETTER, "titleLine1")}>{NEWSLETTER.titleLine1}</span><br/>
+          <span className="display-italic" data-tina-field={tinaField(NEWSLETTER, "titleLine2")}>{NEWSLETTER.titleLine2}</span>
         </h2>
         <div>
-          <p style={{ fontSize:18, marginBottom:24, maxWidth:480 }}>Une lettre par mois. Les nouvelles dates, les coulisses des créations, les ateliers à venir. Pas de spam, promis.</p>
+          <p style={{ fontSize:18, marginBottom:24, maxWidth:480 }} data-tina-field={tinaField(NEWSLETTER, "description")}>{NEWSLETTER.description}</p>
           {status === 'done' ? (
             <div className="display-italic" style={{ fontSize:32 }}>Inscrit. À très vite ✦</div>
           ) : (
@@ -1844,7 +1821,9 @@ const Newsletter = () => {
 };
 
 /* ======================= MENTIONS LÉGALES ======================= */
-const MentionsLegales = () => (
+const MentionsLegales = () => {
+  const { MENTIONS_LEGALES: M } = useContent();
+  return (
   <section className="section">
     <div className="section-head">
       <div className="section-num">Légal</div>
@@ -1855,27 +1834,27 @@ const MentionsLegales = () => (
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Éditeur du site</h3>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
-          Cie Rouletabille — association loi 1901<br/>
-          Siège social : 110 rue du Cluzeau, 24110 Périgueux<br/>
-          SIRET : 394 282 016 00028<br/>
-          Représentante légale : Françoise Marquer<br/>
-          Contact : <a href="mailto:rouletabilletheatre@gmail.com" style={{ color:"var(--terra)" }}>rouletabilletheatre@gmail.com</a>
+          <span data-tina-field={tinaField(M, "associationName")}>{M.associationName}</span><br/>
+          Siège social : <span data-tina-field={tinaField(M, "siege")}>{M.siege}</span><br/>
+          SIRET : <span data-tina-field={tinaField(M, "siret")}>{M.siret}</span><br/>
+          Représentante légale : <span data-tina-field={tinaField(M, "representante")}>{M.representante}</span><br/>
+          Contact : <a href={`mailto:${M.contactEmail}`} style={{ color:"var(--terra)" }} data-tina-field={tinaField(M, "contactEmail")}>{M.contactEmail}</a>
         </p>
       </div>
 
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Directeur de la publication</h3>
-        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
-          Françoise Marquer, en qualité de représentante légale de l'association.
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }} data-tina-field={tinaField(M, "representante")}>
+          {M.representante}, en qualité de représentante légale de l'association.
         </p>
       </div>
 
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Hébergement</h3>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
-          Cloudflare, Inc.<br/>
-          101 Townsend Street, San Francisco, California 94107, USA<br/>
-          <a href="https://www.cloudflare.com" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>cloudflare.com</a>
+          <span data-tina-field={tinaField(M, "hebergeurNom")}>{M.hebergeurNom}</span><br/>
+          <span data-tina-field={tinaField(M, "hebergeurAdresse")}>{M.hebergeurAdresse}</span><br/>
+          <a href={M.hebergeurUrl} target="_blank" rel="noopener" style={{ color:"var(--terra)" }} data-tina-field={tinaField(M, "hebergeurUrl")}>{M.hebergeurUrl.replace(/^https?:\/\//, "")}</a>
         </p>
       </div>
 
@@ -1895,7 +1874,7 @@ const MentionsLegales = () => (
           Ces données sont conservées par la Cie Rouletabille le temps nécessaire au traitement de votre demande, et transitent techniquement par Cloudflare (hébergeur du site et de ses formulaires) et Resend (service d'envoi des emails), en tant que sous-traitants. Elles ne sont ni vendues ni transmises à d'autres tiers.
         </p>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
-          Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition sur vos données. Pour l'exercer, écrivez à <a href="mailto:rouletabilletheatre@gmail.com" style={{ color:"var(--terra)" }}>rouletabilletheatre@gmail.com</a>. Vous pouvez également introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>CNIL</a>.
+          Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition sur vos données. Pour l'exercer, écrivez à <a href={`mailto:${M.contactEmail}`} style={{ color:"var(--terra)" }} data-tina-field={tinaField(M, "contactEmail")}>{M.contactEmail}</a>. Vous pouvez également introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>CNIL</a>.
         </p>
       </div>
 
@@ -1907,12 +1886,15 @@ const MentionsLegales = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 /* ======================= FOOTER ======================= */
 const footerLinkStyle = { color:"inherit", textDecoration:"none" };
 
-const Footer = () => (
+const Footer = () => {
+  const { FOOTER } = useContent();
+  return (
   <footer className="footer">
     <div className="col-footer" style={{ marginBottom:48 }}>
       <div>
@@ -1920,7 +1902,7 @@ const Footer = () => (
           <MotifMark size={36} color="var(--paper)"/>
           <span>Cie Rouletabille</span>
         </Link>
-        <p style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}>Compagnie de théâtre fondée en 1993 à Périgueux. Labellisée « Lieu de fabrique » Région Nouvelle-Aquitaine.</p>
+        <p style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }} data-tina-field={tinaField(FOOTER, "tagline")}>{FOOTER.tagline}</p>
       </div>
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Découvrir</div>
@@ -1955,6 +1937,7 @@ const Footer = () => (
       <span>Saison 2025 — 2026 · Périgueux</span>
     </div>
   </footer>
-);
+  );
+};
 
 export { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer };
