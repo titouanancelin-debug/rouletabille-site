@@ -4,9 +4,10 @@
    GraphQL généré, enrichies par useTina pour permettre le clic-pour-éditer
    (data-tina-field). En dehors de ce contexte (site public), on ne fait
    aucun appel réseau supplémentaire : le contenu reste celui bundlé au build. */
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useTina, useEditState } from 'tinacms/react';
 import { client } from '../tina/__generated__/client';
+import { expandAtelierRecurrence } from './recurrence.js';
 
 import spectaclesData from '../content/spectacles.json';
 import agendaData from '../content/agenda.json';
@@ -61,10 +62,17 @@ function useLiveCollection(name) {
 const ContentContext = createContext(null);
 
 export function ContentProvider({ children }) {
+  const agendaFromContent = useLiveCollection('agenda');
+  const ateliers = useLiveCollection('ateliers');
+  const agenda = useMemo(
+    () => [...agendaFromContent, ...expandAtelierRecurrence(ateliers)],
+    [agendaFromContent, ateliers]
+  );
+
   const value = {
     SPECTACLES: useLiveCollection('spectacles'),
-    AGENDA: useLiveCollection('agenda'),
-    ATELIERS: useLiveCollection('ateliers'),
+    AGENDA: agenda,
+    ATELIERS: ateliers,
     EQUIPE: useLiveCollection('equipe'),
     PARTENAIRES: useLiveCollection('partenaires'),
     HOME: useLiveCollection('home'),
