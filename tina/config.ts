@@ -30,7 +30,7 @@ export default defineConfig({
         path: "content",
         format: "json",
         match: { include: "spectacles" },
-        ui: { global: true },
+        ui: { global: true, router: () => "/spectacles" },
         fields: [
           {
             type: "object",
@@ -62,7 +62,7 @@ export default defineConfig({
         path: "content",
         format: "json",
         match: { include: "agenda" },
-        ui: { global: true },
+        ui: { global: true, router: () => "/agenda" },
         fields: [
           {
             type: "object",
@@ -93,7 +93,7 @@ export default defineConfig({
         path: "content",
         format: "json",
         match: { include: "ateliers" },
-        ui: { global: true },
+        ui: { global: true, router: () => "/ateliers" },
         fields: [
           {
             type: "object",
@@ -122,7 +122,7 @@ export default defineConfig({
         path: "content",
         format: "json",
         match: { include: "equipe" },
-        ui: { global: true },
+        ui: { global: true, router: () => "/equipe" },
         fields: [
           {
             type: "object",
@@ -154,7 +154,7 @@ export default defineConfig({
         path: "content",
         format: "json",
         match: { include: "partenaires" },
-        ui: { global: true },
+        ui: { global: true, router: () => "/partenaires" },
         fields: [
           {
             type: "object",
