@@ -21,6 +21,17 @@ async function postForm(formName, data) {
   if (!res.ok) throw new Error('http_error');
 }
 
+/* Photo réelle uploadée via Tina pour remplacer un visuel généré (affiche,
+   pastille couleur, initiales...) quand elle est renseignée sur l'item. */
+const CardPhoto = ({ item, alt, style }) => (
+  <img
+    src={item.image}
+    alt={alt || ""}
+    data-tina-field={tinaField(item, "image")}
+    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
+  />
+);
+
 /* Italicise le dernier mot d'une ligne de titre éditable (garde l'accent
    typographique du site sans figer un découpage mot-à-mot en dur). */
 const italicLastWord = (text) => {
@@ -545,14 +556,34 @@ const EventCard = ({ item, setRoute }) => {
       <div className="card-fx" style={{ aspectRatio:"3/4", position:"relative", overflow:"hidden" }}>
         {sp ? (
           <>
-            <Poster bg={sp.color} ink={sp.textColor} title={sp.title} subtitle={sp.tag} num={sp.num} variant={spIdx % 4}/>
+            {sp.image ? <CardPhoto item={sp} alt={sp.title} style={{ position:"absolute", inset:0 }}/> : <Poster bg={sp.color} ink={sp.textColor} title={sp.title} subtitle={sp.tag} num={sp.num} variant={spIdx % 4}/>}
             <div style={{
               position:"absolute", bottom:0, left:0, right:0,
               background:"linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)",
               padding:"52px 18px 18px", color:"#fff",
             }}>
+              {sp.image && <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }} data-tina-field={tinaField(sp, "title")}>{sp.title}</h3>}
               <div style={{ fontFamily:"var(--ff-mono)", fontSize:11, marginBottom:4, opacity:0.78 }}>{item.venue}</div>
               <div style={{ fontFamily:"var(--ff-mono)", fontSize:11, opacity:0.58 }}>{item.time} · {item.price}</div>
+            </div>
+          </>
+        ) : item.image ? (
+          <>
+            <CardPhoto item={item} alt={item.title} style={{ position:"absolute", inset:0 }}/>
+            <div style={{
+              position:"absolute", inset:0,
+              background:"linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 55%)",
+              padding:28, color:"#fff",
+              display:"flex", flexDirection:"column", justifyContent:"space-between",
+            }}>
+              <div style={{ fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.12em", padding:"3px 10px", border:"1px solid #fff", display:"inline-block", alignSelf:"start", opacity:0.85, textTransform:"uppercase" }}>
+                {TYPE_LABEL[item.type]}
+              </div>
+              <div>
+                <h3 className="display" style={{ fontSize:"clamp(22px, 2.8vw, 34px)", lineHeight:1.02, marginBottom:8 }}>{item.title}</h3>
+                <div style={{ fontFamily:"var(--ff-mono)", fontSize:12, marginBottom:4, opacity:0.78 }}>{item.venue}</div>
+                <div style={{ fontFamily:"var(--ff-mono)", fontSize:12, opacity:0.6 }}>{item.time} · {item.price}</div>
+              </div>
             </div>
           </>
         ) : (
@@ -764,8 +795,8 @@ const Home = ({ setRoute }) => {
 /* ======================= SPECTACLE CARD ======================= */
 const SpectacleCard = ({ s, variant=0, onClick }) => (
   <article className="card card-fx" onClick={onClick} style={{ cursor:"pointer", background:"transparent", border:"none" }}>
-    <div className="card-img noise" style={{ aspectRatio:"4/5" }}>
-      <Poster bg={s.color} ink={s.textColor} title={s.title} subtitle={s.tag} num={s.num} variant={variant}/>
+    <div className="card-img noise" style={{ aspectRatio:"4/5", position:"relative", overflow:"hidden" }}>
+      {s.image ? <CardPhoto item={s} alt={s.title}/> : <Poster bg={s.color} ink={s.textColor} title={s.title} subtitle={s.tag} num={s.num} variant={variant}/>}
     </div>
     <div style={{ padding:"16px 4px 8px", display:"flex", justifyContent:"space-between", alignItems:"baseline", borderTop:"1px solid var(--rule)", marginTop:12 }}>
       <div>
@@ -904,12 +935,19 @@ const Spectacles = ({ setRoute }) => {
             <div className="grid-2">
               {residences.map((d, i) => (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div style={{ padding:32, border:"1px solid rgba(242,228,200,0.15)" }}>
+                  <div style={{ border:"1px solid rgba(242,228,200,0.15)" }}>
+                    {d.image && (
+                      <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
+                        <CardPhoto item={d} alt={d.title}/>
+                      </div>
+                    )}
+                    <div style={{ padding:32 }}>
                     <div style={{ display:"inline-block", background:"var(--plum)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Résidence</div>
                     <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}</h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
                     <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
                     <div style={{ fontSize:13, opacity:0.5, fontStyle:"italic" }} data-tina-field={tinaField(d, "price")}>{d.price}</div>
+                    </div>
                   </div>
                 </Reveal>
               ))}
@@ -934,16 +972,23 @@ const Spectacles = ({ setRoute }) => {
           <div className="grid-3" style={{ marginBottom:48 }}>
             {ATELIERS.slice(0, 3).map((a, i) => (
               <Reveal key={a.num} variant="up" delay={i * 80}>
-                <div className="noise" style={{ background:a.color, color:a.textColor, padding:28, minHeight:220, display:"flex", flexDirection:"column", justifyContent:"space-between", position:"relative", overflow:"hidden" }}>
-                  <div style={{ position:"absolute", right:-20, bottom:-30, opacity:0.12 }}>
-                    <Motif size={160} color={a.textColor} berryColor={a.textColor} rotate={10} seed={i+1}/>
-                  </div>
-                  <div>
+                <div className={a.image ? "" : "noise"} style={{ background: a.image ? "#000" : a.color, color:a.textColor, padding:28, minHeight:220, display:"flex", flexDirection:"column", justifyContent:"space-between", position:"relative", overflow:"hidden" }}>
+                  {a.image ? (
+                    <>
+                      <CardPhoto item={a} alt={a.title} style={{ position:"absolute", inset:0, opacity:0.55 }}/>
+                      <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15))" }}/>
+                    </>
+                  ) : (
+                    <div style={{ position:"absolute", right:-20, bottom:-30, opacity:0.12 }}>
+                      <Motif size={160} color={a.textColor} berryColor={a.textColor} rotate={10} seed={i+1}/>
+                    </div>
+                  )}
+                  <div style={{ position:"relative", zIndex:1 }}>
                     <div className="mono" style={{ marginBottom:16, opacity:0.6 }}>{a.num}</div>
                     <h4 className="display" style={{ fontSize:26, lineHeight:1, marginBottom:10 }} data-tina-field={tinaField(a, "title")}>{a.title}</h4>
                     <div style={{ fontSize:13, opacity:0.8 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
                   </div>
-                  <div style={{ fontSize:13, borderTop:`1px solid ${a.textColor}`, paddingTop:14, marginTop:16, opacity:0.55 }} data-tina-field={tinaField(a, "when")}>{a.when}</div>
+                  <div style={{ position:"relative", zIndex:1, fontSize:13, borderTop:`1px solid ${a.textColor}`, paddingTop:14, marginTop:16, opacity:0.55 }} data-tina-field={tinaField(a, "when")}>{a.when}</div>
                 </div>
               </Reveal>
             ))}
@@ -971,6 +1016,11 @@ const Spectacles = ({ setRoute }) => {
                       <div className="display" style={{ fontSize:42, lineHeight:1 }}>{d.day}</div>
                       <div className="mono" style={{ fontSize:11, marginTop:4, opacity:0.55 }}>{d.month} {d.year}</div>
                     </div>
+                    {d.image && (
+                      <div style={{ width:120, aspectRatio:"4/3", position:"relative", overflow:"hidden", flexShrink:0 }}>
+                        <CardPhoto item={d} alt={d.title}/>
+                      </div>
+                    )}
                     <div style={{ flex:1 }}>
                       <div style={{ display:"inline-block", background:d.cardColor || "var(--amber)", color:d.cardTextColor || "var(--ink)", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"3px 10px", textTransform:"uppercase", marginBottom:10 }}>
                         {d.type}
@@ -1021,12 +1071,19 @@ const Spectacles = ({ setRoute }) => {
             <div className="grid-3">
               {atelierList.map((a,i) => (
                 <Reveal key={a.num} variant="scale" delay={(i % 3) * 80} style={{ display:"flex" }}>
-                  <article className="noise" style={{ flex:1, background:a.color, color:a.textColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
+                  <article className={a.image ? "" : "noise"} style={{ flex:1, background: a.image ? "#000" : a.color, color:a.textColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
                     onClick={() => setSelectedAtelier(selectedAtelier === a.num ? null : a.num)}
                   >
-                    <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
-                      <Motif size={220} color={a.textColor} berryColor={a.textColor} rotate={20} seed={parseInt(a.num.slice(1))}/>
-                    </div>
+                    {a.image ? (
+                      <>
+                        <CardPhoto item={a} alt={a.title} style={{ position:"absolute", inset:0, opacity:0.5 }}/>
+                        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2))" }}/>
+                      </>
+                    ) : (
+                      <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
+                        <Motif size={220} color={a.textColor} berryColor={a.textColor} rotate={20} seed={parseInt(a.num.slice(1))}/>
+                      </div>
+                    )}
                     <div style={{ position:"relative", zIndex:2 }}>
                       <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }} data-tina-field={tinaField(a, "title")}>{a.title}</h3>
                       <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
@@ -1082,7 +1139,7 @@ const FicheSpectacle = ({ setRoute }) => {
         <button className="nav-link" onClick={() => setRoute("spectacles")} style={{ paddingLeft:0, marginBottom:24 }}>← Notre travail</button>
         <div className="col-split" style={{ gap:64, alignItems:"start" }}>
           <div className="noise" style={{ position:"relative", aspectRatio:"4/5", overflow:"hidden" }}>
-            <Poster bg={s.color} ink={s.textColor} title={s.title} subtitle={s.tag} num={s.num} variant={2}/>
+            {s.image ? <CardPhoto item={s} alt={s.title}/> : <Poster bg={s.color} ink={s.textColor} title={s.title} subtitle={s.tag} num={s.num} variant={2}/>}
           </div>
           <div>
             <div className="eyebrow" style={{ marginBottom:20 }}>{s.tag} · {s.duration} · {s.ages}</div>
@@ -1149,12 +1206,13 @@ const AgendaCard = ({ d, onClick }) => {
         position:"relative", aspectRatio:"3/2", overflow:"hidden",
         background: spectacleData ? spectacleData.color : (d.cardColor || "var(--paper-warm)"),
       }}>
-        {spectacleData && (
+        {d.image ? (
+          <CardPhoto item={d} alt={d.title} style={{ position:"absolute", inset:0 }}/>
+        ) : spectacleData ? (
           <div style={{ position:"absolute", inset:0 }}>
-            <Poster bg={spectacleData.color} ink={spectacleData.textColor} title={spectacleData.title} subtitle={spectacleData.tag} num={spectacleData.num} variant={1}/>
+            {spectacleData.image ? <CardPhoto item={spectacleData} alt={spectacleData.title}/> : <Poster bg={spectacleData.color} ink={spectacleData.textColor} title={spectacleData.title} subtitle={spectacleData.tag} num={spectacleData.num} variant={1}/>}
           </div>
-        )}
-        {!spectacleData && (
+        ) : (
           <div style={{
             position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", opacity:0.18,
           }}>
@@ -1372,22 +1430,29 @@ const Ateliers = ({ audience = "" }) => {
           <div className="grid-3">
             {list.map((a,i) => (
               <Reveal key={a.num} variant="scale" delay={(i % 3) * 80} style={{ display:"flex" }}>
-              <article className="noise" style={{ flex:1, background:a.color, color:a.textColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
+              <article className={a.image ? "" : "noise"} style={{ flex:1, background: a.image ? "#000" : a.color, color:a.textColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
                 onClick={() => setSelected(selected === a.num ? null : a.num)}
               >
-                <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
-                  <Motif size={220} color={a.textColor} berryColor={a.textColor} rotate={20} seed={parseInt(a.num.slice(1))}/>
-                </div>
+                {a.image ? (
+                  <>
+                    <CardPhoto item={a} alt={a.title} style={{ position:"absolute", inset:0, opacity:0.5 }}/>
+                    <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2))" }}/>
+                  </>
+                ) : (
+                  <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
+                    <Motif size={220} color={a.textColor} berryColor={a.textColor} rotate={20} seed={parseInt(a.num.slice(1))}/>
+                  </div>
+                )}
                 <div style={{ position:"relative", zIndex:2 }}>
-                  <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
-                  <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
-                  <p style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}>{a.desc}</p>
+                  <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }} data-tina-field={tinaField(a, "title")}>{a.title}</h3>
+                  <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
+                  <p style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }} data-tina-field={tinaField(a, "desc")}>{a.desc}</p>
                 </div>
                 <div style={{ position:"relative", zIndex:2, paddingTop:24, marginTop:24, borderTop:`1px solid ${a.textColor}`, opacity:0.95 }}>
-                  <div className="mono" style={{ marginBottom:6 }}>{a.when}</div>
-                  <div className="mono" style={{ marginBottom:6, opacity:0.7 }}>{a.where}</div>
+                  <div className="mono" style={{ marginBottom:6 }} data-tina-field={tinaField(a, "when")}>{a.when}</div>
+                  <div className="mono" style={{ marginBottom:6, opacity:0.7 }} data-tina-field={tinaField(a, "where")}>{a.where}</div>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginTop:12 }}>
-                    <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }}>{a.price}</strong>
+                    <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }} data-tina-field={tinaField(a, "price")}>{a.price}</strong>
                     <span>{selected === a.num ? "S'inscrire ↓" : "→"}</span>
                   </div>
                   {selected === a.num && (
@@ -1463,7 +1528,7 @@ const Equipe = ({ setRoute }) => {
           </div>
           <div style={{ position:"sticky", top:100 }}>
             <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:24 }}>
-              <Poster bg={TEAM_PALETTE[active] || "#B84A2E"} ink="#F4E8D5" title={current.name.split(" ")[0]} subtitle={current.role.split(" • ")[0]} num={String(active+1).padStart(2,"0")} variant={active % 4} motifOpacity={0.5}/>
+              {current.image ? <CardPhoto item={current} alt={current.name}/> : <Poster bg={TEAM_PALETTE[active] || "#B84A2E"} ink="#F4E8D5" title={current.name.split(" ")[0]} subtitle={current.role.split(" • ")[0]} num={String(active+1).padStart(2,"0")} variant={active % 4} motifOpacity={0.5}/>}
             </div>
             <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty", marginBottom: current.quote ? 16 : 0 }} data-tina-field={tinaField(current, "bio")}>{current.bio}</p>
             {current.quote && (
@@ -1483,7 +1548,7 @@ const Equipe = ({ setRoute }) => {
           {associes.map((p, i) => (
             <div key={p.name}>
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
-                <Poster bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>
+                {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
               </div>
               <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }} data-tina-field={tinaField(p, "name")}>{p.name}</h3>
               <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
@@ -1538,8 +1603,15 @@ const TYPE_META = {
   },
 };
 
-const PartnerLogo = ({ name, bg }) => {
-  const initials = name.split(/[\s&–-]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+const PartnerLogo = ({ partner, bg }) => {
+  const initials = partner.name.split(/[\s&–-]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  if (partner.image) {
+    return (
+      <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+        <CardPhoto item={partner} alt={partner.name}/>
+      </div>
+    );
+  }
   return (
     <div aria-hidden="true" style={{
       width: 44, height: 44, borderRadius: '50%', background: bg, color: '#F4E8D5',
@@ -1607,7 +1679,7 @@ const Partenaires = () => {
                     onMouseEnter={p.url ? e => { e.currentTarget.style.background='var(--paper-deep)'; e.currentTarget.style.borderColor=meta.accent; } : undefined}
                     onMouseLeave={p.url ? e => { e.currentTarget.style.background='var(--paper-warm)'; e.currentTarget.style.borderColor='var(--rule)'; } : undefined}
                   >
-                    <PartnerLogo name={p.name} bg={meta.bg} />
+                    <PartnerLogo partner={p} bg={meta.bg} />
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }} data-tina-field={tinaField(p, "name")}>{p.name}</div>
                     </div>

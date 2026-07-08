@@ -40,6 +40,7 @@ export default defineConfig({
             ui: { itemProps: (item) => ({ label: item?.title || "Spectacle" }) },
             fields: [
               { type: "string", name: "id", label: "Identifiant (unique, sans espace)" },
+              { type: "image", name: "image", label: "Photo (optionnel — sinon l'affiche générée s'affiche)" },
               { type: "string", name: "num", label: "Numéro" },
               { type: "string", name: "title", label: "Titre" },
               { type: "string", name: "tag", label: "Catégorie" },
@@ -71,6 +72,7 @@ export default defineConfig({
             list: true,
             ui: { itemProps: (item) => ({ label: `${item?.title || "Date"} — ${item?.day}/${item?.month}/${item?.year}` }) },
             fields: [
+              { type: "image", name: "image", label: "Photo (optionnel — sinon la carte générée s'affiche)" },
               { type: "string", name: "day", label: "Jour" },
               { type: "string", name: "month", label: "Mois (3 lettres)" },
               { type: "string", name: "year", label: "Année" },
@@ -102,6 +104,7 @@ export default defineConfig({
             list: true,
             ui: { itemProps: (item) => ({ label: item?.title || "Atelier" }) },
             fields: [
+              { type: "image", name: "image", label: "Photo (optionnel — sinon la carte de couleur s'affiche)" },
               { type: "string", name: "num", label: "Numéro" },
               { type: "string", name: "title", label: "Titre" },
               { type: "string", name: "who", label: "Public" },
@@ -131,6 +134,7 @@ export default defineConfig({
             list: true,
             ui: { itemProps: (item) => ({ label: item?.name || "Membre" }) },
             fields: [
+              { type: "image", name: "image", label: "Photo (optionnel — sinon le portrait généré s'affiche)" },
               { type: "string", name: "name", label: "Nom" },
               { type: "string", name: "role", label: "Rôle" },
               {
@@ -163,6 +167,7 @@ export default defineConfig({
             list: true,
             ui: { itemProps: (item) => ({ label: item?.name || "Partenaire" }) },
             fields: [
+              { type: "image", name: "image", label: "Logo (optionnel — sinon les initiales s'affichent)" },
               { type: "string", name: "name", label: "Nom" },
               {
                 type: "string",
