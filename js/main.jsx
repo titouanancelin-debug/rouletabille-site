@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { initFX } from './fx.jsx';
+import { ContentProvider } from './content-context.jsx';
 import { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer } from './screens.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -110,6 +111,8 @@ function App() {
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <App/>
+    <ContentProvider>
+      <App/>
+    </ContentProvider>
   </BrowserRouter>
 );

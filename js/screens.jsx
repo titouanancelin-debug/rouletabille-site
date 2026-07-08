@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Motif, MotifHero, MotifMark, Poster } from './motif.jsx';
-import { SPECTACLES, AGENDA, ATELIERS, EQUIPE, PARTENAIRES } from './data.jsx';
+import { useContent } from './content-context.jsx';
+import { tinaField } from 'tinacms/react';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
 
 /* ─── Formulaires : Cloudflare Pages Functions ─────────────────────────────
@@ -534,7 +535,7 @@ const HistoireAccordion = () => {
 /* ======================= EVENT CAROUSEL ======================= */
 const FR_MONTHS_IDX = {Jan:0,Fév:1,Mar:2,Avr:3,Mai:4,Juin:5,Juil:6,Août:7,Sep:8,Oct:9,Nov:10,Déc:11};
 
-const getFeaturedEvents = () => {
+const getFeaturedEvents = (AGENDA) => {
   const seen = new Set();
   const today = new Date(); today.setHours(0,0,0,0);
   return AGENDA
@@ -555,6 +556,7 @@ const getFeaturedEvents = () => {
 const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence" };
 
 const EventCard = ({ item, setRoute }) => {
+  const { SPECTACLES } = useContent();
   const sp = item.spectacle ? SPECTACLES.find(s => s.id === item.spectacle) : null;
   const spIdx = sp ? SPECTACLES.findIndex(s => s.id === item.spectacle) : 0;
   const ink = item.cardTextColor || "var(--paper)";
@@ -621,7 +623,7 @@ const EventCard = ({ item, setRoute }) => {
         <div style={{ fontFamily:"var(--ff-mono)", fontSize:10, color:"var(--terra)", marginBottom:4 }}>
           {item.day} {item.month} · {TYPE_LABEL[item.type]}
         </div>
-        <h4 className="display" style={{ fontSize:"clamp(14px, 1.3vw, 17px)", lineHeight:1.1 }}>
+        <h4 className="display" style={{ fontSize:"clamp(14px, 1.3vw, 17px)", lineHeight:1.1 }} data-tina-field={tinaField(sp || item, "title")}>
           {sp?.title || item.title}<span className="card-arrow">→</span>
         </h4>
       </div>
@@ -630,7 +632,8 @@ const EventCard = ({ item, setRoute }) => {
 };
 
 const EventCarousel = ({ setRoute }) => {
-  const items = useMemo(getFeaturedEvents, []);
+  const { AGENDA } = useContent();
+  const items = useMemo(() => getFeaturedEvents(AGENDA), [AGENDA]);
   const [idx, setIdx] = useState(0);
   const [layout, setLayout] = useState({ w:900, cols:3 });
   const containerRef = useRef(null);
@@ -844,6 +847,7 @@ const TRAVAIL_TABS = [
 ];
 
 const Spectacles = ({ setRoute }) => {
+  const { AGENDA, ATELIERS } = useContent();
   const [tab, setTab] = useState("residences");
   const [atelierFilter, setAtelierFilter] = useState("");
   const [selectedAtelier, setSelectedAtelier] = useState(null);
@@ -930,10 +934,10 @@ const Spectacles = ({ setRoute }) => {
                 <Reveal key={i} variant="up" delay={i * 100}>
                   <div style={{ padding:32, border:"1px solid rgba(242,228,200,0.15)" }}>
                     <div style={{ display:"inline-block", background:"var(--plum)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Résidence</div>
-                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}</h3>
+                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}</h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
-                    <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
-                    <div style={{ fontSize:13, opacity:0.5, fontStyle:"italic" }}>{d.price}</div>
+                    <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
+                    <div style={{ fontSize:13, opacity:0.5, fontStyle:"italic" }} data-tina-field={tinaField(d, "price")}>{d.price}</div>
                   </div>
                 </Reveal>
               ))}
@@ -964,10 +968,10 @@ const Spectacles = ({ setRoute }) => {
                   </div>
                   <div>
                     <div className="mono" style={{ marginBottom:16, opacity:0.6 }}>{a.num}</div>
-                    <h4 className="display" style={{ fontSize:26, lineHeight:1, marginBottom:10 }}>{a.title}</h4>
-                    <div style={{ fontSize:13, opacity:0.8 }}>{a.who}</div>
+                    <h4 className="display" style={{ fontSize:26, lineHeight:1, marginBottom:10 }} data-tina-field={tinaField(a, "title")}>{a.title}</h4>
+                    <div style={{ fontSize:13, opacity:0.8 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
                   </div>
-                  <div style={{ fontSize:13, borderTop:`1px solid ${a.textColor}`, paddingTop:14, marginTop:16, opacity:0.55 }}>{a.when}</div>
+                  <div style={{ fontSize:13, borderTop:`1px solid ${a.textColor}`, paddingTop:14, marginTop:16, opacity:0.55 }} data-tina-field={tinaField(a, "when")}>{a.when}</div>
                 </div>
               </Reveal>
             ))}
@@ -999,8 +1003,8 @@ const Spectacles = ({ setRoute }) => {
                       <div style={{ display:"inline-block", background:d.cardColor || "var(--amber)", color:d.cardTextColor || "var(--ink)", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"3px 10px", textTransform:"uppercase", marginBottom:10 }}>
                         {d.type}
                       </div>
-                      <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }}>{d.title}</h3>
-                      <div style={{ fontSize:14, color:"var(--ink-soft)" }}>{d.venue}</div>
+                      <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }} data-tina-field={tinaField(d, "title")}>{d.title}</h3>
+                      <div style={{ fontSize:14, color:"var(--ink-soft)" }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
                       <div className="mono" style={{ fontSize:12, marginTop:6, opacity:0.55 }}>{d.time} · {d.price}</div>
                     </div>
                   </div>
@@ -1052,15 +1056,15 @@ const Spectacles = ({ setRoute }) => {
                       <Motif size={220} color={a.textColor} berryColor={a.textColor} rotate={20} seed={parseInt(a.num.slice(1))}/>
                     </div>
                     <div style={{ position:"relative", zIndex:2 }}>
-                      <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
-                      <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
-                      <p style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}>{a.desc}</p>
+                      <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }} data-tina-field={tinaField(a, "title")}>{a.title}</h3>
+                      <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
+                      <p style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }} data-tina-field={tinaField(a, "desc")}>{a.desc}</p>
                     </div>
                     <div style={{ position:"relative", zIndex:2, paddingTop:24, marginTop:24, borderTop:`1px solid ${a.textColor}`, opacity:0.95 }}>
-                      <div className="mono" style={{ marginBottom:6 }}>{a.when}</div>
-                      <div className="mono" style={{ marginBottom:6, opacity:0.7 }}>{a.where}</div>
+                      <div className="mono" style={{ marginBottom:6 }} data-tina-field={tinaField(a, "when")}>{a.when}</div>
+                      <div className="mono" style={{ marginBottom:6, opacity:0.7 }} data-tina-field={tinaField(a, "where")}>{a.where}</div>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginTop:12 }}>
-                        <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }}>{a.price}</strong>
+                        <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }} data-tina-field={tinaField(a, "price")}>{a.price}</strong>
                         <span>{selectedAtelier === a.num ? "S'inscrire ↓" : "→"}</span>
                       </div>
                       {selectedAtelier === a.num && (
@@ -1097,6 +1101,7 @@ const Spectacles = ({ setRoute }) => {
 /* ======================= FICHE SPECTACLE ======================= */
 const FicheSpectacle = ({ setRoute }) => {
   const { id } = useParams();
+  const { SPECTACLES, AGENDA } = useContent();
   const s = SPECTACLES.find(x => x.id === id) || SPECTACLES[0];
   const dates = AGENDA.filter(a => a.spectacle === s.id);
   return (
@@ -1109,14 +1114,14 @@ const FicheSpectacle = ({ setRoute }) => {
           </div>
           <div>
             <div className="eyebrow" style={{ marginBottom:20 }}>{s.tag} · {s.duration} · {s.ages}</div>
-            <h1 className="display" style={{ fontSize:"clamp(60px, 8vw, 120px)", marginBottom:32 }}>
+            <h1 className="display" style={{ fontSize:"clamp(60px, 8vw, 120px)", marginBottom:32 }} data-tina-field={tinaField(s, "title")}>
               {s.title.split(" ").map((w,i) => i === 1 ? <span key={i} className="display-italic">{w} </span> : <span key={i}>{w} </span>)}
             </h1>
-            <p style={{ fontSize:20, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}>{s.desc}</p>
+            <p style={{ fontSize:20, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }} data-tina-field={tinaField(s, "desc")}>{s.desc}</p>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, padding:"24px 0", borderTop:"1px solid var(--rule)", borderBottom:"1px solid var(--rule)", marginBottom:32 }}>
-              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Texte</div><div>{s.auteur}</div></div>
-              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Mise en scène</div><div>{s.mes}</div></div>
-              <div style={{ gridColumn:"1 / -1" }}><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Avec</div><div>{s.with}</div></div>
+              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Texte</div><div data-tina-field={tinaField(s, "auteur")}>{s.auteur}</div></div>
+              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Mise en scène</div><div data-tina-field={tinaField(s, "mes")}>{s.mes}</div></div>
+              <div style={{ gridColumn:"1 / -1" }}><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Avec</div><div data-tina-field={tinaField(s, "with")}>{s.with}</div></div>
             </div>
             <div style={{ display:"flex", gap:12 }}>
               <button className="btn" onClick={() => setRoute("agenda")}>Voir les dates ({dates.length})</button>
@@ -1156,6 +1161,7 @@ const STATUS_CONFIG = {
 };
 
 const AgendaCard = ({ d, onClick }) => {
+  const { SPECTACLES } = useContent();
   const tc = TYPE_CONFIG[d.type] || TYPE_CONFIG.spectacle;
   const sc = STATUS_CONFIG[d.status] || STATUS_CONFIG.available;
   const spectacleData = d.spectacle ? SPECTACLES.find(s => s.id === d.spectacle) : null;
@@ -1196,9 +1202,9 @@ const AgendaCard = ({ d, onClick }) => {
 
       {/* Text content — vraiment minimal */}
       <div style={{ padding:"14px 0 8px", borderTop:"1px solid var(--rule)", marginTop:0 }}>
-        <h4 className="display" style={{ fontSize:20, lineHeight:1.05, marginBottom:6 }}>{d.title}</h4>
+        <h4 className="display" style={{ fontSize:20, lineHeight:1.05, marginBottom:6 }} data-tina-field={tinaField(d, "title")}>{d.title}</h4>
         <div style={{ fontSize:12, color:"var(--ink-soft)", marginBottom:8, letterSpacing:"0.02em" }}>
-          {d.day} {d.month} {d.year} · {d.venue}
+          {d.day} {d.month} {d.year} · <span data-tina-field={tinaField(d, "venue")}>{d.venue}</span>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:6 }}>
           <span style={{ width:5, height:5, borderRadius:"50%", background:sc.color, flexShrink:0 }}/>
@@ -1232,13 +1238,14 @@ const SEASON_MONTHS = [
 ];
 
 const Agenda = ({ setRoute }) => {
+  const { AGENDA } = useContent();
   const [filter, setFilter] = useState("tout");
   const [month, setMonth] = useState("Sep 2025");
 
   const list = useMemo(() => {
     const base = filter === "tout" ? AGENDA : AGENDA.filter(d => d.type === filter);
     return base.filter(d => d.month + " " + d.year === month);
-  }, [filter, month]);
+  }, [AGENDA, filter, month]);
 
   const countForMonth = (key) => AGENDA.filter(d => d.month + " " + d.year === key).length;
 
@@ -1336,6 +1343,7 @@ const AUDIENCE_FILTERS = [
 ];
 
 const Ateliers = ({ audience = "" }) => {
+  const { ATELIERS } = useContent();
   const [filter, setFilter] = useState(audience);
   const [selected, setSelected] = useState(null);
   const [formStates, setFormStates] = useState({}); // num -> idle | loading | sent | error
@@ -1444,8 +1452,9 @@ const Ateliers = ({ audience = "" }) => {
 const TEAM_PALETTE = ["#B84A2E","#9B7AA8","#E8B542","#3A1B2E","#8E3620","#C89420","#9B7AA8","#3A1B2E"];
 
 const Equipe = ({ setRoute }) => {
-  const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), []);
-  const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), []);
+  const { EQUIPE } = useContent();
+  const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), [EQUIPE]);
+  const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), [EQUIPE]);
   const [active, setActive] = useState(0);
   const current = permanents[active] || permanents[0];
 
@@ -1473,10 +1482,10 @@ const Equipe = ({ setRoute }) => {
                   transform: active === i ? "translateX(8px)" : "translateX(0)"
                 }}
               >
-                <h3 className="display" style={{ fontSize: active === i ? 44 : 32, lineHeight:1, transition:"font-size 0.2s" }}>
+                <h3 className="display" style={{ fontSize: active === i ? 44 : 32, lineHeight:1, transition:"font-size 0.2s" }} data-tina-field={tinaField(p, "name")}>
                   {p.name.split(" ").map((w,j) => j === 1 ? <span key={j} className="display-italic">{w} </span> : <span key={j}>{w} </span>)}
                 </h3>
-                <div className="mono" style={{ marginTop:8, color:"var(--terra)" }}>{p.role}</div>
+                <div className="mono" style={{ marginTop:8, color:"var(--terra)" }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
               </div>
             ))}
           </div>
@@ -1484,9 +1493,9 @@ const Equipe = ({ setRoute }) => {
             <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:24 }}>
               <Poster bg={TEAM_PALETTE[active] || "#B84A2E"} ink="#F4E8D5" title={current.name.split(" ")[0]} subtitle={current.role.split(" • ")[0]} num={String(active+1).padStart(2,"0")} variant={active % 4} motifOpacity={0.5}/>
             </div>
-            <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty", marginBottom: current.quote ? 16 : 0 }}>{current.bio}</p>
+            <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty", marginBottom: current.quote ? 16 : 0 }} data-tina-field={tinaField(current, "bio")}>{current.bio}</p>
             {current.quote && (
-              <p className="display display-italic" style={{ fontSize:22, color:"var(--terra)" }}>« {current.quote} »</p>
+              <p className="display display-italic" style={{ fontSize:22, color:"var(--terra)" }} data-tina-field={tinaField(current, "quote")}>« {current.quote} »</p>
             )}
           </div>
         </div>
@@ -1504,9 +1513,9 @@ const Equipe = ({ setRoute }) => {
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <Poster bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>
               </div>
-              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
-              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
-              <p style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}>{p.bio}</p>
+              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }} data-tina-field={tinaField(p, "name")}>{p.name}</h3>
+              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
+              <p style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }} data-tina-field={tinaField(p, "bio")}>{p.bio}</p>
             </div>
           ))}
         </div>
@@ -1572,12 +1581,13 @@ const PartnerLogo = ({ name, bg }) => {
 };
 
 const Partenaires = () => {
+  const { PARTENAIRES } = useContent();
   const motifRef = useParallax(0.16, 100);
   const groups = useMemo(() => {
     const g = {};
     PARTENAIRES.forEach(p => { if (!g[p.type]) g[p.type] = []; g[p.type].push(p); });
     return g;
-  }, []);
+  }, [PARTENAIRES]);
 
   return (
     <section className="section" style={{ position:"relative", overflow:"hidden" }}>
@@ -1627,7 +1637,7 @@ const Partenaires = () => {
                   >
                     <PartnerLogo name={p.name} bg={meta.bg} />
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }}>{p.name}</div>
+                      <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }} data-tina-field={tinaField(p, "name")}>{p.name}</div>
                     </div>
                     {p.url && (
                       <span style={{ fontSize:12, opacity:0.35, flexShrink:0 }}>↗</span>
@@ -1863,9 +1873,9 @@ const MentionsLegales = () => (
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Hébergement</h3>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
-          Netlify, Inc.<br/>
-          44 Montgomery Street, Suite 300, San Francisco, California 94104, USA<br/>
-          <a href="https://www.netlify.com" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>netlify.com</a>
+          Cloudflare, Inc.<br/>
+          101 Townsend Street, San Francisco, California 94107, USA<br/>
+          <a href="https://www.cloudflare.com" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>cloudflare.com</a>
         </p>
       </div>
 
@@ -1882,7 +1892,7 @@ const MentionsLegales = () => (
           Les formulaires de ce site (contact, inscription à un atelier, newsletter) collectent votre nom et votre adresse email — ainsi que l'objet et le message pour le formulaire de contact. Ces informations sont utilisées uniquement pour répondre à votre demande, traiter votre inscription ou vous envoyer la newsletter si vous vous y êtes inscrit·e.
         </p>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)", marginBottom:16 }}>
-          Ces données sont conservées par la Cie Rouletabille le temps nécessaire au traitement de votre demande, et transitent techniquement par Netlify (hébergeur du site et de ses formulaires) en tant que sous-traitant. Elles ne sont ni vendues ni transmises à d'autres tiers.
+          Ces données sont conservées par la Cie Rouletabille le temps nécessaire au traitement de votre demande, et transitent techniquement par Cloudflare (hébergeur du site et de ses formulaires) et Resend (service d'envoi des emails), en tant que sous-traitants. Elles ne sont ni vendues ni transmises à d'autres tiers.
         </p>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
           Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition sur vos données. Pour l'exercer, écrivez à <a href="mailto:rouletabilletheatre@gmail.com" style={{ color:"var(--terra)" }}>rouletabilletheatre@gmail.com</a>. Vous pouvez également introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>CNIL</a>.
