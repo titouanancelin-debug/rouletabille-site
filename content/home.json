@@ -29,6 +29,7 @@
     "sections": [
       {
         "corps": "caca\n",
+        "largeur": "moyenne",
         "couleurFond": "#DC1010",
         "_template": "encart"
       }
