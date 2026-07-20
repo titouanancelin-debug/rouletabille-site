@@ -34,10 +34,12 @@ const alignementField = {
 
 // Zone "sections libres" : blocs que l'équipe peut ajouter, réordonner et
 // supprimer depuis l'admin Tina, avec réglages de taille/couleur par bloc.
-const sectionsLibresField = {
+// Fabrique de champ pour pouvoir poser plusieurs zones à différents endroits
+// d'une même page (haut / bas) plutôt qu'une seule zone figée en bas.
+const sectionsLibresField = (name: string, label: string) => ({
   type: "object" as const,
-  name: "sections",
-  label: "Sections libres (bas de page)",
+  name,
+  label,
   list: true,
   templates: [
     {
@@ -165,7 +167,7 @@ const sectionsLibresField = {
       ],
     },
   ],
-};
+});
 
 export default defineConfig({
   branch,
@@ -191,6 +193,7 @@ export default defineConfig({
         match: { include: "spectacles" },
         ui: { global: true, router: () => "/spectacles" },
         fields: [
+          sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
           {
             type: "object",
             name: "spectacles",
@@ -214,7 +217,7 @@ export default defineConfig({
               { type: "string", name: "with", label: "Avec (interprètes)" },
             ],
           },
-          sectionsLibresField,
+          sectionsLibresField("sections", "Sections libres (bas de page)"),
         ],
       },
       {
@@ -225,6 +228,7 @@ export default defineConfig({
         match: { include: "agenda" },
         ui: { global: true, router: () => "/agenda" },
         fields: [
+          sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
           {
             type: "object",
             name: "agenda",
@@ -247,7 +251,7 @@ export default defineConfig({
               { type: "string", name: "spectacle", label: "Spectacle lié (identifiant, optionnel)", required: false },
             ],
           },
-          sectionsLibresField,
+          sectionsLibresField("sections", "Sections libres (bas de page)"),
         ],
       },
       {
@@ -258,6 +262,7 @@ export default defineConfig({
         match: { include: "ateliers" },
         ui: { global: true, router: () => "/ateliers" },
         fields: [
+          sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
           {
             type: "object",
             name: "ateliers",
@@ -311,7 +316,7 @@ export default defineConfig({
               { type: "string", name: "recurrenceTime", label: "Horaire à afficher dans l'agenda (ex: 17h30–19h)", required: false },
             ],
           },
-          sectionsLibresField,
+          sectionsLibresField("sections", "Sections libres (bas de page)"),
         ],
       },
       {
@@ -322,6 +327,7 @@ export default defineConfig({
         match: { include: "equipe" },
         ui: { global: true, router: () => "/equipe" },
         fields: [
+          sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
           {
             type: "object",
             name: "equipe",
@@ -345,7 +351,7 @@ export default defineConfig({
               { type: "string", name: "quote", label: "Citation (optionnel)", required: false },
             ],
           },
-          sectionsLibresField,
+          sectionsLibresField("sections", "Sections libres (bas de page)"),
         ],
       },
       {
@@ -356,6 +362,7 @@ export default defineConfig({
         match: { include: "partenaires" },
         ui: { global: true, router: () => "/partenaires" },
         fields: [
+          sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
           {
             type: "object",
             name: "partenaires",
@@ -379,7 +386,7 @@ export default defineConfig({
               { type: "string", name: "url", label: "Site web (optionnel)", required: false },
             ],
           },
-          sectionsLibresField,
+          sectionsLibresField("sections", "Sections libres (bas de page)"),
         ],
       },
       {
@@ -400,6 +407,7 @@ export default defineConfig({
               { type: "string", name: "heroLine2", label: "Titre hero — ligne 2" },
               richText("heroIntro", "Intro hero"),
               { type: "string", name: "heroTagline", label: "Accroche fondation" },
+              sectionsLibresField("sectionsHaut", "Sections libres (juste après le hero)"),
               {
                 type: "object",
                 name: "histoire",
@@ -416,7 +424,7 @@ export default defineConfig({
               { type: "string", name: "aboutTitle", label: "À propos — titre" },
               richText("aboutTexte", "À propos — texte"),
               richText("publicsIntro", "Publics — texte d'intro"),
-              sectionsLibresField,
+              sectionsLibresField("sections", "Sections libres (bas de page)"),
             ],
           },
         ],
@@ -435,6 +443,7 @@ export default defineConfig({
             label: "Contact",
             fields: [
               richText("meta", "Texte d'intro"),
+              sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
               { type: "string", name: "addressName", label: "Nom (adresse)" },
               { type: "string", name: "addressLine1", label: "Adresse — ligne 1" },
               { type: "string", name: "addressLine2", label: "Adresse — ligne 2" },
@@ -444,7 +453,7 @@ export default defineConfig({
               { type: "string", name: "phone2", label: "Téléphone 2" },
               { type: "string", name: "hours", label: "Horaires" },
               { type: "string", name: "access", label: "Accès (une ligne par moyen de transport)", list: true },
-              sectionsLibresField,
+              sectionsLibresField("sections", "Sections libres (bas de page)"),
             ],
           },
         ],
@@ -462,6 +471,7 @@ export default defineConfig({
             name: "mentionsLegales",
             label: "Mentions légales",
             fields: [
+              sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
               { type: "string", name: "associationName", label: "Nom de l'association" },
               { type: "string", name: "siege", label: "Siège social" },
               { type: "string", name: "siret", label: "SIRET" },
@@ -473,7 +483,7 @@ export default defineConfig({
               richText("proprieteIntellectuelle", "Propriété intellectuelle — texte"),
               richText("donneesPersonnelles", "Données personnelles — texte"),
               richText("cookies", "Cookies et traceurs — texte"),
-              sectionsLibresField,
+              sectionsLibresField("sections", "Sections libres (bas de page)"),
             ],
           },
         ],
@@ -515,8 +525,9 @@ export default defineConfig({
             label: "Presse",
             fields: [
               richText("intro", "Texte de présentation"),
+              sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
               { type: "string", name: "contactEmail", label: "Email de contact presse" },
-              sectionsLibresField,
+              sectionsLibresField("sections", "Sections libres (bas de page)"),
             ],
           },
         ],

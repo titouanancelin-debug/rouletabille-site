@@ -720,6 +720,8 @@ const Home = ({ setRoute }) => {
   <>
     <ScrollExpandHero setRoute={setRoute}/>
 
+    <SectionsLibres doc={{ sections: HOME.sectionsHaut }}/>
+
     {/* ÉVÉNEMENTS CAROUSEL */}
     <section className="section">
       <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
@@ -850,7 +852,7 @@ const TRAVAIL_TABS = [
 ];
 
 const Spectacles = ({ setRoute }) => {
-  const { AGENDA, ATELIERS, SPECTACLES_SECTIONS } = useContent();
+  const { AGENDA, ATELIERS, SPECTACLES_SECTIONS, SPECTACLES_SECTIONS_HAUT } = useContent();
   const [tab, setTab] = useState("residences");
   const [atelierFilter, setAtelierFilter] = useState("");
   const [selectedAtelier, setSelectedAtelier] = useState(null);
@@ -889,6 +891,8 @@ const Spectacles = ({ setRoute }) => {
           <div className="section-meta">Un lieu de fabrication artistique ancré sur son territoire — de la résidence de création aux ateliers de pratique ouverts à tous.</div>
         </Reveal>
       </div>
+
+      <SectionsLibres doc={{ sections: SPECTACLES_SECTIONS_HAUT }}/>
 
       {/* Barre d'onglets sticky */}
       <div style={{
@@ -1276,7 +1280,7 @@ function getRollingSeasonMonths(monthsAhead = 12) {
 }
 
 const Agenda = ({ setRoute }) => {
-  const { AGENDA, AGENDA_SECTIONS } = useContent();
+  const { AGENDA, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
   const seasonMonths = getRollingSeasonMonths();
   const [filter, setFilter] = useState("tout");
   const [month, setMonth] = useState(seasonMonths[0].key);
@@ -1300,6 +1304,8 @@ const Agenda = ({ setRoute }) => {
         <h2 className="section-title">Agenda<br/><span className="display-italic">{seasonMonths[0].label} {seasonMonths[0].key.split(" ")[1]} — {seasonMonths[seasonMonths.length - 1].label} {seasonMonths[seasonMonths.length - 1].key.split(" ")[1]}.</span></h2>
         <div className="section-meta">{AGENDA.length} rendez-vous · spectacles, ateliers, résidences & événements.</div>
       </Reveal>
+
+      <SectionsLibres doc={{ sections: AGENDA_SECTIONS_HAUT }}/>
 
       {/* Barre de navigation mois — sticky sous la nav */}
       <div style={{
@@ -1385,7 +1391,7 @@ const AUDIENCE_FILTERS = [
 ];
 
 const Ateliers = ({ audience = "" }) => {
-  const { ATELIERS, ATELIERS_SECTIONS } = useContent();
+  const { ATELIERS, ATELIERS_SECTIONS, ATELIERS_SECTIONS_HAUT } = useContent();
   const [filter, setFilter] = useState(audience);
   const [selected, setSelected] = useState(null);
   const [formStates, setFormStates] = useState({}); // num -> idle | loading | sent | error
@@ -1418,6 +1424,8 @@ const Ateliers = ({ audience = "" }) => {
           <h2 className="section-title">Ateliers<br/><span className="display-italic">& pratiques.</span></h2>
           <div className="section-meta">{ATELIERS.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes pour la saison 2025–2026.</div>
         </Reveal>
+
+        <SectionsLibres doc={{ sections: ATELIERS_SECTIONS_HAUT }}/>
 
         {/* Filtre par public */}
         <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
@@ -1502,7 +1510,7 @@ const Ateliers = ({ audience = "" }) => {
 const TEAM_PALETTE = ["#B84A2E","#9B7AA8","#E8B542","#3A1B2E","#8E3620","#C89420","#9B7AA8","#3A1B2E"];
 
 const Equipe = ({ setRoute }) => {
-  const { EQUIPE, EQUIPE_SECTIONS } = useContent();
+  const { EQUIPE, EQUIPE_SECTIONS, EQUIPE_SECTIONS_HAUT } = useContent();
   const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), [EQUIPE]);
   const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), [EQUIPE]);
   const [active, setActive] = useState(0);
@@ -1517,6 +1525,8 @@ const Equipe = ({ setRoute }) => {
           <div className="section-meta">Rouletabille est une association portée par un conseil d'administration, une équipe permanente et un réseau d'artistes associés. Les décisions artistiques et le développement du projet se construisent collectivement, dans une logique de coopération et de responsabilité partagée.</div>
         </div>
       </section>
+
+      <SectionsLibres doc={{ sections: EQUIPE_SECTIONS_HAUT }}/>
 
       <section className="section" style={{ paddingTop:0 }}>
         <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
@@ -1639,7 +1649,7 @@ const PartnerLogo = ({ partner, bg }) => {
 };
 
 const Partenaires = () => {
-  const { PARTENAIRES, PARTENAIRES_SECTIONS } = useContent();
+  const { PARTENAIRES, PARTENAIRES_SECTIONS, PARTENAIRES_SECTIONS_HAUT } = useContent();
   const motifRef = useParallax(0.16, 100);
   const groups = useMemo(() => {
     const g = {};
@@ -1658,6 +1668,8 @@ const Partenaires = () => {
         <h2 className="section-title">Partenaires<br/><span className="display-italic">& soutiens.</span></h2>
         <div className="section-meta">Plus de 30 partenaires contribuent activement à la vie de la compagnie — institutions, artistes, associations de quartier, écoles.</div>
       </div>
+
+      <SectionsLibres doc={{ sections: PARTENAIRES_SECTIONS_HAUT }}/>
 
       {Object.entries(groups).map(([type, list]) => {
         const meta = TYPE_META[type] || { accent:'var(--ink)', bg:'var(--ink)', desc:'' };
@@ -1731,6 +1743,9 @@ const Presse = () => {
       <h2 className="section-title">Dossier de <span className="display-italic">presse.</span></h2>
       <div className="section-meta">Présentation de la compagnie et visuels libres de droits pour la presse.</div>
     </div>
+
+    <SectionsLibres doc={{ sections: PRESSE.sectionsHaut }}/>
+
     <div className="col-split" style={{ gap:64, alignItems:"start" }}>
       <div>
         <RichText content={PRESSE.intro} field={tinaField(PRESSE, "intro")} style={{ fontSize:20, lineHeight:1.6, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}/>
@@ -1790,6 +1805,9 @@ const Contact = () => {
           <h2 className="section-title">Écrivez-<span className="display-italic">nous,</span><br/>passez nous voir.</h2>
           <RichText content={CONTACT.meta} field={tinaField(CONTACT, "meta")} className="section-meta"/>
         </div>
+
+        <SectionsLibres doc={{ sections: CONTACT.sectionsHaut }}/>
+
         <div className="col-duo" style={{ gap:80 }}>
           <div>
             <div style={{ marginBottom:32 }}>
@@ -1922,6 +1940,9 @@ const MentionsLegales = () => {
       <h2 className="section-title">Mentions <span className="display-italic">légales.</span></h2>
       <div className="section-meta">Informations légales et politique de confidentialité.</div>
     </div>
+
+    <SectionsLibres doc={{ sections: M.sectionsHaut }}/>
+
     <div style={{ maxWidth:720, display:"grid", gap:40 }}>
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Éditeur du site</h3>
