@@ -1,0 +1,10 @@
+{
+  "menu": {
+    "labelHome": "Accueil",
+    "labelSpectacles": "Notre travail",
+    "labelAgenda": "Agenda",
+    "labelEquipe": "Équipe",
+    "labelPartenaires": "Partenaires",
+    "labelContact": "Contact"
+  }
+}

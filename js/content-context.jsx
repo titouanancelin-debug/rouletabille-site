@@ -20,6 +20,7 @@ import mentionsLegalesData from '../content/mentionsLegales.json';
 import presseData from '../content/presse.json';
 import footerData from '../content/footer.json';
 import newsletterData from '../content/newsletter.json';
+import menuData from '../content/menu.json';
 
 const COLLECTIONS = {
   spectacles:      { staticDoc: spectaclesData,      relativePath: 'spectacles.json' },
@@ -33,6 +34,7 @@ const COLLECTIONS = {
   presse:          { staticDoc: presseData,          relativePath: 'presse.json' },
   footer:          { staticDoc: footerData,          relativePath: 'footer.json' },
   newsletter:      { staticDoc: newsletterData,      relativePath: 'newsletter.json' },
+  menu:            { staticDoc: menuData,            relativePath: 'menu.json' },
 };
 
 function useLiveCollection(name) {
@@ -81,6 +83,7 @@ export function ContentProvider({ children }) {
     PRESSE: useLiveCollection('presse'),
     FOOTER: useLiveCollection('footer'),
     NEWSLETTER: useLiveCollection('newsletter'),
+    MENU: useLiveCollection('menu'),
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
 }

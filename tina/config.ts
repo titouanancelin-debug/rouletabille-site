@@ -8,6 +8,148 @@ const branch =
   process.env.VERCEL_GIT_COMMIT_REF ||
   "claude/installed-skills-overview-j4il8o";
 
+// Barre d'outils des champs texte riche : gras, italique, liens, listes +
+// niveaux de titre (H2/H3/H4 = trois tailles prédéfinies dans styles.css).
+const richText = (name: string, label: string, required = false) => ({
+  type: "rich-text" as const,
+  name,
+  label,
+  required,
+  toolbarOverride: [
+    "heading", "bold", "italic", "link", "ul", "ol", "quote",
+  ],
+});
+
+const alignementField = {
+  type: "string" as const,
+  name: "alignement",
+  label: "Alignement",
+  required: false,
+  options: [
+    { value: "gauche", label: "À gauche" },
+    { value: "centre", label: "Centré" },
+    { value: "droite", label: "À droite" },
+  ],
+};
+
+// Zone "sections libres" : blocs que l'équipe peut ajouter, réordonner et
+// supprimer depuis l'admin Tina, avec réglages de taille/couleur par bloc.
+const sectionsLibresField = {
+  type: "object" as const,
+  name: "sections",
+  label: "Sections libres (bas de page)",
+  list: true,
+  templates: [
+    {
+      name: "titre",
+      label: "Titre",
+      ui: { itemProps: (item) => ({ label: `Titre — ${item?.texte || ""}` }) },
+      fields: [
+        { type: "string" as const, name: "texte", label: "Texte du titre" },
+        {
+          type: "string" as const, name: "taille", label: "Taille", required: false,
+          options: [
+            { value: "moyen", label: "Moyen" },
+            { value: "grand", label: "Grand" },
+            { value: "enorme", label: "Énorme" },
+          ],
+        },
+        { type: "string" as const, name: "couleur", label: "Couleur du texte", required: false, ui: { component: "color" } },
+        alignementField,
+      ],
+    },
+    {
+      name: "texte",
+      label: "Texte",
+      fields: [
+        richText("corps", "Texte"),
+        {
+          type: "string" as const, name: "taille", label: "Taille du texte", required: false,
+          options: [
+            { value: "petit", label: "Petit" },
+            { value: "normal", label: "Normal" },
+            { value: "grand", label: "Grand" },
+            { value: "tresGrand", label: "Très grand" },
+          ],
+        },
+        { type: "string" as const, name: "couleur", label: "Couleur du texte", required: false, ui: { component: "color" } },
+        alignementField,
+      ],
+    },
+    {
+      name: "image",
+      label: "Image",
+      fields: [
+        { type: "image" as const, name: "image", label: "Image" },
+        { type: "string" as const, name: "legende", label: "Légende (optionnel)", required: false },
+        {
+          type: "string" as const, name: "largeur", label: "Largeur", required: false,
+          options: [
+            { value: "petite", label: "Petite" },
+            { value: "moyenne", label: "Moyenne" },
+            { value: "pleine", label: "Pleine largeur" },
+          ],
+        },
+      ],
+    },
+    {
+      name: "imageTexte",
+      label: "Image + texte",
+      fields: [
+        { type: "image" as const, name: "image", label: "Image" },
+        richText("corps", "Texte"),
+        {
+          type: "string" as const, name: "positionImage", label: "Position de l'image", required: false,
+          options: [
+            { value: "gauche", label: "À gauche du texte" },
+            { value: "droite", label: "À droite du texte" },
+          ],
+        },
+        { type: "string" as const, name: "couleurFond", label: "Couleur de fond", required: false, ui: { component: "color" } },
+        { type: "string" as const, name: "couleurTexte", label: "Couleur du texte", required: false, ui: { component: "color" } },
+      ],
+    },
+    {
+      name: "encart",
+      label: "Encart coloré",
+      fields: [
+        richText("corps", "Texte"),
+        { type: "string" as const, name: "couleurFond", label: "Couleur de fond", required: false, ui: { component: "color" } },
+        { type: "string" as const, name: "couleurTexte", label: "Couleur du texte", required: false, ui: { component: "color" } },
+      ],
+    },
+    {
+      name: "citation",
+      label: "Citation",
+      fields: [
+        { type: "string" as const, name: "texte", label: "Citation", ui: { component: "textarea" } },
+        { type: "string" as const, name: "auteur", label: "Auteur (optionnel)", required: false },
+        {
+          type: "string" as const, name: "style", label: "Style", required: false,
+          options: [
+            { value: "elegant", label: "Élégant (serif italique)" },
+            { value: "manuscrit", label: "Manuscrit" },
+          ],
+        },
+      ],
+    },
+    {
+      name: "espace",
+      label: "Espace vide",
+      fields: [
+        {
+          type: "string" as const, name: "hauteur", label: "Hauteur", required: false,
+          options: [
+            { value: "petit", label: "Petit" },
+            { value: "moyen", label: "Moyen" },
+            { value: "grand", label: "Grand" },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 export default defineConfig({
   branch,
   clientId: process.env.TINA_CLIENT_ID,
@@ -49,7 +191,7 @@ export default defineConfig({
               { type: "string", name: "ages", label: "Âge conseillé" },
               { type: "string", name: "color", label: "Couleur fond", ui: { component: "color" } },
               { type: "string", name: "textColor", label: "Couleur texte", ui: { component: "color" } },
-              { type: "string", name: "desc", label: "Description", ui: { component: "textarea" } },
+              richText("desc", "Description"),
               { type: "string", name: "auteur", label: "Auteur" },
               { type: "string", name: "mes", label: "Mise en scène" },
               { type: "string", name: "with", label: "Avec (interprètes)" },
@@ -113,7 +255,7 @@ export default defineConfig({
               { type: "string", name: "price", label: "Prix" },
               { type: "string", name: "color", label: "Couleur fond", ui: { component: "color" } },
               { type: "string", name: "textColor", label: "Couleur texte", ui: { component: "color" } },
-              { type: "string", name: "desc", label: "Description", ui: { component: "textarea" } },
+              richText("desc", "Description"),
               { type: "string", name: "audience", label: "Public cible", options: ["enfants", "ados", "adultes", "quartier"] },
               {
                 type: "string",
@@ -179,7 +321,7 @@ export default defineConfig({
                   { value: "associee", label: "Artiste associé·e" },
                 ],
               },
-              { type: "string", name: "bio", label: "Bio", ui: { component: "textarea" } },
+              richText("bio", "Bio"),
               { type: "string", name: "quote", label: "Citation (optionnel)", required: false },
             ],
           },
@@ -234,7 +376,7 @@ export default defineConfig({
               { type: "string", name: "heroEyebrow", label: "Bandeau saison" },
               { type: "string", name: "heroLine1", label: "Titre hero — ligne 1" },
               { type: "string", name: "heroLine2", label: "Titre hero — ligne 2" },
-              { type: "string", name: "heroIntro", label: "Intro hero", ui: { component: "textarea" } },
+              richText("heroIntro", "Intro hero"),
               { type: "string", name: "heroTagline", label: "Accroche fondation" },
               {
                 type: "object",
@@ -245,13 +387,14 @@ export default defineConfig({
                 fields: [
                   { type: "string", name: "label", label: "Titre de la section" },
                   { type: "string", name: "teaser", label: "Résumé (accordéon fermé)", ui: { component: "textarea" } },
-                  { type: "string", name: "paragraphs", label: "Paragraphes", list: true, ui: { component: "textarea" } },
+                  richText("texte", "Texte (accordéon ouvert)"),
                 ],
               },
               { type: "string", name: "aboutTag", label: "À propos — mention" },
               { type: "string", name: "aboutTitle", label: "À propos — titre" },
-              { type: "string", name: "aboutParagraphs", label: "À propos — paragraphes", list: true, ui: { component: "textarea" } },
-              { type: "string", name: "publicsIntro", label: "Publics — texte d'intro", ui: { component: "textarea" } },
+              richText("aboutTexte", "À propos — texte"),
+              richText("publicsIntro", "Publics — texte d'intro"),
+              sectionsLibresField,
             ],
           },
         ],
@@ -269,7 +412,7 @@ export default defineConfig({
             name: "contact",
             label: "Contact",
             fields: [
-              { type: "string", name: "meta", label: "Texte d'intro", ui: { component: "textarea" } },
+              richText("meta", "Texte d'intro"),
               { type: "string", name: "addressName", label: "Nom (adresse)" },
               { type: "string", name: "addressLine1", label: "Adresse — ligne 1" },
               { type: "string", name: "addressLine2", label: "Adresse — ligne 2" },
@@ -279,6 +422,7 @@ export default defineConfig({
               { type: "string", name: "phone2", label: "Téléphone 2" },
               { type: "string", name: "hours", label: "Horaires" },
               { type: "string", name: "access", label: "Accès (une ligne par moyen de transport)", list: true },
+              sectionsLibresField,
             ],
           },
         ],
@@ -304,6 +448,33 @@ export default defineConfig({
               { type: "string", name: "hebergeurNom", label: "Hébergeur — nom" },
               { type: "string", name: "hebergeurAdresse", label: "Hébergeur — adresse" },
               { type: "string", name: "hebergeurUrl", label: "Hébergeur — site web" },
+              richText("proprieteIntellectuelle", "Propriété intellectuelle — texte"),
+              richText("donneesPersonnelles", "Données personnelles — texte"),
+              richText("cookies", "Cookies et traceurs — texte"),
+              sectionsLibresField,
+            ],
+          },
+        ],
+      },
+      {
+        name: "menu",
+        label: "Menu de navigation",
+        path: "content",
+        format: "json",
+        match: { include: "menu" },
+        ui: { global: true, router: () => "/" },
+        fields: [
+          {
+            type: "object",
+            name: "menu",
+            label: "Menu",
+            fields: [
+              { type: "string", name: "labelHome", label: "Lien — Accueil" },
+              { type: "string", name: "labelSpectacles", label: "Lien — Notre travail" },
+              { type: "string", name: "labelAgenda", label: "Lien — Agenda" },
+              { type: "string", name: "labelEquipe", label: "Lien — Équipe" },
+              { type: "string", name: "labelPartenaires", label: "Lien — Partenaires" },
+              { type: "string", name: "labelContact", label: "Lien — Contact" },
             ],
           },
         ],
@@ -321,8 +492,9 @@ export default defineConfig({
             name: "presse",
             label: "Presse",
             fields: [
-              { type: "string", name: "intro", label: "Texte de présentation", ui: { component: "textarea" } },
+              richText("intro", "Texte de présentation"),
               { type: "string", name: "contactEmail", label: "Email de contact presse" },
+              sectionsLibresField,
             ],
           },
         ],
@@ -340,7 +512,9 @@ export default defineConfig({
             name: "footer",
             label: "Footer",
             fields: [
-              { type: "string", name: "tagline", label: "Texte de présentation", ui: { component: "textarea" } },
+              richText("tagline", "Texte de présentation"),
+              { type: "string", name: "copyright", label: "Copyright (bas de page)" },
+              { type: "string", name: "seasonLabel", label: "Mention saison (bas de page)" },
             ],
           },
         ],
@@ -360,7 +534,7 @@ export default defineConfig({
             fields: [
               { type: "string", name: "titleLine1", label: "Titre — ligne 1" },
               { type: "string", name: "titleLine2", label: "Titre — ligne 2" },
-              { type: "string", name: "description", label: "Description", ui: { component: "textarea" } },
+              richText("description", "Description"),
             ],
           },
         ],
