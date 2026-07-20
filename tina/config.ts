@@ -214,6 +214,7 @@ export default defineConfig({
               { type: "string", name: "with", label: "Avec (interprètes)" },
             ],
           },
+          sectionsLibresField,
         ],
       },
       {
@@ -246,6 +247,7 @@ export default defineConfig({
               { type: "string", name: "spectacle", label: "Spectacle lié (identifiant, optionnel)", required: false },
             ],
           },
+          sectionsLibresField,
         ],
       },
       {
@@ -309,6 +311,7 @@ export default defineConfig({
               { type: "string", name: "recurrenceTime", label: "Horaire à afficher dans l'agenda (ex: 17h30–19h)", required: false },
             ],
           },
+          sectionsLibresField,
         ],
       },
       {
@@ -342,6 +345,7 @@ export default defineConfig({
               { type: "string", name: "quote", label: "Citation (optionnel)", required: false },
             ],
           },
+          sectionsLibresField,
         ],
       },
       {
@@ -375,6 +379,7 @@ export default defineConfig({
               { type: "string", name: "url", label: "Site web (optionnel)", required: false },
             ],
           },
+          sectionsLibresField,
         ],
       },
       {

@@ -850,7 +850,7 @@ const TRAVAIL_TABS = [
 ];
 
 const Spectacles = ({ setRoute }) => {
-  const { AGENDA, ATELIERS } = useContent();
+  const { AGENDA, ATELIERS, SPECTACLES_SECTIONS } = useContent();
   const [tab, setTab] = useState("residences");
   const [atelierFilter, setAtelierFilter] = useState("");
   const [selectedAtelier, setSelectedAtelier] = useState(null);
@@ -1123,6 +1123,7 @@ const Spectacles = ({ setRoute }) => {
           )}
         </section>
       )}
+      <SectionsLibres doc={{ sections: SPECTACLES_SECTIONS }}/>
     </>
   );
 };
@@ -1275,7 +1276,7 @@ function getRollingSeasonMonths(monthsAhead = 12) {
 }
 
 const Agenda = ({ setRoute }) => {
-  const { AGENDA } = useContent();
+  const { AGENDA, AGENDA_SECTIONS } = useContent();
   const seasonMonths = getRollingSeasonMonths();
   const [filter, setFilter] = useState("tout");
   const [month, setMonth] = useState(seasonMonths[0].key);
@@ -1288,6 +1289,7 @@ const Agenda = ({ setRoute }) => {
   const countForMonth = (key) => AGENDA.filter(d => d.month + " " + d.year === key).length;
 
   return (
+    <>
     <section className="section" style={{ position:"relative", overflow:"hidden", paddingBottom:0 }}>
       <div ref={useParallax(0.18, 110)} className="motif-bg" style={{ right:-80, top:80, opacity:0.15 }}>
         <Motif size={380} color="var(--plum)" berryColor="var(--terra)" rotate={-20} seed={2.7}/>
@@ -1365,6 +1367,8 @@ const Agenda = ({ setRoute }) => {
         )}
       </div>
     </section>
+    <SectionsLibres doc={{ sections: AGENDA_SECTIONS }}/>
+    </>
   );
 };
 
@@ -1381,7 +1385,7 @@ const AUDIENCE_FILTERS = [
 ];
 
 const Ateliers = ({ audience = "" }) => {
-  const { ATELIERS } = useContent();
+  const { ATELIERS, ATELIERS_SECTIONS } = useContent();
   const [filter, setFilter] = useState(audience);
   const [selected, setSelected] = useState(null);
   const [formStates, setFormStates] = useState({}); // num -> idle | loading | sent | error
@@ -1489,6 +1493,7 @@ const Ateliers = ({ audience = "" }) => {
           </div>
         )}
       </section>
+      <SectionsLibres doc={{ sections: ATELIERS_SECTIONS }}/>
     </>
   );
 };
@@ -1497,7 +1502,7 @@ const Ateliers = ({ audience = "" }) => {
 const TEAM_PALETTE = ["#B84A2E","#9B7AA8","#E8B542","#3A1B2E","#8E3620","#C89420","#9B7AA8","#3A1B2E"];
 
 const Equipe = ({ setRoute }) => {
-  const { EQUIPE } = useContent();
+  const { EQUIPE, EQUIPE_SECTIONS } = useContent();
   const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), [EQUIPE]);
   const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), [EQUIPE]);
   const [active, setActive] = useState(0);
@@ -1583,6 +1588,7 @@ const Equipe = ({ setRoute }) => {
           </div>
         </div>
       </section>
+      <SectionsLibres doc={{ sections: EQUIPE_SECTIONS }}/>
     </>
   );
 };
@@ -1633,7 +1639,7 @@ const PartnerLogo = ({ partner, bg }) => {
 };
 
 const Partenaires = () => {
-  const { PARTENAIRES } = useContent();
+  const { PARTENAIRES, PARTENAIRES_SECTIONS } = useContent();
   const motifRef = useParallax(0.16, 100);
   const groups = useMemo(() => {
     const g = {};
@@ -1642,6 +1648,7 @@ const Partenaires = () => {
   }, [PARTENAIRES]);
 
   return (
+    <>
     <section className="section" style={{ position:"relative", overflow:"hidden" }}>
       <div ref={motifRef} className="motif-bg" style={{ right:-50, bottom:-100, opacity:0.3 }}>
         <Motif size={420} color="var(--terra)" berryColor="var(--amber)" rotate={180} seed={3.5}/>
@@ -1702,6 +1709,8 @@ const Partenaires = () => {
         );
       })}
     </section>
+    <SectionsLibres doc={{ sections: PARTENAIRES_SECTIONS }}/>
+    </>
   );
 };
 

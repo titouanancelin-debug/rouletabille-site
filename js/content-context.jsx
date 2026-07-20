@@ -37,7 +37,10 @@ const COLLECTIONS = {
   menu:            { staticDoc: menuData,            relativePath: 'menu.json' },
 };
 
-function useLiveCollection(name) {
+/* `field` lets a caller read a different top-level key than the collection
+   name — used to expose the "sections" (sections libres) sibling field that
+   sits next to the main list on spectacles/agenda/ateliers/equipe/partenaires. */
+function useLiveCollection(name, field = name) {
   const { staticDoc, relativePath } = COLLECTIONS[name];
   const { edit } = useEditState();
   const [fetched, setFetched] = useState(null);
@@ -57,8 +60,10 @@ function useLiveCollection(name) {
     data: fetched?.data,
   });
 
-  if (edit && tina.data) return tina.data[name][name];
-  return staticDoc[name];
+  if (edit && tina.data) {
+    return field === name ? tina.data[name][name] : tina.data[name][field];
+  }
+  return staticDoc[field];
 }
 
 const ContentContext = createContext(null);
@@ -73,10 +78,15 @@ export function ContentProvider({ children }) {
 
   const value = {
     SPECTACLES: useLiveCollection('spectacles'),
+    SPECTACLES_SECTIONS: useLiveCollection('spectacles', 'sections'),
     AGENDA: agenda,
+    AGENDA_SECTIONS: useLiveCollection('agenda', 'sections'),
     ATELIERS: ateliers,
+    ATELIERS_SECTIONS: useLiveCollection('ateliers', 'sections'),
     EQUIPE: useLiveCollection('equipe'),
+    EQUIPE_SECTIONS: useLiveCollection('equipe', 'sections'),
     PARTENAIRES: useLiveCollection('partenaires'),
+    PARTENAIRES_SECTIONS: useLiveCollection('partenaires', 'sections'),
     HOME: useLiveCollection('home'),
     CONTACT: useLiveCollection('contact'),
     MENTIONS_LEGALES: useLiveCollection('mentionsLegales'),
