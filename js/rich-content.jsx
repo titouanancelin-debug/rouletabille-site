@@ -95,8 +95,9 @@ const Bloc = ({ s }) => {
         <div className="noise" data-tina-field={f} style={{
           background: s.couleurFond || 'var(--terra)', color: s.couleurTexte || 'var(--paper)',
           padding: 'clamp(28px, 4vw, 48px)',
+          maxWidth: IMG_WIDTH[s.largeur] || IMG_WIDTH.pleine,
         }}>
-          <RichText content={s.corps} style={{ fontSize: 17, lineHeight: 1.6 }}/>
+          <RichText content={s.corps} style={{ fontSize: TEXTE_SIZES[s.taille] || 17, lineHeight: 1.6 }}/>
         </div>
       );
     case 'citation':

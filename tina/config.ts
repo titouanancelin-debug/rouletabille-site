@@ -114,6 +114,23 @@ const sectionsLibresField = {
       label: "Encart coloré",
       fields: [
         richText("corps", "Texte"),
+        {
+          type: "string" as const, name: "taille", label: "Taille du texte", required: false,
+          options: [
+            { value: "petit", label: "Petit" },
+            { value: "normal", label: "Normal" },
+            { value: "grand", label: "Grand" },
+            { value: "tresGrand", label: "Très grand" },
+          ],
+        },
+        {
+          type: "string" as const, name: "largeur", label: "Largeur du bloc", required: false,
+          options: [
+            { value: "petite", label: "Petite" },
+            { value: "moyenne", label: "Moyenne" },
+            { value: "pleine", label: "Pleine largeur" },
+          ],
+        },
         { type: "string" as const, name: "couleurFond", label: "Couleur de fond", required: false, ui: { component: "color" } },
         { type: "string" as const, name: "couleurTexte", label: "Couleur du texte", required: false, ui: { component: "color" } },
       ],
