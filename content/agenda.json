@@ -3,7 +3,7 @@
   "agenda": [
     {
       "image": null,
-      "day": "20",
+      "day": "20-24",
       "month": "Juil",
       "year": "2026",
       "title": "HedgeHogs — Le Foutoir",
@@ -16,18 +16,7 @@
       "cardTextColor": "#F4E8D5"
     },
     {
-      "image": null,
-      "day": "20",
-      "month": "Sep",
-      "year": "2026",
-      "title": "Bal Salé — Cie Emilbus",
-      "venue": "Filature de l'Isle, Périgueux",
-      "time": "Résidence 20–27 sept",
-      "price": "Sortie de résidence festive",
-      "status": "free",
-      "type": "résidence",
-      "cardColor": "#3A1B2E",
-      "cardTextColor": "#F4E8D5"
+      "day": "24"
     },
     {
       "image": null,
