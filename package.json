@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tinacms dev -c \"vite\"",
-    "build": "tinacms build && vite build",
+    "build": "tinacms build --skip-cloud-checks && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
