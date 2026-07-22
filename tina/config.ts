@@ -489,29 +489,6 @@ export default defineConfig({
         ],
       },
       {
-        name: "menu",
-        label: "Menu de navigation",
-        path: "content",
-        format: "json",
-        match: { include: "menu" },
-        ui: { global: true, router: () => "/" },
-        fields: [
-          {
-            type: "object",
-            name: "menu",
-            label: "Menu",
-            fields: [
-              { type: "string", name: "labelHome", label: "Lien — Accueil" },
-              { type: "string", name: "labelSpectacles", label: "Lien — Notre travail" },
-              { type: "string", name: "labelAgenda", label: "Lien — Agenda" },
-              { type: "string", name: "labelEquipe", label: "Lien — Équipe" },
-              { type: "string", name: "labelPartenaires", label: "Lien — Partenaires" },
-              { type: "string", name: "labelContact", label: "Lien — Contact" },
-            ],
-          },
-        ],
-      },
-      {
         name: "presse",
         label: "Page Presse",
         path: "content",

@@ -206,7 +206,7 @@ const BotanicHero = ({ setRoute }) => {
 
       <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>
-          Découvrir les spectacles →
+          Voir notre travail →
         </button>
         <button
           className="btn btn-ghost"
@@ -409,7 +409,7 @@ const ScrollExpandHero = ({ setRoute }) => {
                   <RichText content={HOME.heroIntro} field={tinaField(HOME, "heroIntro")}/>
                 </Reveal>
                 <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-                  <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Découvrir les spectacles →</button>
+                  <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Voir notre travail →</button>
                   <button className="btn btn-ghost" onClick={() => setRoute("agenda")} style={{ color: "var(--paper)", borderColor: "color-mix(in oklab, var(--paper) 35%, transparent)" }}>Voir l'agenda</button>
                 </Reveal>
                 <Reveal variant="fade" delay={900} style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, color: "color-mix(in oklab, var(--paper) 36%, transparent)", fontSize: 11, letterSpacing: "0.1em", fontFamily: "var(--ff-mono)", textTransform: "uppercase" }}>

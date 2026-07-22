@@ -34,7 +34,6 @@ const COLLECTIONS = {
   presse:          { staticDoc: presseData,          relativePath: 'presse.json' },
   footer:          { staticDoc: footerData,          relativePath: 'footer.json' },
   newsletter:      { staticDoc: newsletterData,      relativePath: 'newsletter.json' },
-  menu:            { staticDoc: menuData,            relativePath: 'menu.json' },
 };
 
 /* `field` lets a caller read a different top-level key than the collection
@@ -98,7 +97,7 @@ export function ContentProvider({ children }) {
     PRESSE: useLiveCollection('presse'),
     FOOTER: useLiveCollection('footer'),
     NEWSLETTER: useLiveCollection('newsletter'),
-    MENU: useLiveCollection('menu'),
+    MENU: menuData.menu,
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
 }
