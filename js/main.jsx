@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { initFX } from './fx.jsx';
 import { ContentProvider } from './content-context.jsx';
-import { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer } from './screens.jsx';
+import { Nav, Home, Spectacles, FicheSpectacle, Agenda, FicheAgenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer } from './screens.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "default",
@@ -60,6 +60,7 @@ function App() {
         <Route path="/spectacles" element={<Spectacles setRoute={setRoute}/>}/>
         <Route path="/spectacles/:id" element={<FicheSpectacle setRoute={setRoute}/>}/>
         <Route path="/agenda" element={<Agenda setRoute={setRoute}/>}/>
+        <Route path="/agenda/:slug" element={<FicheAgenda setRoute={setRoute}/>}/>
         <Route path="/ateliers" element={<Ateliers audience={atelierAudience}/>}/>
         <Route path="/equipe" element={<Equipe setRoute={setRoute}/>}/>
         <Route path="/partenaires" element={<Partenaires/>}/>

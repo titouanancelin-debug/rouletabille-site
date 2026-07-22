@@ -45,6 +45,18 @@ const italicLastWord = (text) => {
 /* ======================= NAV ======================= */
 const toPath = (id) => (id === "home" ? "/" : "/" + id);
 
+/* Les entrées d'agenda n'ont pas d'identifiant unique (contrairement aux
+   spectacles) — le slug est dérivé du titre + de la date, ce qui est stable
+   tant que ces champs ne changent pas et fonctionne aussi bien pour les
+   entrées JSON que pour les occurrences d'ateliers générées à la volée. */
+const slugify = (s) => (s || "")
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-+|-+$/g, "");
+
+const agendaSlug = (d) => slugify(`${d.title || ""}-${d.day || ""}-${d.month || ""}-${d.year || ""}`);
+
 const ATELIER_CATS = [
   { id:"", label:"Tous les ateliers" },
   { id:"enfants", label:"Enfants (6–11 ans)" },
@@ -544,10 +556,7 @@ const EventCard = ({ item, setRoute }) => {
   const spIdx = sp ? SPECTACLES.findIndex(s => s.id === item.spectacle) : 0;
   const ink = item.cardTextColor || "var(--paper)";
 
-  const handleClick = () => {
-    if (sp) setRoute("spectacles/" + item.spectacle);
-    else setRoute("agenda");
-  };
+  const handleClick = () => setRoute("agenda/" + agendaSlug(item));
 
   return (
     <article onClick={handleClick} style={{ cursor:"pointer" }}>
@@ -1172,7 +1181,7 @@ const FicheSpectacle = ({ setRoute }) => {
             <h2 className="section-title">En <span className="display-italic">tournée.</span></h2>
             <div className="section-meta">{dates.length} dates programmées</div>
           </div>
-          {dates.map((d,i) => <AgendaRow key={i} d={d}/>)}
+          {dates.map((d,i) => <AgendaRow key={i} d={d} onClick={() => setRoute("agenda/" + agendaSlug(d))}/>)}
         </section>
       )}
     </>
@@ -1365,7 +1374,7 @@ const Agenda = ({ setRoute }) => {
               <Reveal key={i} variant="up" delay={(i % 3) * 70}>
                 <AgendaCard
                   d={d}
-                  onClick={d.spectacle ? () => setRoute("spectacles/" + d.spectacle) : null}
+                  onClick={() => setRoute("agenda/" + agendaSlug(d))}
                 />
               </Reveal>
             ))}
@@ -1375,6 +1384,101 @@ const Agenda = ({ setRoute }) => {
     </section>
     <SectionsLibres doc={{ sections: AGENDA_SECTIONS }}/>
     </>
+  );
+};
+
+/* ======================= FICHE AGENDA (détail d'un rendez-vous) ======================= */
+const FicheAgenda = ({ setRoute }) => {
+  const { slug } = useParams();
+  const { AGENDA, SPECTACLES, ATELIERS } = useContent();
+  const d = AGENDA.find(x => agendaSlug(x) === slug);
+
+  if (!d) {
+    return (
+      <section className="section">
+        <p style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22, color:"var(--ink-soft)", marginBottom:24 }}>
+          Ce rendez-vous n'existe plus ou a été déplacé.
+        </p>
+        <button className="btn" onClick={() => setRoute("agenda")}>← Retour à l'agenda</button>
+      </section>
+    );
+  }
+
+  const tc = TYPE_CONFIG[d.type] || TYPE_CONFIG.spectacle;
+  const sc = STATUS_CONFIG[d.status] || STATUS_CONFIG.available;
+  const sp = d.spectacle ? SPECTACLES.find(s => s.id === d.spectacle) : null;
+  const atelier = d.type === "atelier" ? ATELIERS.find(a => a.title === d.title) : null;
+
+  return (
+    <section className="section" style={{ paddingBottom:40 }}>
+      <button className="nav-link" onClick={() => setRoute("agenda")} style={{ paddingLeft:0, marginBottom:24 }}>← Agenda</button>
+
+      <div className="col-split" style={{ gap:64, alignItems:"start" }}>
+        <div className="noise" style={{ position:"relative", aspectRatio:"4/5", overflow:"hidden" }}>
+          {d.image ? (
+            <CardPhoto item={d} alt={d.title}/>
+          ) : sp ? (
+            sp.image ? <CardPhoto item={sp} alt={sp.title}/> : <Poster bg={sp.color} ink={sp.textColor} title={sp.title} subtitle={sp.tag} num={sp.num} variant={2}/>
+          ) : (
+            <div style={{
+              background: d.cardColor || "var(--aubergine)", color: d.cardTextColor || "var(--paper)",
+              width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center", position:"relative",
+            }}>
+              <Motif size={220} color={d.cardTextColor || "var(--paper)"} berryColor={d.cardTextColor || "var(--paper)"} rotate={12} seed={3}/>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div style={{ display:"flex", gap:16, alignItems:"center", marginBottom:20, flexWrap:"wrap" }}>
+            <span style={{ background:tc.color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase" }}>{tc.label}</span>
+            <span style={{ display:"flex", alignItems:"center", gap:6 }}>
+              <span style={{ width:6, height:6, borderRadius:"50%", background:sc.color }}/>
+              <span style={{ fontSize:12, color:sc.color, fontWeight:500 }}>{sc.label}</span>
+            </span>
+          </div>
+
+          <h1 className="display" style={{ fontSize:"clamp(48px, 6vw, 88px)", lineHeight:1.02, marginBottom:24 }} data-tina-field={tinaField(d, "title")}>
+            {d.title}
+          </h1>
+
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, padding:"24px 0", borderTop:"1px solid var(--rule)", borderBottom:"1px solid var(--rule)", marginBottom:32 }}>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Date</div><div>{d.day} {d.month} {d.year}</div></div>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Horaire</div><div data-tina-field={tinaField(d, "time")}>{d.time}</div></div>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Lieu</div><div data-tina-field={tinaField(d, "venue")}>{d.venue}</div></div>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Tarif</div><div data-tina-field={tinaField(d, "price")}>{d.price}</div></div>
+          </div>
+
+          {sp && (
+            <>
+              <RichText content={sp.desc} field={tinaField(sp, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+              <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+                <button className="btn btn-amber" onClick={() => setRoute("spectacles/" + sp.id)}>Voir le spectacle →</button>
+                <button className="btn btn-ghost" onClick={() => setRoute("contact")}>Nous contacter</button>
+              </div>
+            </>
+          )}
+
+          {atelier && (
+            <>
+              <RichText content={atelier.desc} field={tinaField(atelier, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+              <div className="mono" style={{ marginBottom:32, opacity:0.6 }}>Public : {atelier.who}</div>
+              <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+                <button className="btn btn-amber" onClick={() => setRoute("ateliers")}>Voir tous les ateliers →</button>
+                <button className="btn btn-ghost" onClick={() => setRoute("contact")}>S'inscrire</button>
+              </div>
+            </>
+          )}
+
+          {!sp && !atelier && (
+            <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+              <button className="btn btn-amber" onClick={() => setRoute("contact")}>Nous contacter</button>
+              <button className="btn btn-ghost" onClick={() => setRoute("agenda")}>← Retour à l'agenda</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
   );
 };
 
@@ -2043,4 +2147,4 @@ const Footer = () => {
   );
 };
 
-export { Nav, Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer };
+export { Nav, Home, Spectacles, FicheSpectacle, Agenda, FicheAgenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer };
