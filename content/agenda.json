@@ -11,12 +11,11 @@
       "time": "Résidence 20 –24 juillet · sortie le 24",
       "price": "Sortie de résidence",
       "status": "free",
-      "type": "résidence",
+      "type": [
+        "résidence"
+      ],
       "cardColor": "#3A1B2E",
       "cardTextColor": "#F4E8D5"
-    },
-    {
-      "day": "24"
     },
     {
       "image": null,
@@ -28,7 +27,9 @@
       "time": "24–26 octobre",
       "price": "Voir programme",
       "status": "available",
-      "type": "événement",
+      "type": [
+        "événement"
+      ],
       "cardColor": "#8E3620",
       "cardTextColor": "#F4E8D5"
     },
@@ -42,7 +43,9 @@
       "time": "18h00",
       "price": "Voir Cie Lilo",
       "status": "available",
-      "type": "spectacle",
+      "type": [
+        "spectacle"
+      ],
       "cardColor": "#B84A2E",
       "cardTextColor": "#F4E8D5"
     },
@@ -56,7 +59,9 @@
       "time": "Étape de travail · dispositif 24/33",
       "price": "Accès limité",
       "status": "free",
-      "type": "résidence",
+      "type": [
+        "résidence"
+      ],
       "cardColor": "#3A1B2E",
       "cardTextColor": "#F4E8D5"
     },
@@ -70,7 +75,9 @@
       "time": "Résidence · avec le Comité de Quartier du Toulon",
       "price": "Séances scolaires + tout public",
       "status": "free",
-      "type": "résidence",
+      "type": [
+        "résidence"
+      ],
       "cardColor": "#3A1B2E",
       "cardTextColor": "#F4E8D5"
     },
@@ -84,7 +91,9 @@
       "time": "2–6 février · 8 représentations",
       "price": "Scolaire & tout public",
       "status": "available",
-      "type": "événement",
+      "type": [
+        "événement"
+      ],
       "cardColor": "#8E3620",
       "cardTextColor": "#F4E8D5"
     },
@@ -98,7 +107,9 @@
       "time": "Résidence 9–12 fév · restitution le 12",
       "price": "Sortie de résidence",
       "status": "free",
-      "type": "résidence",
+      "type": [
+        "résidence"
+      ],
       "cardColor": "#3A1B2E",
       "cardTextColor": "#F4E8D5"
     },
@@ -112,7 +123,9 @@
       "time": "Résidence 16–20 février",
       "price": "Sortie de résidence",
       "status": "free",
-      "type": "résidence",
+      "type": [
+        "résidence"
+      ],
       "cardColor": "#3A1B2E",
       "cardTextColor": "#F4E8D5"
     },
@@ -126,7 +139,9 @@
       "time": "17h30–19h · 9 séances, avril à juin",
       "price": "Gratuit",
       "status": "free",
-      "type": "atelier",
+      "type": [
+        "atelier"
+      ],
       "cardColor": "#9B7AA8",
       "cardTextColor": "#F4E8D5"
     },
@@ -140,7 +155,9 @@
       "time": "18h00",
       "price": "Voir programme",
       "status": "available",
-      "type": "événement",
+      "type": [
+        "événement"
+      ],
       "cardColor": "#8E3620",
       "cardTextColor": "#F4E8D5"
     },
@@ -154,9 +171,167 @@
       "time": "17h30–19h · dernière séance du cycle",
       "price": "Gratuit",
       "status": "free",
-      "type": "atelier",
+      "type": [
+        "atelier"
+      ],
       "cardColor": "#9B7AA8",
       "cardTextColor": "#F4E8D5"
+    },
+    {
+      "image": null,
+      "day": null,
+      "month": null,
+      "year": null,
+      "title": "Théâtre Enfants & Ados",
+      "venue": "Filature de l'Isle, Périgueux",
+      "time": "Mercredi 14h–15h30 / 16h–17h30",
+      "who": "6–9 ans / 10–14 ans",
+      "audience": "enfants",
+      "price": "Adhésion + 60 € / trimestre",
+      "status": "available",
+      "type": [
+        "atelier"
+      ],
+      "desc": "Raconter une histoire en mettant en jeu son corps et sa voix. Observer le monde et le traduire scéniquement. Rendre visible l'invisible et oser être présent à soi et aux autres. Sorties aux spectacles incluses. Avec Perrine Marillier.",
+      "cardColor": "#B84A2E",
+      "cardTextColor": "#F4E8D5",
+      "spectacle": null,
+      "recurrence": null,
+      "recurrenceDay": null,
+      "recurrenceWeekOfMonth": null,
+      "recurrenceStart": null,
+      "recurrenceEnd": null,
+      "recurrenceTime": null
+    },
+    {
+      "image": null,
+      "day": null,
+      "month": null,
+      "year": null,
+      "title": "Cycle d'expérimentation artistique",
+      "venue": "Filature de l'Isle, Périgueux",
+      "time": "1 samedi par mois, 9h45–16h",
+      "who": "Adultes",
+      "audience": "adultes",
+      "price": "Adhésion + 75 € / trimestre",
+      "status": "available",
+      "type": [
+        "atelier"
+      ],
+      "desc": "Cycle de découvertes, de pratiques et d'expérimentations artistiques. Sorties aux spectacles incluses. Avec Perrine Marillier, Mathieu Duval et Guilhem Loupiac.",
+      "cardColor": "#3A1B2E",
+      "cardTextColor": "#F4E8D5",
+      "spectacle": null,
+      "recurrence": null,
+      "recurrenceDay": null,
+      "recurrenceWeekOfMonth": null,
+      "recurrenceStart": null,
+      "recurrenceEnd": null,
+      "recurrenceTime": null
+    },
+    {
+      "image": null,
+      "day": null,
+      "month": null,
+      "year": null,
+      "title": "Compagnon Vocal",
+      "venue": "Filature de l'Isle, Périgueux",
+      "time": "Mercredi tous les 15 jours, 11h30–13h",
+      "who": "Tous niveaux",
+      "audience": "adultes",
+      "price": "Adhésion – Gratuit",
+      "status": "available",
+      "type": [
+        "atelier"
+      ],
+      "desc": "Venez chanter, écouter, vous ressourcer, vibrer. Aucune expérience vocale nécessaire. Avec Claude Danielle Morlet et Dominique Borie-Lagarde.",
+      "cardColor": "#E8B542",
+      "cardTextColor": "#3A1B2E",
+      "spectacle": null,
+      "recurrence": null,
+      "recurrenceDay": null,
+      "recurrenceWeekOfMonth": null,
+      "recurrenceStart": null,
+      "recurrenceEnd": null,
+      "recurrenceTime": null
+    },
+    {
+      "image": null,
+      "day": null,
+      "month": null,
+      "year": null,
+      "title": "Expression créatrice",
+      "venue": "Filature de l'Isle, Périgueux",
+      "time": "Mardi 14h–16h",
+      "who": "Tous publics",
+      "audience": "adultes",
+      "price": "Adhésion – Gratuit",
+      "status": "available",
+      "type": [
+        "atelier"
+      ],
+      "desc": "Atelier d'expérimentation et de création plastique. Explorer sa créativité et son propre imaginaire en groupe. Pratique individuelle, création collective. Sans prérequis technique. Avec Ambre Ludwiczak.",
+      "cardColor": "#C89420",
+      "cardTextColor": "#3A1B2E",
+      "spectacle": null,
+      "recurrence": null,
+      "recurrenceDay": null,
+      "recurrenceWeekOfMonth": null,
+      "recurrenceStart": null,
+      "recurrenceEnd": null,
+      "recurrenceTime": null
+    },
+    {
+      "image": null,
+      "day": null,
+      "month": null,
+      "year": null,
+      "title": "Rdv's du Toulon",
+      "venue": "Salle du 800 – EVS, Périgueux",
+      "time": "Jeudi 14h–16h",
+      "who": "Habitants du quartier",
+      "audience": "quartier",
+      "price": "Adhésion – Gratuit",
+      "status": "available",
+      "type": [
+        "atelier"
+      ],
+      "desc": "Rencontres interculturelles & créations collectives : Café Culture, médiations autour des spectacles, ateliers… + Sorties aux spectacles.",
+      "cardColor": "#8E3620",
+      "cardTextColor": "#F4E8D5",
+      "spectacle": null,
+      "recurrence": null,
+      "recurrenceDay": null,
+      "recurrenceWeekOfMonth": null,
+      "recurrenceStart": null,
+      "recurrenceEnd": null,
+      "recurrenceTime": null
+    },
+    {
+      "image": null,
+      "day": null,
+      "month": null,
+      "year": null,
+      "title": "Ateliers Geste",
+      "venue": "Odyssée, Périgueux",
+      "time": "21,28/04 — 5,12,19,26/05 — 2,9,16/06/2026 · 17h30–19h",
+      "who": "8–12 ans",
+      "audience": "enfants",
+      "price": "Gratuit",
+      "status": "available",
+      "type": [
+        "atelier"
+      ],
+      "desc": "Créer et jouer à la frontière du réel et du fantastique. Cycle de 9 séances avec Guilhem Loupiac. En partenariat avec L'Odyssée.",
+      "cardColor": "#9B7AA8",
+      "cardTextColor": "#F4E8D5",
+      "spectacle": null,
+      "recurrence": null,
+      "recurrenceDay": null,
+      "recurrenceWeekOfMonth": null,
+      "recurrenceStart": null,
+      "recurrenceEnd": null,
+      "recurrenceTime": null
     }
   ],
   "sections": []

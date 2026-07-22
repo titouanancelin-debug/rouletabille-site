@@ -7,7 +7,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useTina, useEditState } from 'tinacms/react';
 import { client } from '../tina/__generated__/client';
-import { expandAtelierRecurrence } from './recurrence.js';
+import { expandRecurrence } from './recurrence.js';
 
 import spectaclesData from '../content/spectacles.json';
 import agendaData from '../content/agenda.json';
@@ -68,12 +68,8 @@ function useLiveCollection(name, field = name) {
 const ContentContext = createContext(null);
 
 export function ContentProvider({ children }) {
-  const agendaFromContent = useLiveCollection('agenda');
-  const ateliers = useLiveCollection('ateliers');
-  const agenda = useMemo(
-    () => [...agendaFromContent, ...expandAtelierRecurrence(ateliers)],
-    [agendaFromContent, ateliers]
-  );
+  const agendaRaw = useLiveCollection('agenda');
+  const agenda = useMemo(() => expandRecurrence(agendaRaw), [agendaRaw]);
 
   const value = {
     SPECTACLES: useLiveCollection('spectacles'),
@@ -82,7 +78,6 @@ export function ContentProvider({ children }) {
     AGENDA: agenda,
     AGENDA_SECTIONS: useLiveCollection('agenda', 'sections'),
     AGENDA_SECTIONS_HAUT: useLiveCollection('agenda', 'sectionsHaut'),
-    ATELIERS: ateliers,
     ATELIERS_SECTIONS: useLiveCollection('ateliers', 'sections'),
     ATELIERS_SECTIONS_HAUT: useLiveCollection('ateliers', 'sectionsHaut'),
     EQUIPE: useLiveCollection('equipe'),

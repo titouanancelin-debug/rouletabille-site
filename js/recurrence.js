@@ -1,15 +1,16 @@
-/* Génère les occurrences futures d'un atelier récurrent (hebdomadaire ou
-   mensuel) sous forme d'entrées "virtuelles" au même format que l'agenda,
-   pour éviter de les créer une par une à la main. Ces entrées ne sont pas
-   des documents Tina : elles sont recalculées à chaque affichage, à partir
-   des champs de récurrence de l'atelier — donc pas de clic-pour-éditer sur
-   elles (on édite la règle de récurrence sur l'atelier lui-même). Tout le
+/* Génère les occurrences futures d'un rendez-vous récurrent (hebdomadaire ou
+   mensuel) de l'agenda. Un rendez-vous "modèle" récurrent n'a pas de
+   day/month/year propres : ce sont les occurrences générées ici qui portent
+   une date. Ces occurrences ne sont pas des documents Tina : elles sont
+   recalculées à chaque affichage, à partir des champs de récurrence du
+   rendez-vous — donc pas de clic-pour-édition sur elles (on édite la règle de
+   récurrence sur le rendez-vous modèle lui-même, dans l'agenda). Tout le
    calcul se fait en UTC pour éviter les décalages de fuseau horaire /
    changements d'heure d'été-hiver. */
 
 const FR_MONTHS = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
 const WEEKDAY_INDEX = { dimanche:0, lundi:1, mardi:2, mercredi:3, jeudi:4, vendredi:5, samedi:6 };
-const MAX_OCCURRENCES_PER_ATELIER = 60;
+const MAX_OCCURRENCES_PER_ENTRY = 60;
 const HORIZON_MONTHS = 12;
 
 function startOfUTCDay(d) {
@@ -39,60 +40,51 @@ function nthWeekdayOfMonth(year, monthIdx, weekday, nth) {
   return d;
 }
 
-function makeGeneratedEntry(a, date) {
-  return {
-    ...toAgendaDateFields(date),
-    title: a.title,
-    venue: a.where,
-    time: a.recurrenceTime || a.when,
-    price: a.price,
-    status: "available",
-    type: "atelier",
-    cardColor: a.color,
-    cardTextColor: a.textColor,
-    image: a.image || null,
-    spectacle: null,
-  };
-}
-
-export function expandAtelierRecurrence(ateliers, now = new Date()) {
+/* Étend tout rendez-vous d'agenda portant une règle de récurrence en
+   plusieurs occurrences datées ; les rendez-vous sans récurrence (ou
+   "ponctuel") passent tels quels. Chaque occurrence reprend tous les champs
+   du modèle (type, description, image, couleurs...), seule la date change. */
+export function expandRecurrence(entries, now = new Date()) {
   const today = startOfUTCDay(now);
   const horizon = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + HORIZON_MONTHS, today.getUTCDate()));
 
   const out = [];
-  for (const a of ateliers) {
-    if (!a.recurrence || a.recurrence === "ponctuel" || !a.recurrenceStart) continue;
-    const weekday = WEEKDAY_INDEX[a.recurrenceDay];
-    if (weekday === undefined) continue;
+  for (const e of entries) {
+    if (!e.recurrence || e.recurrence === "ponctuel" || !e.recurrenceStart) {
+      out.push(e);
+      continue;
+    }
+    const weekday = WEEKDAY_INDEX[e.recurrenceDay];
+    if (weekday === undefined) { out.push(e); continue; }
 
-    const start = startOfUTCDay(new Date(a.recurrenceStart));
-    const end = a.recurrenceEnd ? startOfUTCDay(new Date(a.recurrenceEnd)) : horizon;
+    const start = startOfUTCDay(new Date(e.recurrenceStart));
+    const end = e.recurrenceEnd ? startOfUTCDay(new Date(e.recurrenceEnd)) : horizon;
     const windowStart = start > today ? start : today;
     const windowEnd = end < horizon ? end : horizon;
     if (windowStart > windowEnd) continue;
 
     let count = 0;
 
-    if (a.recurrence === "hebdomadaire") {
+    if (e.recurrence === "hebdomadaire") {
       const diff = (weekday - windowStart.getUTCDay() + 7) % 7;
       let cur = new Date(Date.UTC(windowStart.getUTCFullYear(), windowStart.getUTCMonth(), windowStart.getUTCDate() + diff));
-      while (cur <= windowEnd && count < MAX_OCCURRENCES_PER_ATELIER) {
-        out.push(makeGeneratedEntry(a, cur));
+      while (cur <= windowEnd && count < MAX_OCCURRENCES_PER_ENTRY) {
+        out.push({ ...e, ...toAgendaDateFields(cur), time: e.recurrenceTime || e.time });
         cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth(), cur.getUTCDate() + 7));
         count++;
       }
-    } else if (a.recurrence === "mensuel") {
+    } else if (e.recurrence === "mensuel") {
       let cursorYear = windowStart.getUTCFullYear();
       let cursorMonth = windowStart.getUTCMonth();
       const endYear = windowEnd.getUTCFullYear();
       const endMonth = windowEnd.getUTCMonth();
       while (
         (cursorYear < endYear || (cursorYear === endYear && cursorMonth <= endMonth)) &&
-        count < MAX_OCCURRENCES_PER_ATELIER
+        count < MAX_OCCURRENCES_PER_ENTRY
       ) {
-        const occ = nthWeekdayOfMonth(cursorYear, cursorMonth, weekday, a.recurrenceWeekOfMonth || "1");
+        const occ = nthWeekdayOfMonth(cursorYear, cursorMonth, weekday, e.recurrenceWeekOfMonth || "1");
         if (occ && occ >= windowStart && occ <= windowEnd) {
-          out.push(makeGeneratedEntry(a, occ));
+          out.push({ ...e, ...toAgendaDateFields(occ), time: e.recurrenceTime || e.time });
           count++;
         }
         cursorMonth++;
