@@ -11,7 +11,7 @@
     {
       "image": null,
       "name": "Adeline Stocklouser",
-      "role": "Administration • Développement • Communication",
+      "role": "Administration • Développement",
       "categorie": "permanente",
       "bio": "Adeline accompagne le développement de Rouletabille depuis plus de vingt ans. Elle veille à rendre possibles les projets artistiques, en assurant leur organisation, leur financement et leur visibilité. Son travail relie les artistes, les partenaires et les habitants autour d'un même projet."
     },
@@ -47,16 +47,30 @@
       "image": null,
       "name": "Perrine Marillier",
       "role": "Intervenante artistique, chargée de communication",
-      "categorie": "permanente",
+      "categorie": "associee",
       "bio": "Anime les ateliers Théâtre Enfants & Ados et co-encadre le Cycle d'expérimentation artistique adultes. Pilier de la médiation artistique au quotidien."
     },
     {
       "image": null,
       "name": "Claude Danielle Morlet",
       "role": "Fondatrice • Comédienne • Metteuse en scène",
-      "categorie": "permanente",
+      "categorie": "conseil_administration",
       "bio": "Claude accompagne Rouletabille depuis sa création en 1993. Elle développe une pratique artistique où le théâtre devient un espace d'émancipation, de transmission et de rencontre. Son parcours est nourri par l'éducation populaire, les enseignements du Théâtre du Soleil et une recherche permanente autour de la voix, du corps et de la relation aux publics.",
       "quote": "Faire du théâtre un espace où chacun trouve sa place."
+    },
+    {
+      "image": null,
+      "name": "Oswald",
+      "role": "Membre fondateur",
+      "categorie": "conseil_administration",
+      "bio": ""
+    },
+    {
+      "image": null,
+      "name": "Hiroshi",
+      "role": "Membre fondateur",
+      "categorie": "conseil_administration",
+      "bio": ""
     }
   ],
   "sections": []

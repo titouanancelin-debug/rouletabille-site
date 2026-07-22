@@ -104,7 +104,7 @@ const Nav = ({ route }) => {
             {it.label}
           </Link>
         ))}
-
+        <a href="https://rouletabilletheatre.com/" target="_blank" rel="noopener" className="nav-link">Archives</a>
       </div>
 
       {/* Hamburger — mobile only */}
@@ -119,6 +119,7 @@ const Nav = ({ route }) => {
             {it.label}
           </Link>
         ))}
+        <a href="https://rouletabilletheatre.com/" target="_blank" rel="noopener" className="nav-mobile-link" style={{ textDecoration:"none" }} onClick={() => setMobileOpen(false)}>Archives</a>
       </div>
     </nav>
   );
@@ -548,7 +549,7 @@ const getFeaturedEvents = (AGENDA) => {
     .map(({ d }) => d);
 };
 
-const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence" };
+const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence", médiation:"Médiation", atelier:"Atelier" };
 
 const EventCard = ({ item, setRoute }) => {
   const { SPECTACLES } = useContent();
@@ -867,6 +868,7 @@ const Spectacles = ({ setRoute }) => {
   const [selectedAtelier, setSelectedAtelier] = useState(null);
   const [formStates, setFormStates] = useState({});
   const residences = AGENDA.filter(d => d.type === "résidence");
+  const mediations  = AGENDA.filter(d => d.type === "médiation");
   const evenements  = AGENDA.filter(d => d.type === "événement");
 
   const handleAtelierSubmit = async (e, atelier) => {
@@ -922,7 +924,6 @@ const Spectacles = ({ setRoute }) => {
                 color: tab === t.id ? "var(--terra)" : "var(--ink-soft)",
               }}>
                 <span style={{ fontFamily:"var(--ff-body)", fontSize:13, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
-                <span style={{ fontFamily:"var(--ff-mono)", fontSize:10, opacity:0.45 }}>{t.num}</span>
               </button>
             ))}
           </div>
@@ -948,7 +949,7 @@ const Spectacles = ({ setRoute }) => {
             <div className="grid-2">
               {residences.map((d, i) => (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div style={{ border:"1px solid rgba(242,228,200,0.15)" }}>
+                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     {d.image && (
                       <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
                         <CardPhoto item={d} alt={d.title}/>
@@ -956,10 +957,11 @@ const Spectacles = ({ setRoute }) => {
                     )}
                     <div style={{ padding:32 }}>
                     <div style={{ display:"inline-block", background:"var(--plum)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Résidence</div>
-                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}</h3>
+                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
                     <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
-                    <div style={{ fontSize:13, opacity:0.5, fontStyle:"italic" }} data-tina-field={tinaField(d, "price")}>{d.price}</div>
+                    <div style={{ fontSize:13, opacity:0.5, fontStyle:"italic", marginBottom: d.desc ? 16 : 0 }} data-tina-field={tinaField(d, "price")}>{d.price}</div>
+                    {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"rgba(242,228,200,0.8)" }}/>}
                     </div>
                   </div>
                 </Reveal>
@@ -979,33 +981,33 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:48, maxWidth:560 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              La transmission artistique est une activité centrale, pas accessoire. Ateliers réguliers, interventions scolaires, actions de territoire — {ATELIERS.length} ateliers cette saison.
+              La transmission artistique est une activité centrale, pas accessoire. Interventions scolaires, actions de territoire, médiation culturelle.
             </p>
           </Reveal>
-          <div className="grid-3" style={{ marginBottom:48 }}>
-            {ATELIERS.slice(0, 3).map((a, i) => (
-              <Reveal key={a.num} variant="up" delay={i * 80}>
-                <div className={a.image ? "" : "noise"} style={{ background: a.image ? "#000" : a.color, color:a.textColor, padding:28, minHeight:220, display:"flex", flexDirection:"column", justifyContent:"space-between", position:"relative", overflow:"hidden" }}>
-                  {a.image ? (
-                    <>
-                      <CardPhoto item={a} alt={a.title} style={{ position:"absolute", inset:0, opacity:0.55 }}/>
-                      <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15))" }}/>
-                    </>
-                  ) : (
-                    <div style={{ position:"absolute", right:-20, bottom:-30, opacity:0.12 }}>
-                      <Motif size={160} color={a.textColor} berryColor={a.textColor} rotate={10} seed={i+1}/>
+          {mediations.length > 0 ? (
+            <div className="grid-2">
+              {mediations.map((d, i) => (
+                <Reveal key={i} variant="up" delay={i * 100}>
+                  <div className="card-fx" style={{ border:"1px solid var(--rule)", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                    {d.image && (
+                      <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
+                        <CardPhoto item={d} alt={d.title}/>
+                      </div>
+                    )}
+                    <div style={{ padding:32 }}>
+                      <div style={{ display:"inline-block", background:"var(--amber-deep)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Médiation</div>
+                      <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
+                      <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
+                      <div style={{ fontSize:14, opacity:0.7, marginBottom: d.desc ? 16 : 0, color:"var(--ink-soft)" }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
+                      {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"var(--ink-soft)" }}/>}
                     </div>
-                  )}
-                  <div style={{ position:"relative", zIndex:1 }}>
-                    <div className="mono" style={{ marginBottom:16, opacity:0.6 }}>{a.num}</div>
-                    <h4 className="display" style={{ fontSize:26, lineHeight:1, marginBottom:10 }} data-tina-field={tinaField(a, "title")}>{a.title}</h4>
-                    <div style={{ fontSize:13, opacity:0.8 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
                   </div>
-                  <div style={{ position:"relative", zIndex:1, fontSize:13, borderTop:`1px solid ${a.textColor}`, paddingTop:14, marginTop:16, opacity:0.55 }} data-tina-field={tinaField(a, "when")}>{a.when}</div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>Aucune médiation programmée pour le moment.</p>
+          )}
         </section>
       )}
 
@@ -1024,7 +1026,7 @@ const Spectacles = ({ setRoute }) => {
             <div style={{ display:"flex", flexDirection:"column" }}>
               {evenements.map((d, i) => (
                 <Reveal key={i} variant="up" delay={i * 80}>
-                  <div style={{ padding:"28px 0", borderTop:"1px solid var(--rule)", display:"flex", gap:32, alignItems:"flex-start" }}>
+                  <div className="card-fx" style={{ padding:"28px 0", borderTop:"1px solid var(--rule)", display:"flex", gap:32, alignItems:"flex-start", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     <div style={{ minWidth:64, textAlign:"center" }}>
                       <div className="display" style={{ fontSize:42, lineHeight:1 }}>{d.day}</div>
                       <div className="mono" style={{ fontSize:11, marginTop:4, opacity:0.55 }}>{d.month} {d.year}</div>
@@ -1038,9 +1040,10 @@ const Spectacles = ({ setRoute }) => {
                       <div style={{ display:"inline-block", background:d.cardColor || "var(--amber)", color:d.cardTextColor || "var(--ink)", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"3px 10px", textTransform:"uppercase", marginBottom:10 }}>
                         {d.type}
                       </div>
-                      <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }} data-tina-field={tinaField(d, "title")}>{d.title}</h3>
+                      <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
                       <div style={{ fontSize:14, color:"var(--ink-soft)" }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
                       <div className="mono" style={{ fontSize:12, marginTop:6, opacity:0.55 }}>{d.time} · {d.price}</div>
+                      {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"var(--ink-soft)", marginTop:12 }}/>}
                     </div>
                   </div>
                 </Reveal>
@@ -1060,7 +1063,7 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:32, maxWidth:560 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              {ATELIERS.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes pour la saison 2025–2026.
+              {ATELIERS.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.
             </p>
           </Reveal>
           <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
@@ -1194,6 +1197,7 @@ const TYPE_CONFIG = {
   atelier:   { label:"Atelier",   color:"var(--plum)" },
   résidence: { label:"Résidence", color:"var(--aubergine)" },
   événement: { label:"Évènement", color:"var(--amber-deep)" },
+  médiation: { label:"Médiation", color:"var(--amber-deep)" },
 };
 
 const STATUS_CONFIG = {
@@ -1310,8 +1314,7 @@ const Agenda = ({ setRoute }) => {
 
       <Reveal variant="up" className="section-head">
         <div className="section-num">Saison</div>
-        <h2 className="section-title">Agenda<br/><span className="display-italic">{seasonMonths[0].label} {seasonMonths[0].key.split(" ")[1]} — {seasonMonths[seasonMonths.length - 1].label} {seasonMonths[seasonMonths.length - 1].key.split(" ")[1]}.</span></h2>
-        <div className="section-meta">{AGENDA.length} rendez-vous · spectacles, ateliers, résidences & événements.</div>
+        <h2 className="section-title">Agenda.</h2>
       </Reveal>
 
       <SectionsLibres doc={{ sections: AGENDA_SECTIONS_HAUT }}/>
@@ -1449,9 +1452,13 @@ const FicheAgenda = ({ setRoute }) => {
             <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Tarif</div><div data-tina-field={tinaField(d, "price")}>{d.price}</div></div>
           </div>
 
+          {d.desc && (
+            <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+          )}
+
           {sp && (
             <>
-              <RichText content={sp.desc} field={tinaField(sp, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+              {!d.desc && <RichText content={sp.desc} field={tinaField(sp, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>}
               <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
                 <button className="btn btn-amber" onClick={() => setRoute("spectacles/" + sp.id)}>Voir le spectacle →</button>
                 <button className="btn btn-ghost" onClick={() => setRoute("contact")}>Nous contacter</button>
@@ -1461,7 +1468,7 @@ const FicheAgenda = ({ setRoute }) => {
 
           {atelier && (
             <>
-              <RichText content={atelier.desc} field={tinaField(atelier, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+              {!d.desc && <RichText content={atelier.desc} field={tinaField(atelier, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}/>}
               <div className="mono" style={{ marginBottom:32, opacity:0.6 }}>Public : {atelier.who}</div>
               <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
                 <button className="btn btn-amber" onClick={() => setRoute("ateliers")}>Voir tous les ateliers →</button>
@@ -1526,7 +1533,7 @@ const Ateliers = ({ audience = "" }) => {
         <Reveal variant="up" className="section-head">
           <div className="section-num">Pratiques</div>
           <h2 className="section-title">Ateliers<br/><span className="display-italic">& pratiques.</span></h2>
-          <div className="section-meta">{ATELIERS.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes pour la saison 2025–2026.</div>
+          <div className="section-meta">{ATELIERS.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.</div>
         </Reveal>
 
         <SectionsLibres doc={{ sections: ATELIERS_SECTIONS_HAUT }}/>
@@ -1617,6 +1624,7 @@ const Equipe = ({ setRoute }) => {
   const { EQUIPE, EQUIPE_SECTIONS, EQUIPE_SECTIONS_HAUT } = useContent();
   const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), [EQUIPE]);
   const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), [EQUIPE]);
+  const conseilAdmin = useMemo(() => EQUIPE.filter(p => p.categorie === "conseil_administration"), [EQUIPE]);
   const [active, setActive] = useState(0);
   const current = permanents[active] || permanents[0];
 
@@ -1684,6 +1692,28 @@ const Equipe = ({ setRoute }) => {
           ))}
         </div>
       </section>
+
+      {conseilAdmin.length > 0 && (
+        <section className="section">
+          <div className="section-head">
+            <div className="section-num">Gouvernance</div>
+            <h2 className="section-title">Membres fondateurs <span className="display-italic">& conseil d'administration.</span></h2>
+            <div className="section-meta">Celles et ceux qui portent le projet associatif de Rouletabille depuis sa création.</div>
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:32 }}>
+            {conseilAdmin.map((p, i) => (
+              <div key={p.name}>
+                <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
+                  {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
+                </div>
+                <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }} data-tina-field={tinaField(p, "name")}>{p.name}</h3>
+                <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
+                {p.bio && <RichText content={p.bio} field={tinaField(p, "bio")} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="section">
         <div className="col-duo" style={{ gap:80, alignItems:"start" }}>
@@ -2105,19 +2135,22 @@ const Footer = () => {
   <footer className="footer">
     <div className="col-footer" style={{ marginBottom:48 }}>
       <div>
-        <Link to="/" className="nav-logo" style={{ color:"var(--paper)", fontSize:32, marginBottom:16, textDecoration:"none" }}>
+        <Link to="/" className="nav-logo" style={{ color:"var(--paper)", textDecoration:"none", marginBottom:16 }}>
           <MotifMark size={36} color="var(--paper)"/>
-          <span>Cie Rouletabille</span>
+          <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
+            <span style={{ fontSize:32 }}>Rouletabille</span>
+            <span style={{ fontSize:11, fontFamily:"var(--ff-mono)", letterSpacing:"0.08em", textTransform:"uppercase", opacity:0.65, marginTop:4 }}>Fabrique artistique &amp; culturelle</span>
+          </span>
         </Link>
         <RichText content={FOOTER.tagline} field={tinaField(FOOTER, "tagline")} style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}/>
       </div>
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Découvrir</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li><Link to="/spectacles" style={footerLinkStyle}>Spectacles</Link></li>
+          <li><Link to="/spectacles" style={footerLinkStyle}>Notre travail</Link></li>
           <li><Link to="/agenda" style={footerLinkStyle}>Agenda</Link></li>
-          <li><Link to="/ateliers" style={footerLinkStyle}>Ateliers</Link></li>
           <li><Link to="/equipe" style={footerLinkStyle}>Équipe</Link></li>
+          <li><Link to="/partenaires" style={footerLinkStyle}>Partenaires</Link></li>
         </ul>
       </div>
       <div>
@@ -2134,6 +2167,7 @@ const Footer = () => {
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
           <li><a href="https://www.instagram.com/rouletabilletheatre" target="_blank" rel="noopener" style={footerLinkStyle}>Instagram</a></li>
           <li>Facebook</li>
+          <li>LinkedIn</li>
           <li>HelloAsso</li>
           <li><Link to="/contact" style={footerLinkStyle}>Newsletter</Link></li>
         </ul>

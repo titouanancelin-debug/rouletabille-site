@@ -392,6 +392,15 @@ a { color: inherit; }
   will-change: transform, opacity, filter;
 }
 .ct-space { width: 0.28em; }
+
+.curtain-subtitle {
+  font-family: var(--ff-mono);
+  font-size: clamp(11px, 1.3vw, 15px);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(244,232,213,0.65);
+  opacity: 0; transform: translateY(8px);
+  animation: ci-rise 0.7s ease 1.4s both;
+}
 @keyframes ct-reveal {
   0%   { opacity: 0; filter: blur(16px); transform: translateY(38%) scale(1.15); }
   45%  { opacity: 0.75; filter: blur(5px); }
