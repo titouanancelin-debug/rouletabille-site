@@ -304,6 +304,63 @@ export default defineConfig({
         ui: { global: true, router: () => "/ateliers" },
         fields: [
           sectionsLibresField("sectionsHaut", "Sections libres (haut de page)"),
+          // Champ technique conservé tel quel (même structure qu'avant le 22/07/2026) pour que
+          // TinaCloud ne voie pas la suppression du type "AteliersAteliers" comme un changement
+          // de schéma "breaking" — ça bloquait l'indexation TinaCloud sur cette branche. Les
+          // ateliers sont gérés depuis l'agenda ; ce champ ne doit plus être rempli.
+          {
+            type: "object",
+            name: "ateliers",
+            label: "(Ne plus utiliser — les ateliers se gèrent depuis l'Agenda)",
+            list: true,
+            ui: { itemProps: (item) => ({ label: item?.title || "Atelier" }) },
+            fields: [
+              { type: "image", name: "image", label: "Photo (optionnel — sinon la carte de couleur s'affiche)" },
+              { type: "string", name: "num", label: "Numéro" },
+              { type: "string", name: "title", label: "Titre" },
+              { type: "string", name: "who", label: "Public" },
+              { type: "string", name: "when", label: "Horaires" },
+              { type: "string", name: "where", label: "Lieu" },
+              { type: "string", name: "price", label: "Prix" },
+              { type: "string", name: "color", label: "Couleur fond", ui: { component: "color" } },
+              { type: "string", name: "textColor", label: "Couleur texte", ui: { component: "color" } },
+              richText("desc", "Description"),
+              { type: "string", name: "audience", label: "Public cible", options: ["enfants", "ados", "adultes", "quartier"] },
+              {
+                type: "string",
+                name: "recurrence",
+                label: "Fréquence",
+                options: [
+                  { value: "ponctuel", label: "Ponctuel (pas de date récurrente dans l'agenda)" },
+                  { value: "hebdomadaire", label: "Chaque semaine" },
+                  { value: "mensuel", label: "Une fois par mois" },
+                ],
+              },
+              {
+                type: "string",
+                name: "recurrenceDay",
+                label: "Jour de la semaine",
+                options: ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"],
+                required: false,
+              },
+              {
+                type: "string",
+                name: "recurrenceWeekOfMonth",
+                label: "Quelle semaine du mois (fréquence mensuelle uniquement)",
+                options: [
+                  { value: "1", label: "1ère semaine" },
+                  { value: "2", label: "2e semaine" },
+                  { value: "3", label: "3e semaine" },
+                  { value: "4", label: "4e semaine" },
+                  { value: "dernier", label: "Dernière semaine du mois" },
+                ],
+                required: false,
+              },
+              { type: "string", name: "recurrenceStart", label: "Date de début (format AAAA-MM-JJ, ex: 2026-09-03)", required: false },
+              { type: "string", name: "recurrenceEnd", label: "Date de fin (format AAAA-MM-JJ, optionnel — sinon généré jusqu'à 12 mois)", required: false },
+              { type: "string", name: "recurrenceTime", label: "Horaire à afficher dans l'agenda (ex: 17h30–19h)", required: false },
+            ],
+          },
           sectionsLibresField("sections", "Sections libres (bas de page)"),
         ],
       },
@@ -474,6 +531,33 @@ export default defineConfig({
               richText("donneesPersonnelles", "Données personnelles — texte"),
               richText("cookies", "Cookies et traceurs — texte"),
               sectionsLibresField("sections", "Sections libres (bas de page)"),
+            ],
+          },
+        ],
+      },
+      // Collection technique conservée telle quelle (même structure qu'avant le 22/07/2026) pour
+      // que TinaCloud ne voie pas la suppression du type "MenuMenu" comme un changement de schéma
+      // "breaking" — ça bloquait l'indexation TinaCloud sur cette branche. Le menu reste géré en
+      // statique dans content/menu.json ; ce champ ne doit plus être rempli.
+      {
+        name: "menu",
+        label: "(Ne plus utiliser — le menu n'est plus édité depuis Tina)",
+        path: "content",
+        format: "json",
+        match: { include: "menu" },
+        ui: { global: true, router: () => "/" },
+        fields: [
+          {
+            type: "object",
+            name: "menu",
+            label: "Menu",
+            fields: [
+              { type: "string", name: "labelHome", label: "Lien — Accueil" },
+              { type: "string", name: "labelSpectacles", label: "Lien — Notre travail" },
+              { type: "string", name: "labelAgenda", label: "Lien — Agenda" },
+              { type: "string", name: "labelEquipe", label: "Lien — Équipe" },
+              { type: "string", name: "labelPartenaires", label: "Lien — Partenaires" },
+              { type: "string", name: "labelContact", label: "Lien — Contact" },
             ],
           },
         ],
