@@ -454,6 +454,24 @@
       "cardColor": "#8E3620",
       "cardTextColor": "#F4E8D5",
       "spectacle": null
+    },
+    {
+      "image": null,
+      "day": null,
+      "month": null,
+      "year": null,
+      "title": "Maillage Sensible",
+      "venue": "Périgueux et territoire",
+      "time": "Mai 2026 – Décembre 2027",
+      "price": "Projet de territoire",
+      "status": "available",
+      "type": [
+        "projet de territoire"
+      ],
+      "desc": "Un espace de convergence de dynamiques engagées, autour duquel s'articule la saison 26-27. Deux quinzaines artistiques viennent encadrer ce parcours au long cours, en automne 2026 et 2027.",
+      "cardColor": "#3A1B2E",
+      "cardTextColor": "#F4E8D5",
+      "spectacle": null
     }
   ],
   "sections": []

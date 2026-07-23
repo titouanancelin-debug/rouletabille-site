@@ -250,7 +250,7 @@ export default defineConfig({
               {
                 type: "string", name: "type", label: "Type(s) — un rendez-vous peut cocher plusieurs cases",
                 list: true,
-                options: ["résidence", "événement", "spectacle", "atelier", "médiation"],
+                options: ["résidence", "événement", "spectacle", "atelier", "médiation", "projet de territoire"],
               },
               richText("desc", "Description"),
               { type: "string", name: "cardColor", label: "Couleur carte", ui: { component: "color" } },

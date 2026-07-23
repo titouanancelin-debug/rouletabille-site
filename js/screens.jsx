@@ -549,7 +549,7 @@ const getFeaturedEvents = (AGENDA) => {
     .map(({ d }) => d);
 };
 
-const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence", médiation:"Médiation", atelier:"Atelier" };
+const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence", médiation:"Médiation", atelier:"Atelier", "projet de territoire":"Projet de territoire" };
 /* Un rendez-vous d'agenda peut cocher plusieurs types (ex: atelier + médiation) — on affiche tous les libellés correspondants. */
 const typeLabels = (type) => (type || []).map(t => TYPE_LABEL[t] || t).join(" · ");
 
@@ -861,6 +861,7 @@ const TRAVAIL_TABS = [
   { id:"mediations",  label:"Médiations",             num:"02", title:"Médiations & pratiques",   sub:"Ateliers, transmissions, actions de territoire." },
   { id:"evenements",  label:"Événements",              num:"03", title:"Événements",                sub:"Rencontres, restitutions et rendez-vous ouverts." },
   { id:"ateliers",    label:"Ateliers",                num:"04", title:"Ateliers & pratique",       sub:"Pratiques artistiques régulières, stages et cycles." },
+  { id:"territoire",  label:"Projets de territoire",   num:"05", title:"Projets de territoire",     sub:"Des espaces de convergence construits avec les habitants et le territoire, sur le long cours." },
 ];
 
 const Spectacles = ({ setRoute }) => {
@@ -873,6 +874,7 @@ const Spectacles = ({ setRoute }) => {
   const mediations  = AGENDA.filter(d => d.type?.includes("médiation"));
   const evenements  = AGENDA.filter(d => d.type?.includes("événement"));
   const ateliersAgenda = AGENDA.filter(d => d.type?.includes("atelier"));
+  const territoire  = AGENDA.filter(d => d.type?.includes("projet de territoire"));
 
   const handleAtelierSubmit = async (e, atelier) => {
     e.preventDefault();
@@ -1059,6 +1061,44 @@ const Spectacles = ({ setRoute }) => {
         </section>
       )}
 
+      {/* ── Onglet 5 : Projets de territoire ── */}
+      {tab === "territoire" && (
+        <section className="section" style={{ background:"var(--aubergine)", color:"var(--paper)", position:"relative", overflow:"hidden", minHeight:"60vh" }}>
+          <div ref={useParallax(0.18, 100)} className="motif-bg" style={{ right:-80, bottom:-60, opacity:0.3 }}>
+            <Motif size={460} color="var(--paper)" berryColor="var(--amber)" rotate={15} seed={5.2}/>
+          </div>
+          <Reveal variant="up" style={{ marginBottom:48, maxWidth:640 }}>
+            <p style={{ fontSize:18, lineHeight:1.7, color:"rgba(242,228,200,0.75)", textWrap:"pretty" }}>
+              Des projets artistiques et culturels co-construits avec les habitants, les partenaires et les structures d'un territoire, sur le temps long.
+            </p>
+          </Reveal>
+          {territoire.length > 0 ? (
+            <div className="grid-2">
+              {territoire.map((d, i) => (
+                <Reveal key={i} variant="up" delay={i * 100}>
+                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                    {d.image && (
+                      <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
+                        <CardPhoto item={d} alt={d.title}/>
+                      </div>
+                    )}
+                    <div style={{ padding:32 }}>
+                    <div style={{ display:"inline-block", background:"var(--amber-deep)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Projet de territoire</div>
+                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
+                    <div className="mono" style={{ opacity:0.5, marginBottom:6 }} data-tina-field={tinaField(d, "time")}>{d.time}</div>
+                    <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
+                    {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"rgba(242,228,200,0.8)" }}/>}
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>Aucun projet de territoire en cours actuellement.</p>
+          )}
+        </section>
+      )}
+
       {/* ── Onglet 4 : Ateliers ── */}
       {tab === "ateliers" && (
         <section className="section" style={{ position:"relative", overflow:"hidden" }}>
@@ -1067,7 +1107,7 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:32, maxWidth:560 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              {ateliersAgenda.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.
+              Ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.
             </p>
           </Reveal>
           <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
@@ -1077,11 +1117,6 @@ const Spectacles = ({ setRoute }) => {
                 onClick={() => { setAtelierFilter(f.id); setSelectedAtelier(null); }}
               >
                 {f.label}
-                {f.id !== "" && (
-                  <span style={{ marginLeft:6, fontSize:10, opacity:0.65 }}>
-                    {ateliersAgenda.filter(a => a.audience === f.id).length}
-                  </span>
-                )}
               </button>
             ))}
           </div>
@@ -1541,7 +1576,7 @@ const Ateliers = ({ audience = "" }) => {
         <Reveal variant="up" className="section-head">
           <div className="section-num">Pratiques</div>
           <h2 className="section-title">Ateliers<br/><span className="display-italic">& pratiques.</span></h2>
-          <div className="section-meta">{ateliersAgenda.length} ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.</div>
+          <div className="section-meta">Ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.</div>
         </Reveal>
 
         <SectionsLibres doc={{ sections: ATELIERS_SECTIONS_HAUT }}/>
@@ -1554,11 +1589,6 @@ const Ateliers = ({ audience = "" }) => {
               onClick={() => { setFilter(f.id); setSelected(null); }}
             >
               {f.label}
-              {f.id !== "" && (
-                <span style={{ marginLeft:6, fontSize:10, opacity:0.65 }}>
-                  {ateliersAgenda.filter(a => a.audience === f.id).length}
-                </span>
-              )}
             </button>
           ))}
         </div>
