@@ -95,7 +95,7 @@ const Nav = ({ route }) => {
         <MotifMark size={32} color="var(--terra)"/>
         <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
           <span>Rouletabille</span>
-          <span style={{ fontSize:11, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.55, marginTop:3 }}>Fabrique artistique et culturelle</span>
+          <span style={{ fontSize:11, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.55, marginTop:3, lineHeight:1.3 }}>Fabrique artistique<br/>et culturelle</span>
         </span>
       </Link>
       <div className="nav-menu">
@@ -450,12 +450,13 @@ const ScrollExpandHero = ({ setRoute }) => {
             whiteSpace: "nowrap",
           }}>Rouletabille</span>
           <span className="display display-italic" style={{
-            fontSize: "clamp(20px, 3.1vw, 50px)", color: "var(--paper)", lineHeight: 0.95,
+            fontSize: "clamp(20px, 3.1vw, 50px)", color: "var(--paper)", lineHeight: 1.05,
             transform: `translateX(${textShift}vw)`,
             willChange: "transform",
             mixBlendMode: "difference",
             whiteSpace: "nowrap",
-          }}>fabrique artistique et culturelle</span>
+            textAlign: "center",
+          }}>fabrique artistique<br/>et culturelle</span>
         </div>
       )}
 
@@ -2180,7 +2181,7 @@ const Footer = () => {
           <MotifMark size={36} color="var(--paper)"/>
           <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
             <span style={{ fontSize:32 }}>Rouletabille</span>
-            <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4 }}>Fabrique artistique et culturelle</span>
+            <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4, lineHeight:1.3 }}>Fabrique artistique<br/>et culturelle</span>
           </span>
         </Link>
         <RichText content={FOOTER.tagline} field={tinaField(FOOTER, "tagline")} style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}/>
