@@ -256,6 +256,7 @@ export default defineConfig({
               { type: "string", name: "cardColor", label: "Couleur carte", ui: { component: "color" } },
               { type: "string", name: "cardTextColor", label: "Couleur texte carte", ui: { component: "color" } },
               { type: "string", name: "spectacle", label: "Spectacle lié (identifiant, optionnel)", required: false },
+              { type: "string", name: "testfield999", label: "(test diagnostic — à retirer)", required: false },
               {
                 type: "string",
                 name: "recurrence",
