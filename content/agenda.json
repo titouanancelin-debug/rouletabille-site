@@ -131,22 +131,6 @@
     },
     {
       "image": null,
-      "day": "21",
-      "month": "Avr",
-      "year": "2027",
-      "title": "Cycle Ateliers Geste (8–12 ans)",
-      "venue": "Odyssée, Périgueux",
-      "time": "17h30–19h · 9 séances, avril à juin",
-      "price": "Gratuit",
-      "status": "free",
-      "type": [
-        "atelier"
-      ],
-      "cardColor": "#9B7AA8",
-      "cardTextColor": "#F4E8D5"
-    },
-    {
-      "image": null,
       "day": "19",
       "month": "Mai",
       "year": "2027",
@@ -159,22 +143,6 @@
         "événement"
       ],
       "cardColor": "#8E3620",
-      "cardTextColor": "#F4E8D5"
-    },
-    {
-      "image": null,
-      "day": "16",
-      "month": "Juin",
-      "year": "2027",
-      "title": "Restitution — Cycle Ateliers Geste",
-      "venue": "Odyssée, Périgueux",
-      "time": "17h30–19h · dernière séance du cycle",
-      "price": "Gratuit",
-      "status": "free",
-      "type": [
-        "atelier"
-      ],
-      "cardColor": "#9B7AA8",
       "cardTextColor": "#F4E8D5"
     },
     {
@@ -298,32 +266,6 @@
       ],
       "desc": "Rencontres-échanges avec des artistes, « atelier du spectateur », création participative.",
       "cardColor": "#8E3620",
-      "cardTextColor": "#F4E8D5",
-      "spectacle": null,
-      "recurrence": null,
-      "recurrenceDay": null,
-      "recurrenceWeekOfMonth": null,
-      "recurrenceStart": null,
-      "recurrenceEnd": null,
-      "recurrenceTime": null
-    },
-    {
-      "image": null,
-      "day": null,
-      "month": null,
-      "year": null,
-      "title": "Ateliers Geste",
-      "venue": "Odyssée, Périgueux",
-      "time": "21,28/04 — 5,12,19,26/05 — 2,9,16/06/2026 · 17h30–19h",
-      "who": "8–12 ans",
-      "audience": "enfants",
-      "price": "Gratuit",
-      "status": "available",
-      "type": [
-        "atelier"
-      ],
-      "desc": "Créer et jouer à la frontière du réel et du fantastique. Cycle de 9 séances avec Guilhem Loupiac. En partenariat avec L'Odyssée.",
-      "cardColor": "#9B7AA8",
       "cardTextColor": "#F4E8D5",
       "spectacle": null,
       "recurrence": null,

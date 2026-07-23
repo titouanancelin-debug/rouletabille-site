@@ -858,9 +858,9 @@ const AgendaRow = ({ d, onClick }) => {
 /* ======================= SPECTACLES (liste) ======================= */
 const TRAVAIL_TABS = [
   { id:"residences",  label:"Résidences artistiques", num:"01", title:"Résidences artistiques",  sub:"Les résidences de création en cours." },
-  { id:"mediations",  label:"Médiations",             num:"02", title:"Médiations & pratiques",   sub:"Ateliers, transmissions, actions de territoire." },
+  { id:"ateliers",    label:"Ateliers réguliers",     num:"02", title:"Ateliers & pratique",       sub:"Pratiques artistiques régulières, stages et cycles." },
   { id:"evenements",  label:"Événements",              num:"03", title:"Événements",                sub:"Rencontres, restitutions et rendez-vous ouverts." },
-  { id:"ateliers",    label:"Ateliers",                num:"04", title:"Ateliers & pratique",       sub:"Pratiques artistiques régulières, stages et cycles." },
+  { id:"mediations",  label:"Médiations",             num:"04", title:"Médiations & pratiques",   sub:"Ateliers, transmissions, actions de territoire." },
   { id:"territoire",  label:"Projets de territoire",   num:"05", title:"Projets de territoire",     sub:"Des espaces de convergence construits avec les habitants et le territoire, sur le long cours." },
 ];
 
