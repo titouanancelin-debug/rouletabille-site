@@ -394,9 +394,8 @@ a { color: inherit; }
 .ct-space { width: 0.28em; }
 
 .curtain-subtitle {
-  font-family: var(--ff-mono);
+  font-family: var(--ff-display); font-style: italic;
   font-size: clamp(11px, 1.3vw, 15px);
-  letter-spacing: 0.14em; text-transform: uppercase;
   color: rgba(244,232,213,0.65);
   opacity: 0; transform: translateY(8px);
   animation: ci-rise 0.7s ease 1.4s both;

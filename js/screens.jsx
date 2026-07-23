@@ -95,7 +95,7 @@ const Nav = ({ route }) => {
         <MotifMark size={32} color="var(--terra)"/>
         <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
           <span>Rouletabille</span>
-          <span style={{ fontSize:10, fontFamily:"var(--ff-mono)", letterSpacing:"0.08em", textTransform:"uppercase", opacity:0.55, marginTop:3 }}>Fabrique artistique</span>
+          <span style={{ fontSize:11, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.55, marginTop:3 }}>Fabrique artistique et culturelle</span>
         </span>
       </Link>
       <div className="nav-menu">
@@ -243,7 +243,7 @@ const BotanicHero = ({ setRoute }) => {
         textTransform: "uppercase",
       }}>
         <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
-        <span data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
+        <span style={{ fontFamily: "var(--ff-display)", fontStyle: "italic", textTransform: "none" }} data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
       </Reveal>
     </div>
 
@@ -427,7 +427,7 @@ const ScrollExpandHero = ({ setRoute }) => {
                 </Reveal>
                 <Reveal variant="fade" delay={900} style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, color: "color-mix(in oklab, var(--paper) 36%, transparent)", fontSize: 11, letterSpacing: "0.1em", fontFamily: "var(--ff-mono)", textTransform: "uppercase" }}>
                   <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
-                  <span data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
+                  <span style={{ fontFamily: "var(--ff-display)", fontStyle: "italic", textTransform: "none" }} data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
                 </Reveal>
               </div>
             </div>
@@ -455,7 +455,7 @@ const ScrollExpandHero = ({ setRoute }) => {
             willChange: "transform",
             mixBlendMode: "difference",
             whiteSpace: "nowrap",
-          }}>fabrique artistique</span>
+          }}>fabrique artistique et culturelle</span>
         </div>
       )}
 
@@ -1753,7 +1753,7 @@ const TYPE_META = {
   'Soutien institutionnel': {
     accent: 'var(--terra)',
     bg: 'var(--terra)',
-    desc: "Financeurs et soutiens officiels. La Cie Rouletabille est labellisée « Lieu de fabrique » par la Région et l'Agence Culturelle de la Dordogne.",
+    desc: "Financeurs et soutiens officiels. La Rouletabille fabrique artistique et culturelle est labellisée « Lieu de fabrique » par la Région et l'Agence Culturelle de la Dordogne.",
   },
   'Partenaires artistiques': {
     accent: 'var(--plum)',
@@ -2150,7 +2150,7 @@ const Footer = () => {
           <MotifMark size={36} color="var(--paper)"/>
           <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
             <span style={{ fontSize:32 }}>Rouletabille</span>
-            <span style={{ fontSize:11, fontFamily:"var(--ff-mono)", letterSpacing:"0.08em", textTransform:"uppercase", opacity:0.65, marginTop:4 }}>Fabrique artistique &amp; culturelle</span>
+            <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4 }}>Fabrique artistique et culturelle</span>
           </span>
         </Link>
         <RichText content={FOOTER.tagline} field={tinaField(FOOTER, "tagline")} style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}/>
