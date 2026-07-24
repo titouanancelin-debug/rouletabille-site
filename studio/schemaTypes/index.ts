@@ -1,3 +1,39 @@
 import { archiveArticle } from './archiveArticle';
+import { agenda } from './agenda';
+import { spectacle } from './spectacle';
+import { equipeMember } from './equipeMember';
+import { partenaire } from './partenaire';
+import { home } from './home';
+import { contact } from './contact';
+import { mentionsLegales } from './mentionsLegales';
+import { presse } from './presse';
+import { footer } from './footer';
+import { newsletter } from './newsletter';
+import { agendaPage, spectaclesPage, equipePage, partenairesPage, ateliersPage } from './pageSections';
+import {
+  titreBlock, texteBlock, imageBloc, imageTexteBlock, encartBlock, citationBlock, espaceBlock,
+} from './shared/sectionsLibres';
 
-export const schemaTypes = [archiveArticle];
+export const schemaTypes = [
+  // Central : l'agenda d'abord, c'est le point d'entrée principal pour l'équipe.
+  agenda,
+  spectacle,
+  equipeMember,
+  partenaire,
+  archiveArticle,
+
+  home,
+  contact,
+  mentionsLegales,
+  presse,
+  footer,
+  newsletter,
+  agendaPage,
+  spectaclesPage,
+  equipePage,
+  partenairesPage,
+  ateliersPage,
+
+  // Blocs des sections libres (objets, pas des documents autonomes)
+  titreBlock, texteBlock, imageBloc, imageTexteBlock, encartBlock, citationBlock, espaceBlock,
+];

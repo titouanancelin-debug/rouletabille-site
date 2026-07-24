@@ -11,6 +11,7 @@
     "@sanity/block-tools": "^3",
     "@sanity/schema": "^3",
     "jsdom": "^25",
-    "dotenv": "^16"
+    "dotenv": "^16",
+    "marked": "^18"
   }
 }

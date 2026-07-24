@@ -12,4 +12,3 @@ scripts/.env
 scripts/.image-asset-cache.json
 .dev.vars
 .wrangler/
-tina/__generated__/

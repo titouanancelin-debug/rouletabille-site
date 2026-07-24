@@ -1,30 +1,27 @@
-/* Rendu du contenu riche TinaCMS :
+/* Rendu du contenu riche venant de Sanity (Portable Text) :
    - RichText : affiche un champ rich-text (gras, italique, listes, liens,
      titres H2/H3/H4 stylés dans styles.css via la classe .rich).
-   - SectionsLibres : zone de blocs composables depuis l'admin Tina (titre,
+   - SectionsLibres : zone de blocs composables depuis Sanity Studio (titre,
      texte, image, image+texte, encart, citation, espace) — l'équipe les
      ajoute, réordonne et supprime sans toucher au code. */
 
-import { TinaMarkdown } from 'tinacms/dist/rich-text';
-import { tinaField } from 'tinacms/react';
-import { marked } from 'marked';
+import { PortableText } from '@portabletext/react';
+import { urlFor } from './sanity-client.js';
 
-/* Deux formes possibles pour un champ rich-text :
-   - site public (contenu bundlé depuis content/*.json) : chaîne markdown,
-     parsée ici avec marked ;
-   - aperçu d'édition Tina (données GraphQL live) : AST, rendu par TinaMarkdown. */
-export const RichText = ({ content, className, style, field }) => {
-  if (!content) return null;
+const portableTextComponents = {
+  types: {
+    image: ({ value }) => (
+      <img src={urlFor(value).width(1200).fit('max').auto('format').url()} alt="" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }}/>
+    ),
+  },
+};
+
+export const RichText = ({ content, className, style }) => {
+  if (!content || (Array.isArray(content) && content.length === 0)) return null;
   const cls = `rich${className ? ' ' + className : ''}`;
-  if (typeof content === 'string') {
-    return (
-      <div className={cls} style={style} data-tina-field={field}
-        dangerouslySetInnerHTML={{ __html: marked.parse(content) }}/>
-    );
-  }
   return (
-    <div className={cls} style={style} data-tina-field={field}>
-      <TinaMarkdown content={content}/>
+    <div className={cls} style={style}>
+      <PortableText value={content} components={portableTextComponents}/>
     </div>
   );
 };
@@ -37,50 +34,43 @@ const ALIGN        = { gauche: 'left', centre: 'center', droite: 'right' };
 const IMG_WIDTH    = { petite: 380, moyenne: 640, pleine: '100%' };
 const ESPACE       = { petit: 24, moyen: 64, grand: 128 };
 
-/* Le contenu statique porte _template ; les données live de Tina portent
-   __typename (ex: HomeHomeSectionsImageTexte). */
-const templateOf = (s) => {
-  if (s._template) return s._template;
-  const m = (s.__typename || '').match(/(ImageTexte|Titre|Texte|Image|Encart|Citation|Espace)$/);
-  return m ? m[1].charAt(0).toLowerCase() + m[1].slice(1) : '';
-};
-
 const Bloc = ({ s }) => {
-  const f = tinaField(s);
-  switch (templateOf(s)) {
-    case 'titre':
+  switch (s._type) {
+    case 'titreBlock':
       return (
-        <h2 className="display" data-tina-field={f} style={{
+        <h2 className="display" style={{
           fontSize: TITRE_SIZES[s.taille] || TITRE_SIZES.grand, lineHeight: 1.02,
           color: s.couleur || 'var(--ink)', textAlign: ALIGN[s.alignement] || 'left',
         }}>{s.texte}</h2>
       );
-    case 'texte':
+    case 'texteBlock':
       return (
-        <RichText content={s.corps} field={f} style={{
+        <RichText content={s.corps} style={{
           fontSize: TEXTE_SIZES[s.taille] || TEXTE_SIZES.normal, lineHeight: 1.65,
           color: s.couleur || 'var(--ink-soft)', textAlign: ALIGN[s.alignement] || 'left',
           maxWidth: 760, margin: (ALIGN[s.alignement] || 'left') === 'center' ? '0 auto' : undefined,
         }}/>
       );
-    case 'image': {
+    case 'imageBloc': {
       const w = IMG_WIDTH[s.largeur] || IMG_WIDTH.moyenne;
+      const src = s.image ? urlFor(s.image).width(typeof w === 'number' ? w * 2 : 1600).url() : null;
       return (
-        <figure data-tina-field={f} style={{ margin: 0 }}>
-          {s.image && <img src={s.image} alt={s.legende || ''} style={{ width: w, maxWidth: '100%', display: 'block' }}/>}
+        <figure style={{ margin: 0 }}>
+          {src && <img src={src} alt={s.legende || ''} style={{ width: w, maxWidth: '100%', display: 'block' }}/>}
           {s.legende && <figcaption className="mono" style={{ marginTop: 10, opacity: 0.55 }}>{s.legende}</figcaption>}
         </figure>
       );
     }
-    case 'imageTexte': {
+    case 'imageTexteBlock': {
       const imgFirst = (s.positionImage || 'gauche') === 'gauche';
+      const src = s.image ? urlFor(s.image).width(1200).url() : null;
       const img = (
         <div style={{ minHeight: 260, position: 'relative' }}>
-          {s.image && <img src={s.image} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}/>}
+          {src && <img src={src} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}/>}
         </div>
       );
       return (
-        <div data-tina-field={f} style={{
+        <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           background: s.couleurFond || 'var(--paper-warm)', color: s.couleurTexte || 'inherit',
         }}>
@@ -90,9 +80,9 @@ const Bloc = ({ s }) => {
         </div>
       );
     }
-    case 'encart':
+    case 'encartBlock':
       return (
-        <div className="noise" data-tina-field={f} style={{
+        <div className="noise" style={{
           background: s.couleurFond || 'var(--terra)', color: s.couleurTexte || 'var(--paper)',
           padding: 'clamp(28px, 4vw, 48px)',
           maxWidth: IMG_WIDTH[s.largeur] || IMG_WIDTH.pleine,
@@ -100,17 +90,17 @@ const Bloc = ({ s }) => {
           <RichText content={s.corps} style={{ fontSize: TEXTE_SIZES[s.taille] || 17, lineHeight: 1.6 }}/>
         </div>
       );
-    case 'citation':
+    case 'citationBlock':
       return (
-        <blockquote data-tina-field={f} style={{ margin: 0, maxWidth: 760 }}>
+        <blockquote style={{ margin: 0, maxWidth: 760 }}>
           <p className={s.style === 'manuscrit' ? 'hand' : 'display display-italic'} style={{
             fontSize: s.style === 'manuscrit' ? 30 : 28, lineHeight: 1.3, color: 'var(--terra)',
           }}>« {s.texte} »</p>
           {s.auteur && <cite className="mono" style={{ display: 'block', marginTop: 12, fontStyle: 'normal', opacity: 0.6 }}>— {s.auteur}</cite>}
         </blockquote>
       );
-    case 'espace':
-      return <div data-tina-field={f} style={{ height: ESPACE[s.hauteur] ?? ESPACE.moyen }}/>;
+    case 'espaceBlock':
+      return <div style={{ height: ESPACE[s.hauteur] ?? ESPACE.moyen }}/>;
     default:
       return null;
   }
@@ -121,7 +111,7 @@ export const SectionsLibres = ({ doc, background }) => {
   if (!sections?.length) return null;
   return (
     <section className="section" style={{ background, display: 'grid', gap: 40 }}>
-      {sections.map((s, i) => <Bloc key={i} s={s}/>)}
+      {sections.map((s, i) => <Bloc key={s._key ?? i} s={s}/>)}
     </section>
   );
 };

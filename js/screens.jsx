@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Motif, MotifHero, MotifMark, Poster } from './motif.jsx';
 import { useContent } from './content-context.jsx';
-import { tinaField } from 'tinacms/react';
 import { RichText, SectionsLibres } from './rich-content.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
 
@@ -22,13 +21,12 @@ async function postForm(formName, data) {
   if (!res.ok) throw new Error('http_error');
 }
 
-/* Photo réelle uploadée via Tina pour remplacer un visuel généré (affiche,
-   pastille couleur, initiales...) quand elle est renseignée sur l'item. */
+/* Photo réelle pour remplacer un visuel généré (affiche, pastille couleur,
+   initiales...) quand elle est renseignée sur l'item. */
 const CardPhoto = ({ item, alt, style }) => (
   <img
     src={item.image}
     alt={alt || ""}
-    data-tina-field={tinaField(item, "image")}
     style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
   />
 );
@@ -81,12 +79,12 @@ const Nav = ({ route }) => {
   }, []);
 
   const items = [
-    { id:"home", label:MENU.labelHome, field:tinaField(MENU, "labelHome") },
-    { id:"spectacles", label:MENU.labelSpectacles, field:tinaField(MENU, "labelSpectacles") },
-    { id:"agenda", label:MENU.labelAgenda, field:tinaField(MENU, "labelAgenda") },
-    { id:"equipe", label:MENU.labelEquipe, field:tinaField(MENU, "labelEquipe") },
-    { id:"partenaires", label:MENU.labelPartenaires, field:tinaField(MENU, "labelPartenaires") },
-    { id:"contact", label:MENU.labelContact, field:tinaField(MENU, "labelContact") },
+    { id:"home", label:MENU.labelHome },
+    { id:"spectacles", label:MENU.labelSpectacles },
+    { id:"agenda", label:MENU.labelAgenda },
+    { id:"equipe", label:MENU.labelEquipe },
+    { id:"partenaires", label:MENU.labelPartenaires },
+    { id:"contact", label:MENU.labelContact },
   ];
 
   return (
@@ -100,7 +98,7 @@ const Nav = ({ route }) => {
       </Link>
       <div className="nav-menu">
         {items.map(it => (
-          <Link key={it.id} to={toPath(it.id)} className={`nav-link ${route.startsWith(it.id) ? "active" : ""}`} data-tina-field={it.field}>
+          <Link key={it.id} to={toPath(it.id)} className={`nav-link ${route.startsWith(it.id) ? "active" : ""}`}>
             {it.label}
           </Link>
         ))}
@@ -115,7 +113,7 @@ const Nav = ({ route }) => {
       {/* Overlay mobile */}
       <div className={`nav-mobile ${mobileOpen ? "open" : ""}`}>
         {items.map(it => (
-          <Link key={it.id} to={toPath(it.id)} className={`nav-mobile-link ${route.startsWith(it.id) ? "active" : ""}`} onClick={() => setMobileOpen(false)} style={{ textDecoration:"none" }} data-tina-field={it.field}>
+          <Link key={it.id} to={toPath(it.id)} className={`nav-mobile-link ${route.startsWith(it.id) ? "active" : ""}`} onClick={() => setMobileOpen(false)} style={{ textDecoration:"none" }}>
             {it.label}
           </Link>
         ))}
@@ -189,7 +187,7 @@ const BotanicHero = ({ setRoute }) => {
       maxWidth: 580,
     }}>
       <Reveal variant="fade" delay={80}>
-        <div className="eyebrow" style={{ marginBottom: 28 }} data-tina-field={tinaField(HOME, "heroEyebrow")}>
+        <div className="eyebrow" style={{ marginBottom: 28 }}>
           {HOME.heroEyebrow}
         </div>
       </Reveal>
@@ -199,7 +197,7 @@ const BotanicHero = ({ setRoute }) => {
         lineHeight: 0.96,
         marginBottom: 32,
         color: "var(--paper)",
-      }} data-tina-field={tinaField(HOME, "heroLine1")}>
+      }}>
         <KineticTitle lineDelay={110} baseDelay={160} lines={[
           italicLastWord(HOME.heroLine1),
           italicLastWord(HOME.heroLine2),
@@ -214,7 +212,7 @@ const BotanicHero = ({ setRoute }) => {
         marginBottom: 40,
         textWrap: "pretty",
       }}>
-        <RichText content={HOME.heroIntro} field={tinaField(HOME, "heroIntro")}/>
+        <RichText content={HOME.heroIntro}/>
       </Reveal>
 
       <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -243,7 +241,7 @@ const BotanicHero = ({ setRoute }) => {
         textTransform: "uppercase",
       }}>
         <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
-        <span style={{ fontFamily: "var(--ff-display)", fontStyle: "italic", textTransform: "none" }} data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
+        <span style={{ fontFamily: "var(--ff-display)", fontStyle: "italic", textTransform: "none" }}>{HOME.heroTagline}</span>
       </Reveal>
     </div>
 
@@ -408,18 +406,18 @@ const ScrollExpandHero = ({ setRoute }) => {
             }}>
               <div style={{ maxWidth: 640, margin: "0 auto" }}>
                 <Reveal variant="fade" delay={80}>
-                  <div className="eyebrow" style={{ marginBottom: 28 }} data-tina-field={tinaField(HOME, "heroEyebrow")}>
+                  <div className="eyebrow" style={{ marginBottom: 28 }}>
                     {HOME.heroEyebrow}
                   </div>
                 </Reveal>
-                <h1 className="display" style={{ fontSize: "clamp(54px, 6.5vw, 108px)", lineHeight: 0.96, marginBottom: 32, color: "var(--paper)" }} data-tina-field={tinaField(HOME, "heroLine1")}>
+                <h1 className="display" style={{ fontSize: "clamp(54px, 6.5vw, 108px)", lineHeight: 0.96, marginBottom: 32, color: "var(--paper)" }}>
                   <KineticTitle lineDelay={110} baseDelay={160} lines={[
                     italicLastWord(HOME.heroLine1),
                     italicLastWord(HOME.heroLine2),
                   ]}/>
                 </h1>
                 <Reveal variant="up" delay={520} as="div" style={{ fontSize: 18, lineHeight: 1.65, color: "color-mix(in oklab, var(--paper) 78%, transparent)", maxWidth: 440, margin: "0 auto 40px", textWrap: "pretty" }}>
-                  <RichText content={HOME.heroIntro} field={tinaField(HOME, "heroIntro")}/>
+                  <RichText content={HOME.heroIntro}/>
                 </Reveal>
                 <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
                   <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Voir notre travail →</button>
@@ -427,7 +425,7 @@ const ScrollExpandHero = ({ setRoute }) => {
                 </Reveal>
                 <Reveal variant="fade" delay={900} style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, color: "color-mix(in oklab, var(--paper) 36%, transparent)", fontSize: 11, letterSpacing: "0.1em", fontFamily: "var(--ff-mono)", textTransform: "uppercase" }}>
                   <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
-                  <span style={{ fontFamily: "var(--ff-display)", fontStyle: "italic", textTransform: "none" }} data-tina-field={tinaField(HOME, "heroTagline")}>{HOME.heroTagline}</span>
+                  <span style={{ fontFamily: "var(--ff-display)", fontStyle: "italic", textTransform: "none" }}>{HOME.heroTagline}</span>
                 </Reveal>
               </div>
             </div>
@@ -495,11 +493,11 @@ const HistoireAccordion = () => {
                 <h3 className="display" style={{
                   fontSize:"clamp(20px, 2.8vw, 32px)", lineHeight:1.05, marginBottom: isOpen ? 0 : 12,
                   color: isOpen ? "var(--terra)" : "var(--ink)", transition:"color 0.2s",
-                }} data-tina-field={tinaField(s, "label")}>
+                }}>
                   {s.label}
                 </h3>
                 {!isOpen && (
-                  <p style={{ fontSize:15, lineHeight:1.55, color:"var(--ink-soft)", margin:0, textWrap:"pretty" }} data-tina-field={tinaField(s, "teaser")}>
+                  <p style={{ fontSize:15, lineHeight:1.55, color:"var(--ink-soft)", margin:0, textWrap:"pretty" }}>
                     {s.teaser}
                   </p>
                 )}
@@ -517,7 +515,7 @@ const HistoireAccordion = () => {
               transition:"max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
             }}>
               <div style={{ paddingLeft:64, paddingBottom:32 }}>
-                <RichText content={s.texte} field={tinaField(s, "texte")} style={{
+                <RichText content={s.texte} style={{
                   fontSize:16, lineHeight:1.75, color:"var(--ink-soft)", textWrap:"pretty",
                 }}/>
               </div>
@@ -573,7 +571,7 @@ const EventCard = ({ item, setRoute }) => {
               background:"linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)",
               padding:"52px 18px 18px", color:"#fff",
             }}>
-              {sp.image && <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }} data-tina-field={tinaField(sp, "title")}>{sp.title}</h3>}
+              {sp.image && <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }}>{sp.title}</h3>}
               <div style={{ fontFamily:"var(--ff-mono)", fontSize:11, marginBottom:4, opacity:0.78 }}>{item.venue}</div>
               <div style={{ fontFamily:"var(--ff-mono)", fontSize:11, opacity:0.58 }}>{item.time} · {item.price}</div>
             </div>
@@ -639,7 +637,7 @@ const EventCard = ({ item, setRoute }) => {
         <div style={{ fontFamily:"var(--ff-mono)", fontSize:10, color:"var(--terra)", marginBottom:4 }}>
           {item.day} {item.month} · {typeLabels(item.type)}
         </div>
-        <h4 className="display" style={{ fontSize:"clamp(14px, 1.3vw, 17px)", lineHeight:1.1 }} data-tina-field={tinaField(sp || item, "title")}>
+        <h4 className="display" style={{ fontSize:"clamp(14px, 1.3vw, 17px)", lineHeight:1.1 }}>
           {sp?.title || item.title}<span className="card-arrow">→</span>
         </h4>
       </div>
@@ -766,13 +764,13 @@ const Home = ({ setRoute }) => {
       <div className="col-duo" style={{ gap:80, alignItems:"center", position:"relative", zIndex:2 }}>
         <Reveal variant="left">
           <div className="eyebrow" style={{ marginBottom:24 }}>La compagnie</div>
-          <div className="mono" style={{ marginBottom:16, color:"color-mix(in oklab, var(--paper) 65%, transparent)" }} data-tina-field={tinaField(HOME, "aboutTag")}>{HOME.aboutTag}</div>
-          <h2 className="display" style={{ fontSize:"clamp(48px, 6vw, 84px)" }} data-tina-field={tinaField(HOME, "aboutTitle")}>
+          <div className="mono" style={{ marginBottom:16, color:"color-mix(in oklab, var(--paper) 65%, transparent)" }}>{HOME.aboutTag}</div>
+          <h2 className="display" style={{ fontSize:"clamp(48px, 6vw, 84px)" }}>
             {italicLastWord(HOME.aboutTitle)}
           </h2>
         </Reveal>
         <Reveal variant="right" delay={120}>
-          <RichText content={HOME.aboutTexte} field={tinaField(HOME, "aboutTexte")} style={{
+          <RichText content={HOME.aboutTexte} style={{
             fontSize:18, lineHeight:1.6, color:"color-mix(in oklab, var(--paper) 88%, transparent)",
             marginBottom:32, textWrap:"pretty",
           }}/>
@@ -786,7 +784,7 @@ const Home = ({ setRoute }) => {
       <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
         <div className="section-num">Publics</div>
         <h2 className="section-title">Un lieu ouvert <span className="display-italic">à toutes et tous.</span></h2>
-        <RichText content={HOME.publicsIntro} field={tinaField(HOME, "publicsIntro")} className="section-meta"/>
+        <RichText content={HOME.publicsIntro} className="section-meta"/>
       </Reveal>
       <div style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
         {["Enfants","Jeunes","Adultes","Habitants","Professionnels","Amateurs","Écoles","Structures sociales et médico-sociales","Collectivités"].map(label => (
@@ -798,7 +796,7 @@ const Home = ({ setRoute }) => {
       </div>
     </section>
 
-    {/* SECTIONS LIBRES — blocs composables depuis l'admin Tina */}
+    {/* SECTIONS LIBRES — blocs composables depuis Sanity Studio */}
     <SectionsLibres doc={HOME}/>
 
     {/* NEWSLETTER */}
@@ -964,11 +962,11 @@ const Spectacles = ({ setRoute }) => {
                     )}
                     <div style={{ padding:32 }}>
                     <div style={{ display:"inline-block", background:"var(--plum)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Résidence</div>
-                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
+                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
-                    <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
-                    <div style={{ fontSize:13, opacity:0.5, fontStyle:"italic", marginBottom: d.desc ? 16 : 0 }} data-tina-field={tinaField(d, "price")}>{d.price}</div>
-                    {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"rgba(242,228,200,0.8)" }}/>}
+                    <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
+                    <div style={{ fontSize:13, opacity:0.5, fontStyle:"italic", marginBottom: d.desc ? 16 : 0 }}>{d.price}</div>
+                    {d.desc && <RichText content={d.desc} style={{ fontSize:14, lineHeight:1.6, color:"rgba(242,228,200,0.8)" }}/>}
                     </div>
                   </div>
                 </Reveal>
@@ -1003,10 +1001,10 @@ const Spectacles = ({ setRoute }) => {
                     )}
                     <div style={{ padding:32 }}>
                       <div style={{ display:"inline-block", background:"var(--amber-deep)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Médiation</div>
-                      <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
+                      <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                       <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
-                      <div style={{ fontSize:14, opacity:0.7, marginBottom: d.desc ? 16 : 0, color:"var(--ink-soft)" }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
-                      {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"var(--ink-soft)" }}/>}
+                      <div style={{ fontSize:14, opacity:0.7, marginBottom: d.desc ? 16 : 0, color:"var(--ink-soft)" }}>{d.venue}</div>
+                      {d.desc && <RichText content={d.desc} style={{ fontSize:14, lineHeight:1.6, color:"var(--ink-soft)" }}/>}
                     </div>
                   </div>
                 </Reveal>
@@ -1047,10 +1045,10 @@ const Spectacles = ({ setRoute }) => {
                       <div style={{ display:"inline-block", background:d.cardColor || "var(--amber)", color:d.cardTextColor || "var(--ink)", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"3px 10px", textTransform:"uppercase", marginBottom:10 }}>
                         {typeLabels(d.type)}
                       </div>
-                      <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
-                      <div style={{ fontSize:14, color:"var(--ink-soft)" }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
+                      <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }}>{d.title}<span className="card-arrow">→</span></h3>
+                      <div style={{ fontSize:14, color:"var(--ink-soft)" }}>{d.venue}</div>
                       <div className="mono" style={{ fontSize:12, marginTop:6, opacity:0.55 }}>{d.time} · {d.price}</div>
-                      {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"var(--ink-soft)", marginTop:12 }}/>}
+                      {d.desc && <RichText content={d.desc} style={{ fontSize:14, lineHeight:1.6, color:"var(--ink-soft)", marginTop:12 }}/>}
                     </div>
                   </div>
                 </Reveal>
@@ -1085,10 +1083,10 @@ const Spectacles = ({ setRoute }) => {
                     )}
                     <div style={{ padding:32 }}>
                     <div style={{ display:"inline-block", background:"var(--amber-deep)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Projet de territoire</div>
-                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }} data-tina-field={tinaField(d, "title")}>{d.title}<span className="card-arrow">→</span></h3>
-                    <div className="mono" style={{ opacity:0.5, marginBottom:6 }} data-tina-field={tinaField(d, "time")}>{d.time}</div>
-                    <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }} data-tina-field={tinaField(d, "venue")}>{d.venue}</div>
-                    {d.desc && <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:14, lineHeight:1.6, color:"rgba(242,228,200,0.8)" }}/>}
+                    <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
+                    <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.time}</div>
+                    <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
+                    {d.desc && <RichText content={d.desc} style={{ fontSize:14, lineHeight:1.6, color:"rgba(242,228,200,0.8)" }}/>}
                     </div>
                   </div>
                 </Reveal>
@@ -1143,15 +1141,15 @@ const Spectacles = ({ setRoute }) => {
                       </div>
                     )}
                     <div style={{ position:"relative", zIndex:2 }}>
-                      <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }} data-tina-field={tinaField(a, "title")}>{a.title}</h3>
-                      <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
-                      <RichText content={a.desc} field={tinaField(a, "desc")} style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}/>
+                      <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
+                      <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
+                      <RichText content={a.desc} style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}/>
                     </div>
                     <div style={{ position:"relative", zIndex:2, paddingTop:24, marginTop:24, borderTop:`1px solid ${a.cardTextColor}`, opacity:0.95 }}>
-                      <div className="mono" style={{ marginBottom:6 }} data-tina-field={tinaField(a, "time")}>{a.time}</div>
-                      <div className="mono" style={{ marginBottom:6, opacity:0.7 }} data-tina-field={tinaField(a, "venue")}>{a.venue}</div>
+                      <div className="mono" style={{ marginBottom:6 }}>{a.time}</div>
+                      <div className="mono" style={{ marginBottom:6, opacity:0.7 }}>{a.venue}</div>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginTop:12 }}>
-                        <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }} data-tina-field={tinaField(a, "price")}>{a.price}</strong>
+                        <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }}>{a.price}</strong>
                         <span>{selectedAtelier === key ? "S'inscrire ↓" : "→"}</span>
                       </div>
                       {selectedAtelier === key && (
@@ -1203,14 +1201,14 @@ const FicheSpectacle = ({ setRoute }) => {
           </div>
           <div>
             <div className="eyebrow" style={{ marginBottom:20 }}>{s.tag} · {s.duration} · {s.ages}</div>
-            <h1 className="display" style={{ fontSize:"clamp(60px, 8vw, 120px)", marginBottom:32 }} data-tina-field={tinaField(s, "title")}>
+            <h1 className="display" style={{ fontSize:"clamp(60px, 8vw, 120px)", marginBottom:32 }}>
               {s.title.split(" ").map((w,i) => i === 1 ? <span key={i} className="display-italic">{w} </span> : <span key={i}>{w} </span>)}
             </h1>
-            <RichText content={s.desc} field={tinaField(s, "desc")} style={{ fontSize:20, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+            <RichText content={s.desc} style={{ fontSize:20, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, padding:"24px 0", borderTop:"1px solid var(--rule)", borderBottom:"1px solid var(--rule)", marginBottom:32 }}>
-              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Texte</div><div data-tina-field={tinaField(s, "auteur")}>{s.auteur}</div></div>
-              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Mise en scène</div><div data-tina-field={tinaField(s, "mes")}>{s.mes}</div></div>
-              <div style={{ gridColumn:"1 / -1" }}><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Avec</div><div data-tina-field={tinaField(s, "with")}>{s.with}</div></div>
+              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Texte</div><div>{s.auteur}</div></div>
+              <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Mise en scène</div><div>{s.mes}</div></div>
+              <div style={{ gridColumn:"1 / -1" }}><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Avec</div><div>{s.with}</div></div>
             </div>
             <div style={{ display:"flex", gap:12 }}>
               <button className="btn" onClick={() => setRoute("agenda")}>Voir les dates ({dates.length})</button>
@@ -1293,9 +1291,9 @@ const AgendaCard = ({ d, onClick }) => {
 
       {/* Text content — vraiment minimal */}
       <div style={{ padding:"14px 0 8px", borderTop:"1px solid var(--rule)", marginTop:0 }}>
-        <h4 className="display" style={{ fontSize:20, lineHeight:1.05, marginBottom:6 }} data-tina-field={tinaField(d, "title")}>{d.title}</h4>
+        <h4 className="display" style={{ fontSize:20, lineHeight:1.05, marginBottom:6 }}>{d.title}</h4>
         <div style={{ fontSize:12, color:"var(--ink-soft)", marginBottom:8, letterSpacing:"0.02em" }}>
-          {d.day} {d.month} {d.year} · <span data-tina-field={tinaField(d, "venue")}>{d.venue}</span>
+          {d.day} {d.month} {d.year} · <span>{d.venue}</span>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:6 }}>
           <span style={{ width:5, height:5, borderRadius:"50%", background:sc.color, flexShrink:0 }}/>
@@ -1484,24 +1482,24 @@ const FicheAgenda = ({ setRoute }) => {
             </span>
           </div>
 
-          <h1 className="display" style={{ fontSize:"clamp(48px, 6vw, 88px)", lineHeight:1.02, marginBottom:24 }} data-tina-field={tinaField(d, "title")}>
+          <h1 className="display" style={{ fontSize:"clamp(48px, 6vw, 88px)", lineHeight:1.02, marginBottom:24 }}>
             {d.title}
           </h1>
 
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, padding:"24px 0", borderTop:"1px solid var(--rule)", borderBottom:"1px solid var(--rule)", marginBottom:32 }}>
             <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Date</div><div>{d.day} {d.month} {d.year}</div></div>
-            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Horaire</div><div data-tina-field={tinaField(d, "time")}>{d.time}</div></div>
-            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Lieu</div><div data-tina-field={tinaField(d, "venue")}>{d.venue}</div></div>
-            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Tarif</div><div data-tina-field={tinaField(d, "price")}>{d.price}</div></div>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Horaire</div><div>{d.time}</div></div>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Lieu</div><div>{d.venue}</div></div>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Tarif</div><div>{d.price}</div></div>
           </div>
 
           {d.desc && (
-            <RichText content={d.desc} field={tinaField(d, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+            <RichText content={d.desc} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
           )}
 
           {sp && (
             <>
-              {!d.desc && <RichText content={sp.desc} field={tinaField(sp, "desc")} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>}
+              {!d.desc && <RichText content={sp.desc} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>}
               <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
                 <button className="btn btn-amber" onClick={() => setRoute("spectacles/" + sp.id)}>Voir le spectacle →</button>
                 <button className="btn btn-ghost" onClick={() => setRoute("contact")}>Nous contacter</button>
@@ -1616,15 +1614,15 @@ const Ateliers = ({ audience = "" }) => {
                   </div>
                 )}
                 <div style={{ position:"relative", zIndex:2 }}>
-                  <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }} data-tina-field={tinaField(a, "title")}>{a.title}</h3>
-                  <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }} data-tina-field={tinaField(a, "who")}>{a.who}</div>
-                  <RichText content={a.desc} field={tinaField(a, "desc")} style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}/>
+                  <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
+                  <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
+                  <RichText content={a.desc} style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}/>
                 </div>
                 <div style={{ position:"relative", zIndex:2, paddingTop:24, marginTop:24, borderTop:`1px solid ${a.cardTextColor}`, opacity:0.95 }}>
-                  <div className="mono" style={{ marginBottom:6 }} data-tina-field={tinaField(a, "time")}>{a.time}</div>
-                  <div className="mono" style={{ marginBottom:6, opacity:0.7 }} data-tina-field={tinaField(a, "venue")}>{a.venue}</div>
+                  <div className="mono" style={{ marginBottom:6 }}>{a.time}</div>
+                  <div className="mono" style={{ marginBottom:6, opacity:0.7 }}>{a.venue}</div>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginTop:12 }}>
-                    <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }} data-tina-field={tinaField(a, "price")}>{a.price}</strong>
+                    <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }}>{a.price}</strong>
                     <span>{selected === key ? "S'inscrire ↓" : "→"}</span>
                   </div>
                   {selected === key && (
@@ -1688,9 +1686,9 @@ const Equipe = ({ setRoute }) => {
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
               </div>
-              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }} data-tina-field={tinaField(p, "name")}>{p.name}</h3>
-              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
-              <RichText content={p.bio} field={tinaField(p, "bio")} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>
+              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
+              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+              <RichText content={p.bio} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>
             </div>
           ))}
         </div>
@@ -1708,9 +1706,9 @@ const Equipe = ({ setRoute }) => {
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
               </div>
-              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }} data-tina-field={tinaField(p, "name")}>{p.name}</h3>
-              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
-              <RichText content={p.bio} field={tinaField(p, "bio")} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>
+              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
+              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+              <RichText content={p.bio} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>
             </div>
           ))}
         </div>
@@ -1729,9 +1727,9 @@ const Equipe = ({ setRoute }) => {
                 <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                   {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
                 </div>
-                <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }} data-tina-field={tinaField(p, "name")}>{p.name}</h3>
-                <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
-                {p.bio && <RichText content={p.bio} field={tinaField(p, "bio")} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>}
+                <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
+                <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+                {p.bio && <RichText content={p.bio} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>}
               </div>
             ))}
           </div>
@@ -1865,7 +1863,7 @@ const Partenaires = () => {
                   >
                     <PartnerLogo partner={p} bg={meta.bg} />
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }} data-tina-field={tinaField(p, "name")}>{p.name}</div>
+                      <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }}>{p.name}</div>
                     </div>
                     {p.url && (
                       <span style={{ fontSize:12, opacity:0.35, flexShrink:0 }}>↗</span>
@@ -1905,9 +1903,9 @@ const Presse = () => {
 
     <div className="col-split" style={{ gap:64, alignItems:"start" }}>
       <div>
-        <RichText content={PRESSE.intro} field={tinaField(PRESSE, "intro")} style={{ fontSize:20, lineHeight:1.6, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}/>
+        <RichText content={PRESSE.intro} style={{ fontSize:20, lineHeight:1.6, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}/>
         <p style={{ fontSize:16, lineHeight:1.6, color:"var(--ink-soft)" }}>
-          Pour toute demande d'interview, de photo supplémentaire ou d'accréditation, écrivez-nous directement : <a href={`mailto:${PRESSE.contactEmail}?subject=Demande%20presse`} style={{ color:"var(--terra)" }} data-tina-field={tinaField(PRESSE, "contactEmail")}>{PRESSE.contactEmail}</a>.
+          Pour toute demande d'interview, de photo supplémentaire ou d'accréditation, écrivez-nous directement : <a href={`mailto:${PRESSE.contactEmail}?subject=Demande%20presse`} style={{ color:"var(--terra)" }}>{PRESSE.contactEmail}</a>.
         </p>
       </div>
       <div>
@@ -1960,7 +1958,7 @@ const Contact = () => {
         <div className="section-head">
           <div className="section-num">Nous joindre</div>
           <h2 className="section-title">Écrivez-<span className="display-italic">nous,</span><br/>passez nous voir.</h2>
-          <RichText content={CONTACT.meta} field={tinaField(CONTACT, "meta")} className="section-meta"/>
+          <RichText content={CONTACT.meta} className="section-meta"/>
         </div>
 
         <SectionsLibres doc={{ sections: CONTACT.sectionsHaut }}/>
@@ -1970,27 +1968,27 @@ const Contact = () => {
             <div style={{ marginBottom:32 }}>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Adresse</div>
               <div style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:28, lineHeight:1.2 }}>
-                <span data-tina-field={tinaField(CONTACT, "addressName")}>{CONTACT.addressName}</span><br/>
-                <span data-tina-field={tinaField(CONTACT, "addressLine1")}>{CONTACT.addressLine1}</span><br/>
-                <span data-tina-field={tinaField(CONTACT, "addressLine2")}>{CONTACT.addressLine2}</span>
+                <span>{CONTACT.addressName}</span><br/>
+                <span>{CONTACT.addressLine1}</span><br/>
+                <span>{CONTACT.addressLine2}</span>
               </div>
             </div>
             <div style={{ marginBottom:32 }}>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Contact général</div>
-              <div style={{ fontSize:18, color:"var(--terra)" }} data-tina-field={tinaField(CONTACT, "email")}>{CONTACT.email}</div>
-              <div style={{ fontSize:18, color:"var(--terra)" }} data-tina-field={tinaField(CONTACT, "website")}>{CONTACT.website}</div>
-              <div className="mono" style={{ marginTop:8 }} data-tina-field={tinaField(CONTACT, "phone1")}>{CONTACT.phone1}</div>
-              <div className="mono" data-tina-field={tinaField(CONTACT, "phone2")}>{CONTACT.phone2}</div>
+              <div style={{ fontSize:18, color:"var(--terra)" }}>{CONTACT.email}</div>
+              <div style={{ fontSize:18, color:"var(--terra)" }}>{CONTACT.website}</div>
+              <div className="mono" style={{ marginTop:8 }}>{CONTACT.phone1}</div>
+              <div className="mono">{CONTACT.phone2}</div>
             </div>
             <div style={{ marginBottom:32 }}>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Horaires bureau</div>
-              <div style={{ fontSize:16, lineHeight:1.7 }} data-tina-field={tinaField(CONTACT, "hours")}>{CONTACT.hours}</div>
+              <div style={{ fontSize:16, lineHeight:1.7 }}>{CONTACT.hours}</div>
             </div>
             <div>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Accès</div>
               <div style={{ fontSize:14, lineHeight:1.7, color:"var(--ink-soft)" }}>
                 {CONTACT.access.map((line, i) => (
-                  <span key={i} data-tina-field={tinaField(CONTACT, "access", i)}>{line}{i < CONTACT.access.length - 1 && <br/>}</span>
+                  <span key={i}>{line}{i < CONTACT.access.length - 1 && <br/>}</span>
                 ))}
               </div>
             </div>
@@ -2057,11 +2055,11 @@ const Newsletter = () => {
     <section className="section" style={{ background:"var(--amber)", color:"var(--ink)", paddingTop:64, paddingBottom:64 }}>
       <div className="col-newsletter">
         <h2 className="display" style={{ fontSize:"clamp(40px, 5vw, 72px)" }}>
-          <span data-tina-field={tinaField(NEWSLETTER, "titleLine1")}>{NEWSLETTER.titleLine1}</span><br/>
-          <span className="display-italic" data-tina-field={tinaField(NEWSLETTER, "titleLine2")}>{NEWSLETTER.titleLine2}</span>
+          <span>{NEWSLETTER.titleLine1}</span><br/>
+          <span className="display-italic">{NEWSLETTER.titleLine2}</span>
         </h2>
         <div>
-          <RichText content={NEWSLETTER.description} field={tinaField(NEWSLETTER, "description")} style={{ fontSize:18, marginBottom:24, maxWidth:480 }}/>
+          <RichText content={NEWSLETTER.description} style={{ fontSize:18, marginBottom:24, maxWidth:480 }}/>
           {status === 'done' ? (
             <div className="display-italic" style={{ fontSize:32 }}>Inscrit. À très vite ✦</div>
           ) : (
@@ -2104,17 +2102,17 @@ const MentionsLegales = () => {
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Éditeur du site</h3>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
-          <span data-tina-field={tinaField(M, "associationName")}>{M.associationName}</span><br/>
-          Siège social : <span data-tina-field={tinaField(M, "siege")}>{M.siege}</span><br/>
-          SIRET : <span data-tina-field={tinaField(M, "siret")}>{M.siret}</span><br/>
-          Représentante légale : <span data-tina-field={tinaField(M, "representante")}>{M.representante}</span><br/>
-          Contact : <a href={`mailto:${M.contactEmail}`} style={{ color:"var(--terra)" }} data-tina-field={tinaField(M, "contactEmail")}>{M.contactEmail}</a>
+          <span>{M.associationName}</span><br/>
+          Siège social : <span>{M.siege}</span><br/>
+          SIRET : <span>{M.siret}</span><br/>
+          Représentante légale : <span>{M.representante}</span><br/>
+          Contact : <a href={`mailto:${M.contactEmail}`} style={{ color:"var(--terra)" }}>{M.contactEmail}</a>
         </p>
       </div>
 
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Directeur de la publication</h3>
-        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }} data-tina-field={tinaField(M, "representante")}>
+        <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
           {M.representante}, en qualité de représentante légale de l'association.
         </p>
       </div>
@@ -2122,25 +2120,25 @@ const MentionsLegales = () => {
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Hébergement</h3>
         <p style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}>
-          <span data-tina-field={tinaField(M, "hebergeurNom")}>{M.hebergeurNom}</span><br/>
-          <span data-tina-field={tinaField(M, "hebergeurAdresse")}>{M.hebergeurAdresse}</span><br/>
-          <a href={M.hebergeurUrl} target="_blank" rel="noopener" style={{ color:"var(--terra)" }} data-tina-field={tinaField(M, "hebergeurUrl")}>{M.hebergeurUrl.replace(/^https?:\/\//, "")}</a>
+          <span>{M.hebergeurNom}</span><br/>
+          <span>{M.hebergeurAdresse}</span><br/>
+          <a href={M.hebergeurUrl} target="_blank" rel="noopener" style={{ color:"var(--terra)" }}>{M.hebergeurUrl.replace(/^https?:\/\//, "")}</a>
         </p>
       </div>
 
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Propriété intellectuelle</h3>
-        <RichText content={M.proprieteIntellectuelle} field={tinaField(M, "proprieteIntellectuelle")} style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}/>
+        <RichText content={M.proprieteIntellectuelle} style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}/>
       </div>
 
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Données personnelles</h3>
-        <RichText content={M.donneesPersonnelles} field={tinaField(M, "donneesPersonnelles")} style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}/>
+        <RichText content={M.donneesPersonnelles} style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}/>
       </div>
 
       <div>
         <h3 className="display" style={{ fontSize:26, marginBottom:16 }}>Cookies et traceurs</h3>
-        <RichText content={M.cookies} field={tinaField(M, "cookies")} style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}/>
+        <RichText content={M.cookies} style={{ fontSize:16, lineHeight:1.7, color:"var(--ink-soft)" }}/>
       </div>
     </div>
   </section>
@@ -2165,7 +2163,7 @@ const Footer = () => {
             <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4, lineHeight:1.3 }}>Fabrique artistique<br/>et culturelle</span>
           </span>
         </Link>
-        <RichText content={FOOTER.tagline} field={tinaField(FOOTER, "tagline")} style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}/>
+        <RichText content={FOOTER.tagline} style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}/>
       </div>
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Découvrir</div>
@@ -2197,8 +2195,8 @@ const Footer = () => {
       </div>
     </div>
     <div style={{ borderTop:"1px solid color-mix(in oklab, var(--paper) 20%, transparent)", paddingTop:24, display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:8, fontSize:12, opacity:0.6 }}>
-      <span data-tina-field={tinaField(FOOTER, "copyright")}>{FOOTER.copyright}</span>
-      <span data-tina-field={tinaField(FOOTER, "seasonLabel")}>{FOOTER.seasonLabel}</span>
+      <span>{FOOTER.copyright}</span>
+      <span>{FOOTER.seasonLabel}</span>
     </div>
   </footer>
   );

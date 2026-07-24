@@ -1,97 +1,83 @@
-/* Pont entre le contenu statique (bundlé au build depuis content/*.json) et
-   l'édition visuelle TinaCMS : quand la page est chargée dans l'aperçu live de
-   Tina, on bascule sur les données interrogées en direct via le client
-   GraphQL généré, enrichies par useTina pour permettre le clic-pour-éditer
-   (data-tina-field). En dehors de ce contexte (site public), on ne fait
-   aucun appel réseau supplémentaire : le contenu reste celui bundlé au build. */
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useTina, useEditState } from 'tinacms/react';
-import { client } from '../tina/__generated__/client';
+/* Contenu du site lu depuis Sanity (remplace TinaCMS). Une seule requête
+   GROQ au montage ramène tout le contenu ; l'agenda est ensuite étendu avec
+   ses occurrences récurrentes (voir recurrence.js). Pas de mode "édition
+   visuelle" ici : la page publique lit toujours l'API, l'édition se fait
+   dans Sanity Studio (studio/). */
+import { createContext, useContext, useEffect, useState } from 'react';
+import { sanityClient } from './sanity-client.js';
 import { expandRecurrence } from './recurrence.js';
-
-import spectaclesData from '../content/spectacles.json';
-import agendaData from '../content/agenda.json';
-import ateliersData from '../content/ateliers.json';
-import equipeData from '../content/equipe.json';
-import partenairesData from '../content/partenaires.json';
-import homeData from '../content/home.json';
-import contactData from '../content/contact.json';
-import mentionsLegalesData from '../content/mentionsLegales.json';
-import presseData from '../content/presse.json';
-import footerData from '../content/footer.json';
-import newsletterData from '../content/newsletter.json';
 import menuData from '../content/menu.json';
 
-const COLLECTIONS = {
-  spectacles:      { staticDoc: spectaclesData,      relativePath: 'spectacles.json' },
-  agenda:          { staticDoc: agendaData,          relativePath: 'agenda.json' },
-  ateliers:        { staticDoc: ateliersData,        relativePath: 'ateliers.json' },
-  equipe:          { staticDoc: equipeData,          relativePath: 'equipe.json' },
-  partenaires:     { staticDoc: partenairesData,     relativePath: 'partenaires.json' },
-  home:            { staticDoc: homeData,            relativePath: 'home.json' },
-  contact:         { staticDoc: contactData,         relativePath: 'contact.json' },
-  mentionsLegales: { staticDoc: mentionsLegalesData, relativePath: 'mentionsLegales.json' },
-  presse:          { staticDoc: presseData,          relativePath: 'presse.json' },
-  footer:          { staticDoc: footerData,          relativePath: 'footer.json' },
-  newsletter:      { staticDoc: newsletterData,      relativePath: 'newsletter.json' },
-};
-
-/* `field` lets a caller read a different top-level key than the collection
-   name — used to expose the "sections" (sections libres) sibling field that
-   sits next to the main list on spectacles/agenda/ateliers/equipe/partenaires. */
-function useLiveCollection(name, field = name) {
-  const { staticDoc, relativePath } = COLLECTIONS[name];
-  const { edit } = useEditState();
-  const [fetched, setFetched] = useState(null);
-
-  useEffect(() => {
-    if (!edit) { setFetched(null); return undefined; }
-    let cancelled = false;
-    client.queries[name]({ relativePath }).then((res) => {
-      if (!cancelled) setFetched(res);
-    });
-    return () => { cancelled = true; };
-  }, [edit]);
-
-  const tina = useTina({
-    query: fetched?.query ?? '',
-    variables: fetched?.variables ?? {},
-    data: fetched?.data,
-  });
-
-  if (edit && tina.data) {
-    return field === name ? tina.data[name][name] : tina.data[name][field];
-  }
-  return staticDoc[field];
-}
+const QUERY = `{
+  "spectacles": *[_type == "spectacle"]{
+    ..., "id": slug.current, "image": image.asset->url
+  },
+  "spectaclesPage": *[_id == "spectaclesPage"][0],
+  "agenda": *[_type == "agenda"]{
+    ...,
+    "day": dateGroup.day, "month": dateGroup.month, "year": dateGroup.year,
+    "spectacle": spectacle->slug.current,
+    "image": image.asset->url
+  },
+  "agendaPage": *[_id == "agendaPage"][0],
+  "ateliersPage": *[_id == "ateliersPage"][0],
+  "equipe": *[_type == "equipeMember"]{..., "image": image.asset->url},
+  "equipePage": *[_id == "equipePage"][0],
+  "partenaires": *[_type == "partenaire"]{..., "image": image.asset->url},
+  "partenairesPage": *[_id == "partenairesPage"][0],
+  "home": *[_id == "home"][0],
+  "contact": *[_id == "contact"][0],
+  "mentionsLegales": *[_id == "mentionsLegales"][0],
+  "presse": *[_id == "presse"][0],
+  "footer": *[_id == "footer"][0],
+  "newsletter": *[_id == "newsletter"][0]
+}`;
 
 const ContentContext = createContext(null);
 
 export function ContentProvider({ children }) {
-  const agendaRaw = useLiveCollection('agenda');
-  const agenda = useMemo(() => expandRecurrence(agendaRaw), [agendaRaw]);
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    sanityClient.fetch(QUERY).then((res) => {
+      if (!cancelled) setData(res);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  if (!data) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'var(--ff-display)', fontStyle: 'italic', fontSize: 22, color: 'var(--ink-soft)', opacity: 0.6,
+      }}>
+        Chargement…
+      </div>
+    );
+  }
 
   const value = {
-    SPECTACLES: useLiveCollection('spectacles'),
-    SPECTACLES_SECTIONS: useLiveCollection('spectacles', 'sections'),
-    SPECTACLES_SECTIONS_HAUT: useLiveCollection('spectacles', 'sectionsHaut'),
-    AGENDA: agenda,
-    AGENDA_SECTIONS: useLiveCollection('agenda', 'sections'),
-    AGENDA_SECTIONS_HAUT: useLiveCollection('agenda', 'sectionsHaut'),
-    ATELIERS_SECTIONS: useLiveCollection('ateliers', 'sections'),
-    ATELIERS_SECTIONS_HAUT: useLiveCollection('ateliers', 'sectionsHaut'),
-    EQUIPE: useLiveCollection('equipe'),
-    EQUIPE_SECTIONS: useLiveCollection('equipe', 'sections'),
-    EQUIPE_SECTIONS_HAUT: useLiveCollection('equipe', 'sectionsHaut'),
-    PARTENAIRES: useLiveCollection('partenaires'),
-    PARTENAIRES_SECTIONS: useLiveCollection('partenaires', 'sections'),
-    PARTENAIRES_SECTIONS_HAUT: useLiveCollection('partenaires', 'sectionsHaut'),
-    HOME: useLiveCollection('home'),
-    CONTACT: useLiveCollection('contact'),
-    MENTIONS_LEGALES: useLiveCollection('mentionsLegales'),
-    PRESSE: useLiveCollection('presse'),
-    FOOTER: useLiveCollection('footer'),
-    NEWSLETTER: useLiveCollection('newsletter'),
+    SPECTACLES: data.spectacles,
+    SPECTACLES_SECTIONS: data.spectaclesPage?.sections,
+    SPECTACLES_SECTIONS_HAUT: data.spectaclesPage?.sectionsHaut,
+    AGENDA: expandRecurrence(data.agenda),
+    AGENDA_SECTIONS: data.agendaPage?.sections,
+    AGENDA_SECTIONS_HAUT: data.agendaPage?.sectionsHaut,
+    ATELIERS_SECTIONS: data.ateliersPage?.sections,
+    ATELIERS_SECTIONS_HAUT: data.ateliersPage?.sectionsHaut,
+    EQUIPE: data.equipe,
+    EQUIPE_SECTIONS: data.equipePage?.sections,
+    EQUIPE_SECTIONS_HAUT: data.equipePage?.sectionsHaut,
+    PARTENAIRES: data.partenaires,
+    PARTENAIRES_SECTIONS: data.partenairesPage?.sections,
+    PARTENAIRES_SECTIONS_HAUT: data.partenairesPage?.sectionsHaut,
+    HOME: data.home,
+    CONTACT: data.contact,
+    MENTIONS_LEGALES: data.mentionsLegales,
+    PRESSE: data.presse,
+    FOOTER: data.footer,
+    NEWSLETTER: data.newsletter,
     MENU: menuData.menu,
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
