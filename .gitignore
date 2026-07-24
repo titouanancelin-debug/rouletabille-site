@@ -3,6 +3,13 @@ __pycache__/
 .DS_Store
 node_modules/
 dist/
+studio/node_modules/
+studio/dist/
+studio/.sanity/
+.env
+scripts/node_modules/
+scripts/.env
+scripts/.image-asset-cache.json
 .dev.vars
 .wrangler/
 tina/__generated__/

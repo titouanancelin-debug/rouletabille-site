@@ -1,0 +1,16 @@
+{
+  "name": "rouletabille-migration-scripts",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "migrate-archives": "node migrate-archives.mjs"
+  },
+  "dependencies": {
+    "@sanity/client": "^6",
+    "@sanity/block-tools": "^3",
+    "@sanity/schema": "^3",
+    "jsdom": "^25",
+    "dotenv": "^16"
+  }
+}

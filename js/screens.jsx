@@ -104,7 +104,7 @@ const Nav = ({ route }) => {
             {it.label}
           </Link>
         ))}
-        <a href="https://rouletabilletheatre.com/" target="_blank" rel="noopener" className="nav-link">Archives</a>
+        <Link to="/archives" className={`nav-link ${route.startsWith("archives") ? "active" : ""}`}>Archives</Link>
       </div>
 
       {/* Hamburger — mobile only */}
@@ -119,7 +119,7 @@ const Nav = ({ route }) => {
             {it.label}
           </Link>
         ))}
-        <a href="https://rouletabilletheatre.com/" target="_blank" rel="noopener" className="nav-mobile-link" style={{ textDecoration:"none" }} onClick={() => setMobileOpen(false)}>Archives</a>
+        <Link to="/archives" className={`nav-mobile-link ${route.startsWith("archives") ? "active" : ""}`} style={{ textDecoration:"none" }} onClick={() => setMobileOpen(false)}>Archives</Link>
       </div>
     </nav>
   );
@@ -1667,8 +1667,6 @@ const Equipe = ({ setRoute }) => {
   const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), [EQUIPE]);
   const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), [EQUIPE]);
   const conseilAdmin = useMemo(() => EQUIPE.filter(p => p.categorie === "conseil_administration"), [EQUIPE]);
-  const [active, setActive] = useState(0);
-  const current = permanents[active] || permanents[0];
 
   return (
     <>
@@ -1684,34 +1682,17 @@ const Equipe = ({ setRoute }) => {
 
       <section className="section" style={{ paddingTop:0 }}>
         <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
-        <div className="col-split" style={{ gap:64, alignItems:"start" }}>
-          <div>
-            {permanents.map((p,i) => (
-              <div key={p.name}
-                onClick={() => setActive(i)}
-                style={{
-                  padding:"24px 0", borderTop:"1px solid var(--rule)", cursor:"pointer",
-                  opacity: active === i ? 1 : 0.6,
-                  transition:"opacity 0.2s, transform 0.2s",
-                  transform: active === i ? "translateX(8px)" : "translateX(0)"
-                }}
-              >
-                <h3 className="display" style={{ fontSize: active === i ? 44 : 32, lineHeight:1, transition:"font-size 0.2s" }} data-tina-field={tinaField(p, "name")}>
-                  {p.name.split(" ").map((w,j) => j === 1 ? <span key={j} className="display-italic">{w} </span> : <span key={j}>{w} </span>)}
-                </h3>
-                <div className="mono" style={{ marginTop:8, color:"var(--terra)" }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:32 }}>
+          {permanents.map((p, i) => (
+            <div key={p.name}>
+              <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
+                {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
               </div>
-            ))}
-          </div>
-          <div style={{ position:"sticky", top:100 }}>
-            <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:24 }}>
-              {current.image ? <CardPhoto item={current} alt={current.name}/> : <Poster bg={TEAM_PALETTE[active] || "#B84A2E"} ink="#F4E8D5" title={current.name.split(" ")[0]} subtitle={current.role.split(" • ")[0]} num={String(active+1).padStart(2,"0")} variant={active % 4} motifOpacity={0.5}/>}
+              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }} data-tina-field={tinaField(p, "name")}>{p.name}</h3>
+              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }} data-tina-field={tinaField(p, "role")}>{p.role}</div>
+              <RichText content={p.bio} field={tinaField(p, "bio")} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>
             </div>
-            <RichText content={current.bio} field={tinaField(current, "bio")} style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty", marginBottom: current.quote ? 16 : 0 }}/>
-            {current.quote && (
-              <p className="display display-italic" style={{ fontSize:22, color:"var(--terra)" }} data-tina-field={tinaField(current, "quote")}>« {current.quote} »</p>
-            )}
-          </div>
+          ))}
         </div>
       </section>
 

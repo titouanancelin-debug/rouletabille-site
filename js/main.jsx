@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import { initFX } from './fx.jsx';
 import { ContentProvider } from './content-context.jsx';
 import { Nav, Home, Spectacles, FicheSpectacle, Agenda, FicheAgenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer } from './screens.jsx';
+import { Archives, FicheArchive } from './archives.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "default",
@@ -65,6 +66,8 @@ function App() {
         <Route path="/equipe" element={<Equipe setRoute={setRoute}/>}/>
         <Route path="/partenaires" element={<Partenaires/>}/>
         <Route path="/presse" element={<Presse/>}/>
+        <Route path="/archives" element={<Archives/>}/>
+        <Route path="/archives/:slug" element={<FicheArchive/>}/>
         <Route path="/mentions-legales" element={<MentionsLegales/>}/>
         <Route path="/contact" element={<Contact/>}/>
         <Route path="*" element={<Home setRoute={setRoute}/>}/>
