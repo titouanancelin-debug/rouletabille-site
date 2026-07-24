@@ -3,12 +3,16 @@ import imageUrlBuilder from '@sanity/image-url';
 
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
+const token = import.meta.env.VITE_SANITY_READ_TOKEN;
 
 // `createClient` jette une exception si projectId est absent : si les variables
 // d'env ne sont pas encore configurées sur l'hébergeur, on ne veut pas planter
 // tout le site (main.jsx importe ce module au niveau racine), juste la page Archives.
+// Le token est un token "Viewer" (lecture seule) : sûr à exposer côté client,
+// nécessaire car la lecture publique anonyme du dataset ne renvoie pas les
+// documents archiveArticle malgré le dataset marqué "public".
 export const sanityClient = projectId
-  ? createClient({ projectId, dataset, apiVersion: '2024-01-01', useCdn: true })
+  ? createClient({ projectId, dataset, token, apiVersion: '2024-01-01', useCdn: !token })
   : { fetch: () => Promise.resolve(null) };
 
 const builder = projectId ? imageUrlBuilder(sanityClient) : null;
