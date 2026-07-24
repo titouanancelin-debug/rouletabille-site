@@ -31,6 +31,24 @@ const CardPhoto = ({ item, alt, style }) => (
   />
 );
 
+/* Carte équipe : motif physalis toujours visible devant, se retourne au
+   survol pour révéler la photo si elle existe (sinon pas d'effet, rien à
+   montrer au dos). */
+const TeamCardVisual = ({ item, bg, ink, title, subtitle, num, variant }) => (
+  <div className={`flip-card${item.image ? " has-photo" : ""}`} style={{ position: "absolute", inset: 0 }}>
+    <div className="flip-card-inner">
+      <div className="flip-card-front">
+        <Poster bg={bg} ink={ink} title={title} subtitle={subtitle} num={num} variant={variant} motifOpacity={0.5}/>
+      </div>
+      {item.image && (
+        <div className="flip-card-back">
+          <CardPhoto item={item} alt={item.name}/>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
 /* Italicise le dernier mot d'une ligne de titre éditable (garde l'accent
    typographique du site sans figer un découpage mot-à-mot en dur). */
 const italicLastWord = (text) => {
@@ -1684,7 +1702,7 @@ const Equipe = ({ setRoute }) => {
           {permanents.map((p, i) => (
             <div key={p.name}>
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
-                {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
+                <TeamCardVisual item={p} bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
               <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
               <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
@@ -1704,7 +1722,7 @@ const Equipe = ({ setRoute }) => {
           {associes.map((p, i) => (
             <div key={p.name}>
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
-                {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
+                <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
               <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
               <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
@@ -1725,7 +1743,7 @@ const Equipe = ({ setRoute }) => {
             {conseilAdmin.map((p, i) => (
               <div key={p.name}>
                 <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
-                  {p.image ? <CardPhoto item={p} alt={p.name}/> : <Poster bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4} motifOpacity={0.5}/>}
+                  <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
                 </div>
                 <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
                 <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>

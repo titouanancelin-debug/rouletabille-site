@@ -339,6 +339,21 @@ a { color: inherit; }
   mix-blend-mode: multiply; opacity:0.5; pointer-events:none;
 }
 
+/* ---- Carte équipe retournable : motif physalis devant, photo au dos ---- */
+.flip-card { perspective: 1200px; }
+.flip-card-inner {
+  position: absolute; inset: 0; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1);
+  transform-style: preserve-3d;
+}
+.flip-card.has-photo:hover .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-front, .flip-card-back {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.flip-card-back { transform: rotateY(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner { transition: none; }
+}
+
 /* =====================================================================
    FX — rideau d'intro, scroll-reveal, parallax, typographie cinétique
    ===================================================================== */
