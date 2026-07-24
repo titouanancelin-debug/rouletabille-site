@@ -39,8 +39,8 @@ export default defineConfig({
   name: 'default',
   title: 'Cie Rouletabille',
 
-  projectId: process.env.SANITY_STUDIO_PROJECT_ID || '',
-  dataset: process.env.SANITY_STUDIO_DATASET || 'production',
+  projectId: 'bg0qr5k4',
+  dataset: 'production',
 
   plugins: [structureTool({ structure })],
 
