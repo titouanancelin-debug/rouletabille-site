@@ -546,22 +546,36 @@ const HistoireAccordion = () => {
 };
 
 /* ======================= EVENT CAROUSEL ======================= */
-const FR_MONTHS_IDX = {Jan:0,Fév:1,Mar:2,Avr:3,Mai:4,Juin:5,Juil:6,Août:7,Sep:8,Oct:9,Nov:10,Déc:11};
+const FR_MONTHS_IDX = {jan:0,fév:1,mar:2,avr:3,mai:4,juin:5,juil:6,août:7,sep:8,oct:9,nov:10,déc:11};
 
+/* Le champ "jour" accepte du texte libre ("20" ou "20-24" ou "24 au 28") :
+   on prend le premier nombre pour la date de début et le dernier pour la
+   date de fin, afin qu'un rendez-vous encore en cours (ex: résidence du
+   20 au 24, on est le 22) reste considéré comme à venir. Le mois est
+   comparé insensible à la casse : une saisie CMS libre ("août" au lieu de
+   "Août") ne doit jamais faire disparaître un événement à venir. */
 const getFeaturedEvents = (AGENDA) => {
-  const seen = new Set();
   const today = new Date(); today.setHours(0,0,0,0);
+  const seen = new Set();
   return AGENDA
-    .filter(d => {
-      if (!d.type?.some(t => ["spectacle","événement","résidence"].includes(t))) return false;
+    .filter(d => d.type?.some(t => ["spectacle","événement","résidence"].includes(t)))
+    .map(d => {
+      const monthIdx = FR_MONTHS_IDX[(d.month || "").trim().toLowerCase()];
+      const nums = String(d.day || "").match(/\d+/g);
+      if (monthIdx === undefined || !nums || !d.year) return null;
+      const start = new Date(+d.year, monthIdx, +nums[0]);
+      const end = new Date(+d.year, monthIdx, +nums[nums.length - 1]);
+      end.setHours(23, 59, 59, 999);
+      return { d, start, end };
+    })
+    .filter((entry) => entry && entry.end >= today)
+    .sort((a, b) => a.start - b.start)
+    .filter(({ d }) => {
       const key = d.spectacle ?? d.title;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     })
-    .map(d => ({ d, date: new Date(+d.year, FR_MONTHS_IDX[d.month] ?? 0, +d.day) }))
-    .filter(({ date }) => date >= today)
-    .sort((a, b) => a.date - b.date)
     .slice(0, 6)
     .map(({ d }) => d);
 };
@@ -907,7 +921,7 @@ const Spectacles = ({ setRoute }) => {
     }
   };
 
-  const atelierList = atelierFilter ? ateliersAgenda.filter(a => a.audience === atelierFilter) : ateliersAgenda;
+  const atelierList = atelierFilter ? ateliersAgenda.filter(a => a.audience?.includes(atelierFilter)) : ateliersAgenda;
 
   const getStatus = (s) => {
     const hasDates = AGENDA.some(d => d.spectacle === s.id);
@@ -1515,6 +1529,14 @@ const FicheAgenda = ({ setRoute }) => {
             <RichText content={d.desc} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>
           )}
 
+          {d.type?.includes("résidence") && d.residenceLink && (
+            <div style={{ marginBottom:32 }}>
+              <a href={d.residenceLink} target="_blank" rel="noopener noreferrer" className="link-underline">
+                Découvrir la compagnie accueillie →
+              </a>
+            </div>
+          )}
+
           {sp && (
             <>
               {!d.desc && <RichText content={sp.desc} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>}
@@ -1582,7 +1604,7 @@ const Ateliers = ({ audience = "" }) => {
 
   useEffect(() => { setFilter(audience); setSelected(null); }, [audience]);
 
-  const list = filter ? ateliersAgenda.filter(a => a.audience === filter) : ateliersAgenda;
+  const list = filter ? ateliersAgenda.filter(a => a.audience?.includes(filter)) : ateliersAgenda;
 
   return (
     <>
@@ -1737,7 +1759,7 @@ const Equipe = ({ setRoute }) => {
           <div className="section-head">
             <div className="section-num">Gouvernance</div>
             <h2 className="section-title">Membres fondateurs <span className="display-italic">& conseil d'administration.</span></h2>
-            <div className="section-meta">Celles et ceux qui portent le projet associatif de Rouletabille depuis sa création.</div>
+            <div className="section-meta">Aujourd'hui, ils et elles font vivre le projet associatif de Rouletabille et poursuivent, collectivement, une histoire commencée il y a plus de trente ans.</div>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:32 }}>
             {conseilAdmin.map((p, i) => (
@@ -1759,7 +1781,10 @@ const Equipe = ({ setRoute }) => {
           <div>
             <div className="eyebrow" style={{ marginBottom:20 }}>Compagnons de route</div>
             <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              Depuis plus de trente ans, Rouletabille avance grâce à celles et ceux qui croisent son chemin. Techniciens, costumières, constructeurs, bénévoles, artistes, anciens salariés, services civiques... Ils ont participé à faire de ce lieu ce qu'il est aujourd'hui. Parce qu'une fabrique artistique se construit aussi avec celles et ceux qui restent dans son histoire.
+              Depuis plus de trente ans, Rouletabille grandit grâce à toutes celles et ceux qui croisent son chemin. Artistes, technicien·nes, costumières, constructeur·rices, bénévoles, salarié·es, volontaires en service civique, stagiaires… chacun·e a contribué, à sa manière, à faire vivre la compagnie et ce lieu de création. Une fabrique artistique se construit autant avec celles et ceux qui l'animent aujourd'hui qu'avec toutes les personnes qui en ont écrit l'histoire.
+            </p>
+            <p style={{ fontSize:16, lineHeight:1.6, color:"var(--ink-soft)", fontStyle:"italic", marginTop:16, textWrap:"pretty" }}>
+              Justine, Mathieu, David, Antonio, Léon, Sylvano, Will, Guillaume, Cyril, Coline, Delphine, Margaux, Hamza, Rime, Pierre, Marie, Lucille, Margot ...
             </p>
           </div>
           <div>

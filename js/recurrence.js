@@ -50,6 +50,16 @@ export function expandRecurrence(entries, now = new Date()) {
 
   const out = [];
   for (const e of entries) {
+    /* Atelier ponctuel avec plusieurs dates cochées sur le calendrier (voir
+       studio/schemaTypes/components/MultiDateCalendarInput.tsx) : une
+       occurrence par date, à la place du couple dateGroup/day-month-year. */
+    if (Array.isArray(e.ponctualDates) && e.ponctualDates.length) {
+      for (const iso of e.ponctualDates) {
+        out.push({ ...e, ...toAgendaDateFields(new Date(`${iso}T00:00:00Z`)) });
+      }
+      continue;
+    }
+
     if (!e.recurrence || e.recurrence === "ponctuel" || !e.recurrenceStart) {
       out.push(e);
       continue;

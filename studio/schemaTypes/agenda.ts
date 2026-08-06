@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity';
+import { MultiDateCalendarInput } from './components/MultiDateCalendarInput';
 
 // Collection centrale voulue par l'équipe : spectacles, ateliers, résidences,
 // événements... tout au même endroit, avec récurrence portée par l'entrée
@@ -17,7 +18,11 @@ export const agenda = defineType({
       validation: (Rule) => Rule.required().min(1),
     }),
     defineField({ name: 'status', title: 'Statut', type: 'string', options: { list: ['available', 'free'] } }),
-    defineField({ name: 'audience', title: 'Public (catégorie, pour filtrer les ateliers)', type: 'string', options: { list: ['enfants', 'ados', 'adultes', 'quartier'] } }),
+    defineField({
+      name: 'audience', title: 'Public (catégories, pour filtrer les ateliers)', type: 'array',
+      of: [{ type: 'string' }],
+      options: { list: ['enfants', 'ados', 'adultes', 'quartier'] },
+    }),
     defineField({ name: 'venue', title: 'Lieu', type: 'string' }),
     defineField({ name: 'time', title: 'Horaire (texte libre)', type: 'string' }),
     defineField({ name: 'price', title: 'Prix / mention', type: 'string' }),
@@ -27,6 +32,10 @@ export const agenda = defineType({
     defineField({ name: 'cardColor', title: 'Couleur de la carte', type: 'string' }),
     defineField({ name: 'cardTextColor', title: 'Couleur du texte de la carte', type: 'string' }),
     defineField({ name: 'spectacle', title: 'Spectacle lié', type: 'reference', to: [{ type: 'spectacle' }] }),
+    defineField({
+      name: 'residenceLink', title: 'Lien vers la page de la compagnie accueillie', type: 'url',
+      hidden: ({ document }) => !(document?.type as string[] | undefined)?.includes('résidence'),
+    }),
 
     defineField({
       name: 'dateGroup', title: 'Date (rendez-vous ponctuel)', type: 'object',
@@ -35,6 +44,14 @@ export const agenda = defineType({
         { name: 'month', title: 'Mois (ex: "Juil")', type: 'string' },
         { name: 'year', title: 'Année', type: 'string' },
       ],
+      hidden: ({ document }) => !!(document?.ponctualDates as string[] | undefined)?.length,
+    }),
+    defineField({
+      name: 'ponctualDates', title: 'Dates ponctuelles (atelier) — cocher les jours sur le calendrier', type: 'array',
+      of: [{ type: 'string' }],
+      components: { input: MultiDateCalendarInput },
+      hidden: ({ document }) => !(document?.type as string[] | undefined)?.includes('atelier'),
+      description: 'Pour un atelier avec plusieurs dates ponctuelles (pas de récurrence régulière) : coche chaque date sur le calendrier plutôt que de remplir "Date" ci-dessus.',
     }),
     defineField({
       name: 'recurrence', title: 'Récurrence', type: 'string',

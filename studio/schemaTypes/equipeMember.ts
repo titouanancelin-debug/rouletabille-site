@@ -1,10 +1,12 @@
 import { defineField, defineType } from 'sanity';
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list';
 import { richTextField } from './shared/richText';
 
 export const equipeMember = defineType({
   name: 'equipeMember',
   title: 'Membre de l\'équipe',
   type: 'document',
+  orderings: [orderRankOrdering],
   fields: [
     defineField({ name: 'name', title: 'Nom', type: 'string', validation: (Rule) => Rule.required() }),
     defineField({ name: 'role', title: 'Rôle', type: 'string' }),
@@ -16,6 +18,7 @@ export const equipeMember = defineType({
     defineField({ name: 'image', title: 'Photo', type: 'image' }),
     defineField({ name: 'bio', title: 'Bio', ...richTextField }),
     defineField({ name: 'quote', title: 'Citation (optionnel)', type: 'string' }),
+    orderRankField({ type: 'equipeMember' }),
   ],
   preview: { select: { title: 'name', subtitle: 'role', media: 'image' } },
 });

@@ -21,7 +21,7 @@ const QUERY = `{
   },
   "agendaPage": *[_id == "agendaPage"][0],
   "ateliersPage": *[_id == "ateliersPage"][0],
-  "equipe": *[_type == "equipeMember"]{..., "image": image.asset->url},
+  "equipe": *[_type == "equipeMember"] | order(orderRank asc) {..., "image": image.asset->url},
   "equipePage": *[_id == "equipePage"][0],
   "partenaires": *[_type == "partenaire"]{..., "image": image.asset->url},
   "partenairesPage": *[_id == "partenairesPage"][0],
