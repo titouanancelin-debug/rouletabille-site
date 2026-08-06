@@ -14,10 +14,10 @@ export const agenda = defineType({
     defineField({
       name: 'type', title: 'Type', type: 'array',
       of: [{ type: 'string' }],
-      options: { list: ['spectacle', 'atelier', 'résidence', 'événement', 'projet de territoire'] },
+      options: { list: ['spectacle', 'atelier', 'résidence', 'événement', 'médiation', 'projet de territoire'] },
       validation: (Rule) => Rule.required().min(1),
     }),
-    defineField({ name: 'status', title: 'Statut', type: 'string', options: { list: ['available', 'free'] } }),
+    defineField({ name: 'status', title: 'Statut', type: 'string', options: { list: ['available', 'few', 'sold', 'free'] } }),
     defineField({
       name: 'audience', title: 'Public (catégories, pour filtrer les ateliers)', type: 'array',
       of: [{ type: 'string' }],

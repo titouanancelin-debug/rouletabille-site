@@ -9,7 +9,9 @@ import { mentionsLegales } from './mentionsLegales';
 import { presse } from './presse';
 import { footer } from './footer';
 import { newsletter } from './newsletter';
-import { agendaPage, spectaclesPage, equipePage, partenairesPage, ateliersPage } from './pageSections';
+import { menu } from './menu';
+import { siteSettings } from './siteSettings';
+import { agendaPage, spectaclesPage, equipePage, partenairesPage, ateliersPage, archivesPage } from './pageSections';
 import {
   titreBlock, texteBlock, imageBloc, imageTexteBlock, encartBlock, citationBlock, espaceBlock,
 } from './shared/sectionsLibres';
@@ -28,11 +30,14 @@ export const schemaTypes = [
   presse,
   footer,
   newsletter,
+  menu,
+  siteSettings,
   agendaPage,
   spectaclesPage,
   equipePage,
   partenairesPage,
   ateliersPage,
+  archivesPage,
 
   // Blocs des sections libres (objets, pas des documents autonomes)
   titreBlock, texteBlock, imageBloc, imageTexteBlock, encartBlock, citationBlock, espaceBlock,

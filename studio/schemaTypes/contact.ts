@@ -1,11 +1,13 @@
 import { defineField, defineType } from 'sanity';
 import { sectionsLibresField } from './shared/sectionsLibres';
+import { pageHeaderFields } from './pageSections';
 
 export const contact = defineType({
   name: 'contact',
   title: 'Contact',
   type: 'document',
   fields: [
+    ...pageHeaderFields,
     defineField({ name: 'meta', title: 'Mention (horaires/accueil)', type: 'text' }),
     sectionsLibresField('sectionsHaut', 'Sections libres (haut de page)'),
     defineField({ name: 'addressName', title: 'Nom du lieu', type: 'string' }),

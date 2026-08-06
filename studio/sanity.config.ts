@@ -4,6 +4,8 @@ import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 import { schemaTypes } from './schemaTypes';
 
 const SINGLETONS = [
+  ['menu', 'Menu'],
+  ['siteSettings', 'Réglages du site'],
   ['home', 'Accueil'],
   ['contact', 'Contact'],
   ['presse', 'Presse'],
@@ -15,6 +17,7 @@ const SINGLETONS = [
   ['equipePage', 'Page Équipe (sections)'],
   ['partenairesPage', 'Page Partenaires (sections)'],
   ['ateliersPage', 'Page Ateliers (sections)'],
+  ['archivesPage', 'Page Archives (sections)'],
 ];
 
 // Équipe : trois listes triables par glisser-déposer (une par catégorie),

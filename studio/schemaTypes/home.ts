@@ -2,6 +2,20 @@ import { defineField, defineType } from 'sanity';
 import { richTextField } from './shared/richText';
 import { sectionsLibresField } from './shared/sectionsLibres';
 
+// Même forme que pageHeaderFields (studio/schemaTypes/pageSections.ts), mais
+// Accueil a 3 en-têtes de section internes distincts (pas un seul en tête de
+// page) donc on ne peut pas réutiliser directement le même document racine.
+const sectionHeaderField = (name: string, title: string) =>
+  defineField({
+    name, title, type: 'object',
+    fields: [
+      { name: 'eyebrow', title: 'Sur-titre', type: 'string' },
+      { name: 'titleMain', title: 'Titre (partie normale)', type: 'string' },
+      { name: 'titleItalic', title: 'Titre (partie italique)', type: 'string' },
+      { name: 'meta', title: 'Paragraphe', type: 'text' },
+    ],
+  });
+
 export const home = defineType({
   name: 'home',
   title: 'Accueil',
@@ -13,6 +27,13 @@ export const home = defineType({
     defineField({ name: 'heroIntro', title: 'Hero — intro', ...richTextField }),
     defineField({ name: 'heroTagline', title: 'Hero — tagline', type: 'string' }),
     sectionsLibresField('sectionsHaut', 'Sections libres (haut de page)'),
+    sectionHeaderField('eventsHeader', 'En-tête — Prochains rendez-vous'),
+    sectionHeaderField('histoireHeader', 'En-tête — Histoire'),
+    sectionHeaderField('publicsHeader', 'En-tête — Publics'),
+    defineField({
+      name: 'publicsTags', title: 'Publics (liste de tags)', type: 'array',
+      of: [{ type: 'string' }],
+    }),
     defineField({
       name: 'histoire', title: 'Histoire (accordéon)', type: 'array',
       of: [{

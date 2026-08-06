@@ -4,6 +4,7 @@ import { PortableText } from '@portabletext/react';
 import { sanityClient, urlFor } from './sanity-client.js';
 import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
+import { useContent } from './content-context.jsx';
 
 const MONTHS_FR = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -90,6 +91,7 @@ const ArchiveCard = ({ art }) => {
 
 /* ── Écran Archives (liste) ── */
 const Archives = () => {
+  const { ARCHIVES_PAGE } = useContent();
   const articles = useArchiveList();
   const [year, setYear] = useState(null);
   const [month, setMonth] = useState(null);
@@ -130,12 +132,12 @@ const Archives = () => {
           <Motif size={420} color="var(--plum)" berryColor="var(--terra)" rotate={-25} seed={7} />
         </div>
         <Reveal variant="up" className="section-head">
-          <div className="section-num">Mémoire</div>
+          <div className="section-num">{ARCHIVES_PAGE?.headerEyebrow}</div>
           <h2 className="section-title">
-            Archives<br /><span className="display-italic">du blog.</span>
+            {ARCHIVES_PAGE?.headerTitleMain}<br /><span className="display-italic">{ARCHIVES_PAGE?.headerTitleItalic}</span>
           </h2>
           <div className="section-meta">
-            {articles.length} publications · {years[years.length - 1]} — {years[0]} · Toutes les actualités, projets et carnets de création de la compagnie.
+            {articles.length} publications · {years[years.length - 1]} — {years[0]} · {ARCHIVES_PAGE?.headerMeta}
           </div>
         </Reveal>
       </section>

@@ -73,19 +73,8 @@ const slugify = (s) => (s || "")
 
 const agendaSlug = (d) => slugify(`${d.title || ""}-${d.day || ""}-${d.month || ""}-${d.year || ""}`);
 
-const ATELIER_CATS = [
-  { id:"", label:"Tous les ateliers" },
-  { id:"enfants", label:"Enfants (6–11 ans)" },
-  { id:"ados", label:"Ados (12–17 ans)" },
-  { id:"adultes", label:"Adultes" },
-  { id:"ecole", label:"Milieu scolaire" },
-  { id:"seniors", label:"Personnes âgées" },
-  { id:"quartier", label:"Quartier & résidents" },
-  { id:"insertion", label:"Insertion sociale" },
-];
-
 const Nav = ({ route }) => {
-  const { MENU } = useContent();
+  const { MENU, SITE } = useContent();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -110,8 +99,8 @@ const Nav = ({ route }) => {
       <Link to="/" className="nav-logo" style={{ textDecoration:"none" }}>
         <MotifMark size={32} color="var(--terra)"/>
         <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
-          <span>Rouletabille</span>
-          <span style={{ fontSize:11, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.55, marginTop:3, lineHeight:1.3 }}>Fabrique artistique<br/>et culturelle</span>
+          <span>{SITE?.brandName}</span>
+          <span style={{ fontSize:11, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.55, marginTop:3, lineHeight:1.3 }}>{SITE?.brandTaglineLine1}<br/>{SITE?.brandTaglineLine2}</span>
         </span>
       </Link>
       <div className="nav-menu">
@@ -120,7 +109,7 @@ const Nav = ({ route }) => {
             {it.label}
           </Link>
         ))}
-        <Link to="/archives" className={`nav-link ${route.startsWith("archives") ? "active" : ""}`}>Archives</Link>
+        <Link to="/archives" className={`nav-link ${route.startsWith("archives") ? "active" : ""}`}>{MENU.labelArchives}</Link>
       </div>
 
       {/* Hamburger — mobile only */}
@@ -135,7 +124,7 @@ const Nav = ({ route }) => {
             {it.label}
           </Link>
         ))}
-        <Link to="/archives" className={`nav-mobile-link ${route.startsWith("archives") ? "active" : ""}`} style={{ textDecoration:"none" }} onClick={() => setMobileOpen(false)}>Archives</Link>
+        <Link to="/archives" className={`nav-mobile-link ${route.startsWith("archives") ? "active" : ""}`} style={{ textDecoration:"none" }} onClick={() => setMobileOpen(false)}>{MENU.labelArchives}</Link>
       </div>
     </nav>
   );
@@ -274,7 +263,7 @@ const BotanicHero = ({ setRoute }) => {
 
 /* ======================= SCROLL EXPAND HERO ======================= */
 const ScrollExpandHero = ({ setRoute }) => {
-  const { HOME } = useContent();
+  const { HOME, SITE } = useContent();
   const [p, setP]           = useState(0);
   const [expanded, setExpanded] = useState(false);
   const pRef       = useRef(0);
@@ -410,8 +399,8 @@ const ScrollExpandHero = ({ setRoute }) => {
             fontFamily: "var(--ff-mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase",
             pointerEvents: "none",
           }}>
-            <span>Périgueux · Dordogne</span>
-            <span>Est. 1993</span>
+            <span>{SITE?.heroLocation}</span>
+            <span>{SITE?.heroFounded}</span>
           </div>
 
           {/* ——— Contenu hero complet — apparaît une fois la carte ouverte ——— */}
@@ -464,7 +453,7 @@ const ScrollExpandHero = ({ setRoute }) => {
             willChange: "transform",
             mixBlendMode: "difference",
             whiteSpace: "nowrap",
-          }}>Rouletabille</span>
+          }}>{SITE?.brandName}</span>
           <span className="display display-italic" style={{
             fontSize: "clamp(20px, 3.1vw, 50px)", color: "var(--paper)", lineHeight: 1.05,
             transform: `translateX(${textShift}vw)`,
@@ -472,7 +461,7 @@ const ScrollExpandHero = ({ setRoute }) => {
             mixBlendMode: "difference",
             whiteSpace: "nowrap",
             textAlign: "center",
-          }}>fabrique artistique<br/>et culturelle</span>
+          }}>{SITE?.brandTaglineLine1}<br/>{SITE?.brandTaglineLine2}</span>
         </div>
       )}
 
@@ -580,12 +569,28 @@ const getFeaturedEvents = (AGENDA) => {
     .map(({ d }) => d);
 };
 
-const TYPE_LABEL = { spectacle:"Spectacle", événement:"Événement", résidence:"Résidence", médiation:"Médiation", atelier:"Atelier", "projet de territoire":"Projet de territoire" };
-/* Un rendez-vous d'agenda peut cocher plusieurs types (ex: atelier + médiation) — on affiche tous les libellés correspondants. */
-const typeLabels = (type) => (type || []).map(t => TYPE_LABEL[t] || t).join(" · ");
+/* Libellés/couleurs des types et statuts d'agenda, éditables dans le Studio
+   (agendaPage.typeConfig / statusConfig) plutôt que codés en dur — ces deux
+   hooks centralisent la lecture pour tous les écrans qui en ont besoin. */
+function useTypeConfig() {
+  const { AGENDA_PAGE } = useContent();
+  const typeConfig = AGENDA_PAGE?.typeConfig || [];
+  const get = (value) => typeConfig.find(c => c.value === value) || {};
+  /* Un rendez-vous d'agenda peut cocher plusieurs types (ex: atelier + médiation) — on affiche tous les libellés correspondants. */
+  const labels = (type) => (type || []).map(t => get(t).label || t).join(" · ");
+  return { typeConfig, get, labels };
+}
+function useStatusConfig() {
+  const { AGENDA_PAGE } = useContent();
+  const statusConfig = AGENDA_PAGE?.statusConfig || [];
+  const get = (value) => statusConfig.find(c => c.value === value) || {};
+  return { statusConfig, get };
+}
 
 const EventCard = ({ item, setRoute }) => {
   const { SPECTACLES } = useContent();
+  const { labels: typeLabels } = useTypeConfig();
+  const { get: getStatus } = useStatusConfig();
   const sp = item.spectacle ? SPECTACLES.find(s => s.id === item.spectacle) : null;
   const spIdx = sp ? SPECTACLES.findIndex(s => s.id === item.spectacle) : 0;
   const ink = item.cardTextColor || "var(--paper)";
@@ -649,19 +654,9 @@ const EventCard = ({ item, setRoute }) => {
             </div>
           </div>
         )}
-        {item.status === "few" && (
-          <div style={{ position:"absolute", top:12, right:12, background:"var(--amber-deep)", color:"#fff", fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.08em", padding:"3px 8px", textTransform:"uppercase" }}>
-            Dernières places
-          </div>
-        )}
-        {item.status === "sold" && (
-          <div style={{ position:"absolute", top:12, right:12, background:"rgba(0,0,0,0.75)", color:"#fff", fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.08em", padding:"3px 8px", textTransform:"uppercase" }}>
-            Complet
-          </div>
-        )}
-        {(item.status === "free" && !sp) && (
-          <div style={{ position:"absolute", top:12, right:12, background:"var(--terra)", color:"#fff", fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.08em", padding:"3px 8px", textTransform:"uppercase" }}>
-            Entrée libre
+        {(item.status === "few" || item.status === "sold" || (item.status === "free" && !sp)) && (
+          <div style={{ position:"absolute", top:12, right:12, background:getStatus(item.status).color, color:"#fff", fontFamily:"var(--ff-mono)", fontSize:9, fontWeight:700, letterSpacing:"0.08em", padding:"3px 8px", textTransform:"uppercase" }}>
+            {getStatus(item.status).label}
           </div>
         )}
       </div>
@@ -768,9 +763,9 @@ const Home = ({ setRoute }) => {
     {/* ÉVÉNEMENTS CAROUSEL */}
     <section className="section">
       <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
-        <div className="section-num">Au programme</div>
-        <h2 className="section-title">Prochains<br/><span className="display-italic">rendez-vous.</span></h2>
-        <div className="section-meta">Spectacles, résidences et événements de la saison. <a className="link-underline" onClick={() => setRoute("agenda")}>Calendrier complet →</a></div>
+        <div className="section-num">{HOME.eventsHeader?.eyebrow}</div>
+        <h2 className="section-title">{HOME.eventsHeader?.titleMain}<br/><span className="display-italic">{HOME.eventsHeader?.titleItalic}</span></h2>
+        <div className="section-meta">{HOME.eventsHeader?.meta} <a className="link-underline" onClick={() => setRoute("agenda")}>Calendrier complet →</a></div>
       </Reveal>
       <EventCarousel setRoute={setRoute}/>
     </section>
@@ -781,9 +776,9 @@ const Home = ({ setRoute }) => {
         <Motif size={360} color="var(--terra)" berryColor="var(--amber)" rotate={-10} seed={4}/>
       </div>
       <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
-        <div className="section-num">Histoire</div>
-        <h2 className="section-title">Histoire<br/><span className="display-italic">d'un projet.</span></h2>
-        <div className="section-meta">Depuis 1993, un projet culturel ancré dans le quartier du Toulon, à Périgueux.</div>
+        <div className="section-num">{HOME.histoireHeader?.eyebrow}</div>
+        <h2 className="section-title">{HOME.histoireHeader?.titleMain}<br/><span className="display-italic">{HOME.histoireHeader?.titleItalic}</span></h2>
+        <div className="section-meta">{HOME.histoireHeader?.meta}</div>
       </Reveal>
       <HistoireAccordion/>
     </section>
@@ -814,12 +809,12 @@ const Home = ({ setRoute }) => {
     {/* PUBLICS */}
     <section className="section">
       <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
-        <div className="section-num">Publics</div>
-        <h2 className="section-title">Un lieu ouvert <span className="display-italic">à toutes et tous.</span></h2>
+        <div className="section-num">{HOME.publicsHeader?.eyebrow}</div>
+        <h2 className="section-title">{HOME.publicsHeader?.titleMain} <span className="display-italic">{HOME.publicsHeader?.titleItalic}</span></h2>
         <RichText content={HOME.publicsIntro} className="section-meta"/>
       </Reveal>
       <div style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
-        {["Enfants","Jeunes","Adultes","Habitants","Professionnels","Amateurs","Écoles","Structures sociales et médico-sociales","Collectivités"].map(label => (
+        {(HOME.publicsTags || []).map(label => (
           <span key={label} className="mono" style={{
             padding:"10px 20px", border:"1px solid var(--rule)", borderRadius:999,
             color:"var(--ink-soft)",
@@ -855,11 +850,8 @@ const SpectacleCard = ({ s, variant=0, onClick }) => (
 
 /* ======================= AGENDA ROW ======================= */
 const AgendaRow = ({ d, onClick }) => {
-  const status = {
-    available: { label:"Places disponibles", color:"var(--terra)" },
-    few:       { label:"Dernières places", color:"var(--amber-deep)" },
-    sold:      { label:"Complet", color:"var(--ink-soft)" },
-  }[d.status];
+  const { get: getStatus } = useStatusConfig();
+  const status = ["available", "few", "sold"].includes(d.status) ? getStatus(d.status) : null;
   return (
     <div className="agenda-row agenda-row-grid" style={{
       padding:"24px 8px", borderTop:"1px solid var(--rule)",
@@ -887,16 +879,13 @@ const AgendaRow = ({ d, onClick }) => {
 };
 
 /* ======================= SPECTACLES (liste) ======================= */
-const TRAVAIL_TABS = [
-  { id:"residences",  label:"Résidences artistiques", num:"01", title:"Résidences artistiques",  sub:"Les résidences de création en cours." },
-  { id:"ateliers",    label:"Ateliers réguliers",     num:"02", title:"Ateliers & pratique",       sub:"Pratiques artistiques régulières, stages et cycles." },
-  { id:"evenements",  label:"Événements",              num:"03", title:"Événements",                sub:"Rencontres, restitutions et rendez-vous ouverts." },
-  { id:"mediations",  label:"Médiations",             num:"04", title:"Médiations & pratiques",   sub:"Ateliers, transmissions, actions de territoire." },
-  { id:"territoire",  label:"Projets de territoire",   num:"05", title:"Projets de territoire",     sub:"Des espaces de convergence construits avec les habitants et le territoire, sur le long cours." },
-];
 
 const Spectacles = ({ setRoute }) => {
-  const { AGENDA, SPECTACLES_SECTIONS, SPECTACLES_SECTIONS_HAUT } = useContent();
+  const { AGENDA, AGENDA_PAGE, SPECTACLES_PAGE, SPECTACLES_SECTIONS, SPECTACLES_SECTIONS_HAUT } = useContent();
+  const { labels: typeLabels, get: getType } = useTypeConfig();
+  const travailTabs = SPECTACLES_PAGE?.travailTabs || [];
+  const tabConfig = (value) => travailTabs.find(t => t.value === value) || {};
+  const audienceFilters = buildAudienceFilters(AGENDA_PAGE);
   const [tab, setTab] = useState("residences");
   const [atelierFilter, setAtelierFilter] = useState("");
   const [selectedAtelier, setSelectedAtelier] = useState(null);
@@ -934,9 +923,9 @@ const Spectacles = ({ setRoute }) => {
       {/* En-tête fixe */}
       <div className="section" style={{ paddingBottom:0 }}>
         <Reveal variant="up" className="section-head">
-          <div className="section-num">Notre travail</div>
-          <h2 className="section-title">Résidences, <span className="display-italic">médiations</span><br/>& événements.</h2>
-          <div className="section-meta">Un lieu de fabrication artistique ancré sur son territoire — de la résidence de création aux ateliers de pratique ouverts à tous.</div>
+          <div className="section-num">{SPECTACLES_PAGE?.headerEyebrow}</div>
+          <h2 className="section-title">{SPECTACLES_PAGE?.headerTitleMain}<br/><span className="display-italic">{SPECTACLES_PAGE?.headerTitleItalic}</span></h2>
+          <div className="section-meta">{SPECTACLES_PAGE?.headerMeta}</div>
         </Reveal>
       </div>
 
@@ -951,22 +940,22 @@ const Spectacles = ({ setRoute }) => {
       }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"0 var(--pad-x)" }}>
           <div style={{ display:"flex" }}>
-            {TRAVAIL_TABS.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)} style={{
+            {travailTabs.map(t => (
+              <button key={t.value} onClick={() => setTab(t.value)} style={{
                 padding:"16px 24px 14px",
                 background:"none", border:"none",
-                borderBottom: tab === t.id ? "2px solid var(--terra)" : "2px solid transparent",
+                borderBottom: tab === t.value ? "2px solid var(--terra)" : "2px solid transparent",
                 cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:4,
                 transition:"color 0.2s, border-color 0.2s",
-                color: tab === t.id ? "var(--terra)" : "var(--ink-soft)",
+                color: tab === t.value ? "var(--terra)" : "var(--ink-soft)",
               }}>
-                <span style={{ fontFamily:"var(--ff-body)", fontSize:13, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
+                <span style={{ fontFamily:"var(--ff-body)", fontSize:13, fontWeight: tab === t.value ? 600 : 400 }}>{t.label}</span>
               </button>
             ))}
           </div>
           {/* Titre de la section active */}
           <span className="display-italic" style={{ fontSize:"clamp(18px, 2vw, 26px)", color:"var(--terra)", opacity:0.85, paddingRight:4 }}>
-            {TRAVAIL_TABS.find(t => t.id === tab)?.title}
+            {travailTabs.find(t => t.value === tab)?.title}
           </span>
         </div>
       </div>
@@ -979,7 +968,7 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:48, maxWidth:640 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"rgba(242,228,200,0.75)", textWrap:"pretty" }}>
-              Les résidences de création sont le cœur de notre travail. Des semaines de répétition, d'expérimentation et de recherche, loin de la représentation — là où la forme se cherche encore.
+              {tabConfig('residences').intro}
             </p>
           </Reveal>
           {residences.length > 0 ? (
@@ -993,7 +982,7 @@ const Spectacles = ({ setRoute }) => {
                       </div>
                     )}
                     <div style={{ padding:32 }}>
-                    <div style={{ display:"inline-block", background:"var(--plum)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Résidence</div>
+                    <div style={{ display:"inline-block", background:getType('résidence').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>{typeLabels(['résidence'])}</div>
                     <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
                     <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
@@ -1005,7 +994,7 @@ const Spectacles = ({ setRoute }) => {
               ))}
             </div>
           ) : (
-            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>Aucune résidence en cours actuellement.</p>
+            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('residences').emptyMessage}</p>
           )}
         </section>
       )}
@@ -1018,7 +1007,7 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:48, maxWidth:560 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              La transmission artistique est une activité centrale, pas accessoire. Interventions scolaires, actions de territoire, médiation culturelle.
+              {tabConfig('mediations').intro}
             </p>
           </Reveal>
           {mediations.length > 0 ? (
@@ -1032,7 +1021,7 @@ const Spectacles = ({ setRoute }) => {
                       </div>
                     )}
                     <div style={{ padding:32 }}>
-                      <div style={{ display:"inline-block", background:"var(--amber-deep)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Médiation</div>
+                      <div style={{ display:"inline-block", background:getType('médiation').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>{typeLabels(['médiation'])}</div>
                       <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                       <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
                       <div style={{ fontSize:14, opacity:0.7, marginBottom: d.desc ? 16 : 0, color:"var(--ink-soft)" }}>{d.venue}</div>
@@ -1043,7 +1032,7 @@ const Spectacles = ({ setRoute }) => {
               ))}
             </div>
           ) : (
-            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>Aucune médiation programmée pour le moment.</p>
+            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('mediations').emptyMessage}</p>
           )}
         </section>
       )}
@@ -1056,7 +1045,7 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:48, maxWidth:560 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              Rencontres avec l'équipe, restitutions publiques, ouvertures de résidences… Des moments partagés, ouverts à tous.
+              {tabConfig('evenements').intro}
             </p>
           </Reveal>
           {evenements.length > 0 ? (
@@ -1087,7 +1076,7 @@ const Spectacles = ({ setRoute }) => {
               ))}
             </div>
           ) : (
-            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>Aucun événement à venir pour le moment.</p>
+            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('evenements').emptyMessage}</p>
           )}
         </section>
       )}
@@ -1100,7 +1089,7 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:48, maxWidth:640 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"rgba(242,228,200,0.75)", textWrap:"pretty" }}>
-              Des projets artistiques et culturels co-construits avec les habitants, les partenaires et les structures d'un territoire, sur le temps long.
+              {tabConfig('territoire').intro}
             </p>
           </Reveal>
           {territoire.length > 0 ? (
@@ -1114,7 +1103,7 @@ const Spectacles = ({ setRoute }) => {
                       </div>
                     )}
                     <div style={{ padding:32 }}>
-                    <div style={{ display:"inline-block", background:"var(--amber-deep)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>Projet de territoire</div>
+                    <div style={{ display:"inline-block", background:getType('projet de territoire').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>{typeLabels(['projet de territoire'])}</div>
                     <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.time}</div>
                     <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
@@ -1125,7 +1114,7 @@ const Spectacles = ({ setRoute }) => {
               ))}
             </div>
           ) : (
-            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>Aucun projet de territoire en cours actuellement.</p>
+            <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('territoire').emptyMessage}</p>
           )}
         </section>
       )}
@@ -1138,11 +1127,11 @@ const Spectacles = ({ setRoute }) => {
           </div>
           <Reveal variant="up" style={{ marginBottom:32, maxWidth:560 }}>
             <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              Ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.
+              {tabConfig('ateliers').intro}
             </p>
           </Reveal>
           <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
-            {AUDIENCE_FILTERS.map(f => (
+            {audienceFilters.map(f => (
               <button key={f.id}
                 className={`tweak-pill ${atelierFilter === f.id ? "active" : ""}`}
                 onClick={() => { setAtelierFilter(f.id); setSelectedAtelier(null); }}
@@ -1152,7 +1141,7 @@ const Spectacles = ({ setRoute }) => {
             ))}
           </div>
           {atelierList.length === 0 ? (
-            <p style={{ color:"var(--ink-soft)", fontStyle:"italic" }}>Aucun atelier dans cette catégorie pour le moment.</p>
+            <p style={{ color:"var(--ink-soft)", fontStyle:"italic" }}>{tabConfig('ateliers').emptyMessage}</p>
           ) : (
             <div className="grid-3">
               {atelierList.map((a,i) => {
@@ -1265,25 +1254,12 @@ const FicheSpectacle = ({ setRoute }) => {
 };
 
 /* ======================= AGENDA CARD ======================= */
-const TYPE_CONFIG = {
-  spectacle: { label:"Spectacle", color:"var(--terra)" },
-  atelier:   { label:"Atelier",   color:"var(--plum)" },
-  résidence: { label:"Résidence", color:"var(--aubergine)" },
-  événement: { label:"Évènement", color:"var(--amber-deep)" },
-  médiation: { label:"Médiation", color:"var(--amber-deep)" },
-};
-
-const STATUS_CONFIG = {
-  available: { label:"Places disponibles", color:"var(--terra)" },
-  few:       { label:"Dernières places",   color:"var(--amber-deep)" },
-  sold:      { label:"Complet",            color:"var(--ink-soft)" },
-  free:      { label:"Entrée libre",       color:"var(--plum)" },
-};
-
 const AgendaCard = ({ d, onClick }) => {
   const { SPECTACLES } = useContent();
-  const tc = TYPE_CONFIG[d.type?.[0]] || TYPE_CONFIG.spectacle;
-  const sc = STATUS_CONFIG[d.status] || STATUS_CONFIG.available;
+  const { typeConfig, labels: typeLabels } = useTypeConfig();
+  const { statusConfig } = useStatusConfig();
+  const tc = typeConfig.find(c => c.value === d.type?.[0]) || typeConfig.find(c => c.value === 'spectacle') || {};
+  const sc = statusConfig.find(c => c.value === d.status) || statusConfig.find(c => c.value === 'available') || {};
   const spectacleData = d.spectacle ? SPECTACLES.find(s => s.id === d.spectacle) : null;
 
   return (
@@ -1337,14 +1313,6 @@ const AgendaCard = ({ d, onClick }) => {
 };
 
 /* ======================= AGENDA ======================= */
-const AGENDA_FILTERS = [
-  { id:"tout",      label:"Tout" },
-  { id:"spectacle", label:"Spectacle" },
-  { id:"atelier",   label:"Atelier" },
-  { id:"résidence", label:"Résidence" },
-  { id:"événement", label:"Évènement" },
-];
-
 const FR_MONTHS_ORDER = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
 const FR_MONTHS_FULL = {
   Jan:"Janvier", Fév:"Février", Mar:"Mars", Avr:"Avril", Mai:"Mai", Juin:"Juin",
@@ -1366,7 +1334,9 @@ function getRollingSeasonMonths(monthsAhead = 12) {
 }
 
 const Agenda = ({ setRoute }) => {
-  const { AGENDA, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
+  const { AGENDA, AGENDA_PAGE, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
+  const { typeConfig, get: getType } = useTypeConfig();
+  const agendaFilters = [{ id:"tout", label:"Tout" }, ...typeConfig.map(t => ({ id:t.value, label:t.label }))];
   const seasonMonths = getRollingSeasonMonths();
   const [filter, setFilter] = useState("tout");
   const [month, setMonth] = useState(seasonMonths[0].key);
@@ -1386,8 +1356,8 @@ const Agenda = ({ setRoute }) => {
       </div>
 
       <Reveal variant="up" className="section-head">
-        <div className="section-num">Saison</div>
-        <h2 className="section-title">Agenda.</h2>
+        <div className="section-num">{AGENDA_PAGE?.headerEyebrow}</div>
+        <h2 className="section-title">{AGENDA_PAGE?.headerTitleMain}</h2>
       </Reveal>
 
       <SectionsLibres doc={{ sections: AGENDA_SECTIONS_HAUT }}/>
@@ -1429,11 +1399,11 @@ const Agenda = ({ setRoute }) => {
       {/* Filtre type + contenu */}
       <div style={{ paddingTop:40, paddingBottom:"var(--pad-y)" }}>
         <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
-          {AGENDA_FILTERS.map(f => (
+          {agendaFilters.map(f => (
             <button key={f.id}
               className={`tweak-pill ${filter === f.id ? "active" : ""}`}
               onClick={() => setFilter(f.id)}
-              style={ filter === f.id && f.id !== "tout" ? { background: TYPE_CONFIG[f.id]?.color, color:"#fff", borderColor: TYPE_CONFIG[f.id]?.color } : {} }
+              style={ filter === f.id && f.id !== "tout" ? { background: getType(f.id).color, color:"#fff", borderColor: getType(f.id).color } : {} }
             >
               {f.label}
             </button>
@@ -1467,6 +1437,8 @@ const Agenda = ({ setRoute }) => {
 const FicheAgenda = ({ setRoute }) => {
   const { slug } = useParams();
   const { AGENDA, SPECTACLES } = useContent();
+  const { typeConfig, labels: typeLabels } = useTypeConfig();
+  const { statusConfig } = useStatusConfig();
   const d = AGENDA.find(x => agendaSlug(x) === slug);
 
   if (!d) {
@@ -1480,8 +1452,8 @@ const FicheAgenda = ({ setRoute }) => {
     );
   }
 
-  const tc = TYPE_CONFIG[d.type?.[0]] || TYPE_CONFIG.spectacle;
-  const sc = STATUS_CONFIG[d.status] || STATUS_CONFIG.available;
+  const tc = typeConfig.find(c => c.value === d.type?.[0]) || typeConfig.find(c => c.value === 'spectacle') || {};
+  const sc = statusConfig.find(c => c.value === d.status) || statusConfig.find(c => c.value === 'available') || {};
   const sp = d.spectacle ? SPECTACLES.find(s => s.id === d.spectacle) : null;
   const isAtelier = d.type?.includes("atelier");
 
@@ -1570,19 +1542,18 @@ const FicheAgenda = ({ setRoute }) => {
 };
 
 /* ======================= ATELIERS ======================= */
-const AUDIENCE_FILTERS = [
-  { id:"",         label:"Tous" },
-  { id:"enfants",  label:"Enfants" },
-  { id:"ados",     label:"Ados" },
-  { id:"adultes",  label:"Adultes" },
-  { id:"ecole",    label:"Milieu scolaire" },
-  { id:"seniors",  label:"Personnes âgées" },
-  { id:"quartier", label:"Quartier" },
-  { id:"insertion",label:"Insertion sociale" },
+// Liste de filtres "public" construite depuis agendaPage.audienceConfig —
+// un seul endroit éditable pour les deux écrans qui filtrent les ateliers
+// par public (l'onglet "Ateliers" de Notre travail et la page Ateliers).
+const buildAudienceFilters = (AGENDA_PAGE) => [
+  { id:"", label: AGENDA_PAGE?.audienceAllLabel },
+  ...(AGENDA_PAGE?.audienceConfig || []).map(a => ({ id:a.value, label:a.label })),
 ];
 
 const Ateliers = ({ audience = "" }) => {
-  const { AGENDA, ATELIERS_SECTIONS, ATELIERS_SECTIONS_HAUT } = useContent();
+  const { AGENDA, AGENDA_PAGE, SPECTACLES_PAGE, ATELIERS_PAGE, ATELIERS_SECTIONS, ATELIERS_SECTIONS_HAUT } = useContent();
+  const audienceFilters = buildAudienceFilters(AGENDA_PAGE);
+  const ateliersEmptyMessage = SPECTACLES_PAGE?.travailTabs?.find(t => t.value === 'ateliers')?.emptyMessage;
   const ateliersAgenda = useMemo(() => AGENDA.filter(d => d.type?.includes("atelier")), [AGENDA]);
   const [filter, setFilter] = useState(audience);
   const [selected, setSelected] = useState(null);
@@ -1613,16 +1584,16 @@ const Ateliers = ({ audience = "" }) => {
           <Motif size={380} color="var(--amber-deep)" berryColor="var(--terra)" rotate={-30} seed={3}/>
         </div>
         <Reveal variant="up" className="section-head">
-          <div className="section-num">Pratiques</div>
-          <h2 className="section-title">Ateliers<br/><span className="display-italic">& pratiques.</span></h2>
-          <div className="section-meta">Ateliers réguliers à la Filature de l'Isle et en quartier. Activités gratuites ou à tarif accessible. Inscriptions ouvertes.</div>
+          <div className="section-num">{ATELIERS_PAGE?.headerEyebrow}</div>
+          <h2 className="section-title">{ATELIERS_PAGE?.headerTitleMain}<br/><span className="display-italic">{ATELIERS_PAGE?.headerTitleItalic}</span></h2>
+          <div className="section-meta">{ATELIERS_PAGE?.headerMeta}</div>
         </Reveal>
 
         <SectionsLibres doc={{ sections: ATELIERS_SECTIONS_HAUT }}/>
 
         {/* Filtre par public */}
         <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
-          {AUDIENCE_FILTERS.map(f => (
+          {audienceFilters.map(f => (
             <button key={f.id}
               className={`tweak-pill ${filter === f.id ? "active" : ""}`}
               onClick={() => { setFilter(f.id); setSelected(null); }}
@@ -1633,7 +1604,7 @@ const Ateliers = ({ audience = "" }) => {
         </div>
 
         {list.length === 0 ? (
-          <p style={{ color:"var(--ink-soft)", fontStyle:"italic" }}>Aucun atelier dans cette catégorie pour le moment.</p>
+          <p style={{ color:"var(--ink-soft)", fontStyle:"italic" }}>{ateliersEmptyMessage}</p>
         ) : (
           <div className="grid-3">
             {list.map((a,i) => {
@@ -1701,7 +1672,7 @@ const Ateliers = ({ audience = "" }) => {
 const TEAM_PALETTE = ["#B84A2E","#9B7AA8","#E8B542","#3A1B2E","#8E3620","#C89420","#9B7AA8","#3A1B2E"];
 
 const Equipe = ({ setRoute }) => {
-  const { EQUIPE, EQUIPE_SECTIONS, EQUIPE_SECTIONS_HAUT } = useContent();
+  const { EQUIPE, EQUIPE_PAGE, EQUIPE_SECTIONS, EQUIPE_SECTIONS_HAUT } = useContent();
   const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), [EQUIPE]);
   const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), [EQUIPE]);
   const conseilAdmin = useMemo(() => EQUIPE.filter(p => p.categorie === "conseil_administration"), [EQUIPE]);
@@ -1710,9 +1681,9 @@ const Equipe = ({ setRoute }) => {
     <>
       <section className="section" style={{ paddingBottom:40 }}>
         <div className="section-head">
-          <div className="section-num">Équipe</div>
-          <h2 className="section-title">Un collectif <span className="display-italic">au service</span><br/>de la création.</h2>
-          <div className="section-meta">Rouletabille est une association portée par un conseil d'administration, une équipe permanente et un réseau d'artistes associés. Les décisions artistiques et le développement du projet se construisent collectivement, dans une logique de coopération et de responsabilité partagée.</div>
+          <div className="section-num">{EQUIPE_PAGE?.headerEyebrow}</div>
+          <h2 className="section-title">{EQUIPE_PAGE?.headerTitleMain}<br/><span className="display-italic">{EQUIPE_PAGE?.headerTitleItalic}</span></h2>
+          <div className="section-meta">{EQUIPE_PAGE?.headerMeta}</div>
         </div>
       </section>
 
@@ -1779,20 +1750,20 @@ const Equipe = ({ setRoute }) => {
       <section className="section">
         <div className="col-duo" style={{ gap:80, alignItems:"start" }}>
           <div>
-            <div className="eyebrow" style={{ marginBottom:20 }}>Compagnons de route</div>
+            <div className="eyebrow" style={{ marginBottom:20 }}>{EQUIPE_PAGE?.compagnonsBlock?.eyebrow}</div>
             <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty" }}>
-              Depuis plus de trente ans, Rouletabille grandit grâce à toutes celles et ceux qui croisent son chemin. Artistes, technicien·nes, costumières, constructeur·rices, bénévoles, salarié·es, volontaires en service civique, stagiaires… chacun·e a contribué, à sa manière, à faire vivre la compagnie et ce lieu de création. Une fabrique artistique se construit autant avec celles et ceux qui l'animent aujourd'hui qu'avec toutes les personnes qui en ont écrit l'histoire.
+              {EQUIPE_PAGE?.compagnonsBlock?.texte}
             </p>
             <p style={{ fontSize:16, lineHeight:1.6, color:"var(--ink-soft)", fontStyle:"italic", marginTop:16, textWrap:"pretty" }}>
-              Justine, Mathieu, David, Antonio, Léon, Sylvano, Will, Guillaume, Cyril, Coline, Delphine, Margaux, Hamza, Rime, Pierre, Marie, Lucille, Margot ...
+              {(EQUIPE_PAGE?.compagnonsBlock?.noms || []).join(", ")}
             </p>
           </div>
           <div>
-            <div className="eyebrow" style={{ marginBottom:20 }}>Bénévoles</div>
+            <div className="eyebrow" style={{ marginBottom:20 }}>{EQUIPE_PAGE?.benevolesBlock?.eyebrow}</div>
             <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", marginBottom:24, textWrap:"pretty" }}>
-              Ils accueillent. Ils construisent. Ils installent. Ils cuisinent. Ils transportent. Ils discutent avec le public. Ils ouvrent les portes. Ils font vivre Rouletabille — sans eux, beaucoup de projets n'existeraient pas.
+              {EQUIPE_PAGE?.benevolesBlock?.texte}
             </p>
-            <button className="btn btn-amber" onClick={() => setRoute("contact")}>Devenir bénévole →</button>
+            <button className="btn btn-amber" onClick={() => setRoute("contact")}>{EQUIPE_PAGE?.benevolesBlock?.ctaLabel}</button>
           </div>
         </div>
       </section>
@@ -1802,29 +1773,6 @@ const Equipe = ({ setRoute }) => {
 };
 
 /* ======================= PARTENAIRES ======================= */
-const TYPE_META = {
-  'Soutien institutionnel': {
-    accent: 'var(--terra)',
-    bg: 'var(--terra)',
-    desc: "Financeurs et soutiens officiels. La Rouletabille fabrique artistique et culturelle est labellisée « Lieu de fabrique » par la Région et l'Agence Culturelle de la Dordogne.",
-  },
-  'Partenaires artistiques': {
-    accent: 'var(--plum)',
-    bg: 'var(--plum)',
-    desc: "Compagnies et lieux avec lesquels nous créons, co-produisons et co-diffusons en territoire.",
-  },
-  'Action culturelle & territoire': {
-    accent: 'var(--aubergine)',
-    bg: 'var(--aubergine)',
-    desc: "Associations, centres sociaux et acteurs de terrain qui portent avec nous les projets de médiation culturelle en Dordogne.",
-  },
-  'Éducation': {
-    accent: '#7A6010',
-    bg: 'var(--amber)',
-    desc: "Établissements scolaires et structures éducatives partenaires de nos interventions artistiques.",
-  },
-};
-
 const PartnerLogo = ({ partner, bg }) => {
   const initials = partner.name.split(/[\s&–-]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
   if (partner.image) {
@@ -1847,7 +1795,8 @@ const PartnerLogo = ({ partner, bg }) => {
 };
 
 const Partenaires = () => {
-  const { PARTENAIRES, PARTENAIRES_SECTIONS, PARTENAIRES_SECTIONS_HAUT } = useContent();
+  const { PARTENAIRES, PARTENAIRES_PAGE, PARTENAIRES_SECTIONS, PARTENAIRES_SECTIONS_HAUT } = useContent();
+  const categoryConfig = PARTENAIRES_PAGE?.categoryConfig || [];
   const motifRef = useParallax(0.16, 100);
   const groups = useMemo(() => {
     const g = {};
@@ -1862,15 +1811,16 @@ const Partenaires = () => {
         <Motif size={420} color="var(--terra)" berryColor="var(--amber)" rotate={180} seed={3.5}/>
       </div>
       <div className="section-head">
-        <div className="section-num">Soutiens</div>
-        <h2 className="section-title">Partenaires<br/><span className="display-italic">& soutiens.</span></h2>
-        <div className="section-meta">Plus de 30 partenaires contribuent activement à la vie de la compagnie — institutions, artistes, associations de quartier, écoles.</div>
+        <div className="section-num">{PARTENAIRES_PAGE?.headerEyebrow}</div>
+        <h2 className="section-title">{PARTENAIRES_PAGE?.headerTitleMain}<br/><span className="display-italic">{PARTENAIRES_PAGE?.headerTitleItalic}</span></h2>
+        <div className="section-meta">{PARTENAIRES_PAGE?.headerMeta}</div>
       </div>
 
       <SectionsLibres doc={{ sections: PARTENAIRES_SECTIONS_HAUT }}/>
 
       {Object.entries(groups).map(([type, list]) => {
-        const meta = TYPE_META[type] || { accent:'var(--ink)', bg:'var(--ink)', desc:'' };
+        const cfg = categoryConfig.find(c => c.value === type) || {};
+        const meta = { accent: cfg.accentColor || 'var(--ink)', bg: cfg.bgColor || 'var(--ink)', desc: cfg.description || '' };
         return (
           <div key={type} style={{ marginBottom:64 }}>
             {/* En-tête de groupe */}
@@ -1925,21 +1875,16 @@ const Partenaires = () => {
 };
 
 /* ======================= PRESSE ======================= */
-const PRESS_KIT = [
-  { file: "logo-cie-rouletabille.svg", label: "Logo (SVG)", desc: "Motif physalis, fond transparent" },
-  { file: "photo-physalis-1.jpg", label: "Visuel physalis 1 (JPG)", desc: "Macro du motif végétal de la compagnie — haute définition, libre de droits" },
-  { file: "photo-physalis-2.jpg", label: "Visuel physalis 2 (JPG)", desc: "Macro du motif végétal de la compagnie — haute définition, libre de droits" },
-];
-
 const Presse = () => {
   const { PRESSE } = useContent();
+  const pressKit = PRESSE.pressKit || [];
   return (
   <>
   <section className="section">
     <div className="section-head">
-      <div className="section-num">Presse</div>
-      <h2 className="section-title">Dossier de <span className="display-italic">presse.</span></h2>
-      <div className="section-meta">Présentation de la compagnie et visuels libres de droits pour la presse.</div>
+      <div className="section-num">{PRESSE.headerEyebrow}</div>
+      <h2 className="section-title">{PRESSE.headerTitleMain} <span className="display-italic">{PRESSE.headerTitleItalic}</span></h2>
+      <div className="section-meta">{PRESSE.headerMeta}</div>
     </div>
 
     <SectionsLibres doc={{ sections: PRESSE.sectionsHaut }}/>
@@ -1948,20 +1893,20 @@ const Presse = () => {
       <div>
         <RichText content={PRESSE.intro} style={{ fontSize:20, lineHeight:1.6, marginBottom:24, color:"var(--ink-soft)", textWrap:"pretty" }}/>
         <p style={{ fontSize:16, lineHeight:1.6, color:"var(--ink-soft)" }}>
-          Pour toute demande d'interview, de photo supplémentaire ou d'accréditation, écrivez-nous directement : <a href={`mailto:${PRESSE.contactEmail}?subject=Demande%20presse`} style={{ color:"var(--terra)" }}>{PRESSE.contactEmail}</a>.
+          {PRESSE.introInterview} <a href={`mailto:${PRESSE.contactEmail}?subject=Demande%20presse`} style={{ color:"var(--terra)" }}>{PRESSE.contactEmail}</a>.
         </p>
       </div>
       <div>
-        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Téléchargements</div>
-        {PRESS_KIT.map(item => (
-          <a key={item.file} href={`/presse/${item.file}`} download
+        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>{PRESSE.telechargementsLabel}</div>
+        {pressKit.map(item => (
+          <a key={item.file?.asset?.url || item.label} href={item.file?.asset?.url} download={item.file?.asset?.originalFilename}
             style={{
               display:"flex", justifyContent:"space-between", alignItems:"center", gap:16,
               padding:"18px 0", borderTop:"1px solid var(--rule)", textDecoration:"none", color:"inherit",
             }}>
             <div>
               <div style={{ fontSize:17 }}>{item.label}</div>
-              <div className="mono" style={{ fontSize:12, opacity:0.5, marginTop:4 }}>{item.desc}</div>
+              <div className="mono" style={{ fontSize:12, opacity:0.5, marginTop:4 }}>{item.description}</div>
             </div>
             <span style={{ fontSize:20, opacity:0.5, flexShrink:0 }}>↓</span>
           </a>
@@ -1999,8 +1944,8 @@ const Contact = () => {
           <Motif size={460} color="var(--terra)" berryColor="var(--amber)" rotate={-15} seed={4}/>
         </div>
         <div className="section-head">
-          <div className="section-num">Nous joindre</div>
-          <h2 className="section-title">Écrivez-<span className="display-italic">nous,</span><br/>passez nous voir.</h2>
+          <div className="section-num">{CONTACT.headerEyebrow}</div>
+          <h2 className="section-title">{CONTACT.headerTitleMain}<br/><span className="display-italic">{CONTACT.headerTitleItalic}</span></h2>
           <RichText content={CONTACT.meta} className="section-meta"/>
         </div>
 
@@ -2194,7 +2139,13 @@ const MentionsLegales = () => {
 const footerLinkStyle = { color:"inherit", textDecoration:"none" };
 
 const Footer = () => {
-  const { FOOTER } = useContent();
+  const { FOOTER, MENU, SITE } = useContent();
+  const socialLinks = [
+    { label: "Instagram", url: SITE?.instagramUrl },
+    { label: "Facebook", url: SITE?.facebookUrl },
+    { label: "LinkedIn", url: SITE?.linkedinUrl },
+    { label: "HelloAsso", url: SITE?.helloAssoUrl },
+  ];
   return (
   <footer className="footer">
     <div className="col-footer" style={{ marginBottom:48 }}>
@@ -2202,38 +2153,39 @@ const Footer = () => {
         <Link to="/" className="nav-logo" style={{ color:"var(--paper)", textDecoration:"none", marginBottom:16 }}>
           <MotifMark size={36} color="var(--paper)"/>
           <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
-            <span style={{ fontSize:32 }}>Rouletabille</span>
-            <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4, lineHeight:1.3 }}>Fabrique artistique<br/>et culturelle</span>
+            <span style={{ fontSize:32 }}>{SITE?.brandName}</span>
+            <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4, lineHeight:1.3 }}>{SITE?.brandTaglineLine1}<br/>{SITE?.brandTaglineLine2}</span>
           </span>
         </Link>
         <RichText content={FOOTER.tagline} style={{ opacity:0.7, fontSize:14, lineHeight:1.6, maxWidth:340 }}/>
       </div>
       <div>
-        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Découvrir</div>
+        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>{FOOTER.colDecouvrirTitle}</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li><Link to="/spectacles" style={footerLinkStyle}>Notre travail</Link></li>
-          <li><Link to="/agenda" style={footerLinkStyle}>Agenda</Link></li>
-          <li><Link to="/equipe" style={footerLinkStyle}>Équipe</Link></li>
-          <li><Link to="/partenaires" style={footerLinkStyle}>Partenaires</Link></li>
+          <li><Link to="/spectacles" style={footerLinkStyle}>{MENU.labelSpectacles}</Link></li>
+          <li><Link to="/agenda" style={footerLinkStyle}>{MENU.labelAgenda}</Link></li>
+          <li><Link to="/equipe" style={footerLinkStyle}>{MENU.labelEquipe}</Link></li>
+          <li><Link to="/partenaires" style={footerLinkStyle}>{MENU.labelPartenaires}</Link></li>
         </ul>
       </div>
       <div>
-        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Pratique</div>
+        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>{FOOTER.colPratiqueTitle}</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li><Link to="/contact" style={footerLinkStyle}>Contact</Link></li>
-          <li><Link to="/contact" style={footerLinkStyle}>Venir à l'atelier</Link></li>
-          <li><Link to="/presse" style={footerLinkStyle}>Dossiers de presse</Link></li>
-          <li><Link to="/mentions-legales" style={footerLinkStyle}>Mentions légales</Link></li>
+          <li><Link to="/contact" style={footerLinkStyle}>{MENU.labelContact}</Link></li>
+          <li><Link to="/contact" style={footerLinkStyle}>{FOOTER.linkVenirAtelier}</Link></li>
+          <li><Link to="/presse" style={footerLinkStyle}>{FOOTER.linkDossiersPresse}</Link></li>
+          <li><Link to="/mentions-legales" style={footerLinkStyle}>{FOOTER.linkMentionsLegales}</Link></li>
         </ul>
       </div>
       <div>
-        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>Suivre</div>
+        <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>{FOOTER.colSuivreTitle}</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li><a href="https://www.instagram.com/rouletabilletheatre" target="_blank" rel="noopener" style={footerLinkStyle}>Instagram</a></li>
-          <li>Facebook</li>
-          <li>LinkedIn</li>
-          <li>HelloAsso</li>
-          <li><Link to="/contact" style={footerLinkStyle}>Newsletter</Link></li>
+          {socialLinks.map(s => (
+            <li key={s.label}>
+              {s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer" style={footerLinkStyle}>{s.label}</a> : s.label}
+            </li>
+          ))}
+          <li><Link to="/contact" style={footerLinkStyle}>{FOOTER.linkNewsletter}</Link></li>
         </ul>
       </div>
     </div>
