@@ -137,7 +137,7 @@ h1, h2, h3 { font-family: var(--ff-display); font-weight: 400; letter-spacing:-0
   border-bottom: 1px solid var(--rule);
 }
 .nav-logo {
-  font-family: var(--ff-display); font-style:italic;
+  font-family: var(--ff-display);
   font-size: 26px; color: var(--ink);
   display:flex; align-items:center; gap:10px;
 }
@@ -392,7 +392,7 @@ a { color: inherit; }
 /* Titre — cinematic reveal lettre par lettre (inspiré 21st.dev) */
 .curtain-title-wrap {
   line-height: 1.05;
-  font-family: var(--ff-display); font-style: italic;
+  font-family: var(--ff-display);
   font-size: clamp(52px, 9.5vw, 118px);
   font-weight: 600; letter-spacing: -0.03em;
   color: var(--paper);

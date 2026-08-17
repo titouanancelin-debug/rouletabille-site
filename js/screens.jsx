@@ -2092,7 +2092,7 @@ const Footer = () => {
     <div className="col-footer" style={{ marginBottom:48 }}>
       <div>
         <Link to="/" className="nav-logo" style={{ color:"var(--paper)", textDecoration:"none", marginBottom:16 }}>
-          <MotifMark size={36} color="var(--paper)"/>
+          <MotifMark size={36} color="var(--terra)"/>
           <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
             <span style={{ fontSize:32 }}>{SITE?.brandName}</span>
             <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4, lineHeight:1.3 }}>{SITE?.brandTaglineLine1}<br/>{SITE?.brandTaglineLine2}</span>
