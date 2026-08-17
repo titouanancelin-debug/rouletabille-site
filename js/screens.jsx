@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Motif, MotifHero, MotifMark, Poster } from './motif.jsx';
+import { Motif, MotifHero, Poster } from './motif.jsx';
 import { useContent } from './content-context.jsx';
 import { RichText, SectionsLibres } from './rich-content.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
@@ -97,7 +97,7 @@ const Nav = ({ route }) => {
   return (
     <nav className={`nav ${scrolled ? "is-scrolled" : ""}`}>
       <Link to="/" className="nav-logo" style={{ textDecoration:"none" }}>
-        <MotifMark size={32} color="var(--terra)"/>
+        <img src="/lantern-mark.png" alt="" width={32} height={32} style={{ borderRadius:"50%", display:"block", flexShrink:0 }}/>
         <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
           <span>{SITE?.brandName}</span>
           <span style={{ fontSize:11, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.55, marginTop:3, lineHeight:1.3 }}>{SITE?.brandTaglineLine1}<br/>{SITE?.brandTaglineLine2}</span>
@@ -2092,7 +2092,7 @@ const Footer = () => {
     <div className="col-footer" style={{ marginBottom:48 }}>
       <div>
         <Link to="/" className="nav-logo" style={{ color:"var(--paper)", textDecoration:"none", marginBottom:16 }}>
-          <MotifMark size={36} color="var(--terra)"/>
+          <img src="/lantern-mark.png" alt="" width={36} height={36} style={{ borderRadius:"50%", display:"block", flexShrink:0 }}/>
           <span style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
             <span style={{ fontSize:32 }}>{SITE?.brandName}</span>
             <span style={{ fontSize:13, fontFamily:"var(--ff-display)", fontStyle:"italic", opacity:0.65, marginTop:4, lineHeight:1.3 }}>{SITE?.brandTaglineLine1}<br/>{SITE?.brandTaglineLine2}</span>
