@@ -8,7 +8,7 @@ const SINGLETONS = [
   ['siteSettings', 'Réglages du site'],
   ['home', 'Accueil'],
   ['contact', 'Contact'],
-  ['presse', 'Presse'],
+  ['presse', 'Documents'],
   ['mentionsLegales', 'Mentions légales'],
   ['footer', 'Footer'],
   ['newsletter', 'Newsletter'],
