@@ -16,6 +16,7 @@ export const spectacle = defineType({
     defineField({ name: 'mes', title: 'Mise en scène', type: 'string' }),
     defineField({ name: 'with', title: 'Avec (distribution)', type: 'string' }),
     defineField({ name: 'desc', title: 'Description', type: 'text' }),
+    defineField({ name: 'dossier', title: 'Dossier du spectacle (PDF)', type: 'file' }),
     defineField({ name: 'image', title: 'Image', type: 'image' }),
     defineField({ name: 'color', title: 'Couleur de fond (affiche)', type: 'string' }),
     defineField({ name: 'textColor', title: 'Couleur du texte (affiche)', type: 'string' }),

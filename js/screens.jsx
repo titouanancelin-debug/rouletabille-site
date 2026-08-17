@@ -1231,9 +1231,15 @@ const FicheSpectacle = ({ setRoute }) => {
               <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Mise en scène</div><div>{s.mes}</div></div>
               <div style={{ gridColumn:"1 / -1" }}><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Avec</div><div>{s.with}</div></div>
             </div>
-            <div style={{ display:"flex", gap:12 }}>
+            <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
               <button className="btn" onClick={() => setRoute("agenda")}>Voir les dates ({dates.length})</button>
-              <button className="btn btn-ghost" onClick={() => setRoute("presse")}>Dossier de presse ↓</button>
+              {s.dossier?.asset?.url ? (
+                <a className="btn btn-ghost" href={s.dossier.asset.url} download={s.dossier.asset.originalFilename}>
+                  Dossier du spectacle ↓
+                </a>
+              ) : (
+                <button className="btn btn-ghost" onClick={() => setRoute("presse")}>Dossier de presse ↓</button>
+              )}
             </div>
           </div>
         </div>

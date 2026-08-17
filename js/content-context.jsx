@@ -9,7 +9,8 @@ import { expandRecurrence } from './recurrence.js';
 
 const QUERY = `{
   "spectacles": *[_type == "spectacle"]{
-    ..., "id": slug.current, "image": image.asset->url
+    ..., "id": slug.current, "image": image.asset->url,
+    "dossier": {"asset": {"url": dossier.asset->url, "originalFilename": dossier.asset->originalFilename}}
   },
   "spectaclesPage": *[_id == "spectaclesPage"][0],
   "agenda": *[_type == "agenda"]{
