@@ -171,6 +171,13 @@ const Poster = ({ bg = "#B84A2E", ink = "#F4E8D5", title = "", subtitle = "", nu
       <g transform="translate(300,280) scale(0.6)"><Lantern color={ink} berry={ink} delay={1.5} dur={5} veins={3}/></g>
     </g>,
   ];
+  // La taille du titre s'adapte à sa longueur : un prénom court ("Nancy")
+  // reste grand et affirmé, mais un nom de partenaire ou un titre de
+  // spectacle plus long ("Département de la Dordogne") se réduit par
+  // paliers pour rester dans le cadre au lieu de le déborder.
+  const len = (title || "").length;
+  const titleSize = len <= 10 ? 42 : len <= 14 ? 34 : len <= 18 ? 28 : len <= 24 ? 23 : len <= 30 ? 19 : 16;
+
   return (
     <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" style={{ width:"100%", height:"100%", display:"block" }} xmlns="http://www.w3.org/2000/svg">
       <rect width="400" height="500" fill={bg}/>
@@ -181,7 +188,7 @@ const Poster = ({ bg = "#B84A2E", ink = "#F4E8D5", title = "", subtitle = "", nu
         ))}
       </g>
       {comps[variant % comps.length]}
-      <text x="24" y="442" fill={ink} style={{ fontFamily:"var(--ff-display)", fontSize:"42px", fontStyle:"italic", letterSpacing:"-0.02em" }}>{title}</text>
+      <text x="24" y="442" fill={ink} style={{ fontFamily:"var(--ff-display)", fontSize:`${titleSize}px`, fontStyle:"italic", letterSpacing:"-0.02em" }}>{title}</text>
       {subtitle && (
         <text x="24" y="470" fill={ink} opacity="0.8" style={{ fontFamily:"var(--ff-mono)", fontSize:"11px", letterSpacing:"2px", textTransform:"uppercase" }}>{subtitle}</text>
       )}
