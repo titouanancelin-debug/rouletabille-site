@@ -1714,27 +1714,6 @@ const Equipe = ({ setRoute }) => {
 };
 
 /* ======================= PARTENAIRES ======================= */
-const PartnerLogo = ({ partner, bg }) => {
-  const initials = partner.name.split(/[\s&–-]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
-  if (partner.image) {
-    return (
-      <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
-        <CardPhoto item={partner} alt={partner.name}/>
-      </div>
-    );
-  }
-  return (
-    <div aria-hidden="true" style={{
-      width: 44, height: 44, borderRadius: '50%', background: bg, color: '#F4E8D5',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'var(--ff-display)', fontSize: 14, fontWeight: 700, flexShrink: 0,
-      opacity: 0.9,
-    }}>
-      {initials}
-    </div>
-  );
-};
-
 const Partenaires = () => {
   const { PARTENAIRES, PARTENAIRES_PAGE, PARTENAIRES_SECTIONS, PARTENAIRES_SECTIONS_HAUT } = useContent();
   const categoryConfig = PARTENAIRES_PAGE?.categoryConfig || [];
@@ -1775,33 +1754,25 @@ const Partenaires = () => {
               </div>
             </div>
 
-            {/* Grille des partenaires */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:2 }}>
-              {list.map(p => {
+            {/* Grille des partenaires — motif visible par défaut, se retourne
+                au survol pour révéler le logo (même effet que les cartes
+                équipe, voir TeamCardVisual). */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))', gap:32 }}>
+              {list.map((p, i) => {
                 const Tag = p.url ? 'a' : 'div';
                 return (
                   <Tag
                     key={p.name}
                     {...(p.url ? { href: p.url, target:'_blank', rel:'noopener noreferrer' } : {})}
-                    style={{
-                      display:'flex', alignItems:'center', gap:14,
-                      padding:'16px 20px',
-                      background:'var(--paper-warm)',
-                      border:'1px solid var(--rule)',
-                      textDecoration:'none', color:'inherit',
-                      transition:'background 0.15s, border-color 0.15s',
-                      cursor: p.url ? 'pointer' : 'default',
-                    }}
-                    onMouseEnter={p.url ? e => { e.currentTarget.style.background='var(--paper-deep)'; e.currentTarget.style.borderColor=meta.accent; } : undefined}
-                    onMouseLeave={p.url ? e => { e.currentTarget.style.background='var(--paper-warm)'; e.currentTarget.style.borderColor='var(--rule)'; } : undefined}
+                    style={{ textDecoration:'none', color:'inherit', display:'block' }}
                   >
-                    <PartnerLogo partner={p} bg={meta.bg} />
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }}>{p.name}</div>
+                    <div className="noise" style={{ background: meta.bg, aspectRatio:'4/5', position:'relative', overflow:'hidden', marginBottom:14 }}>
+                      <TeamCardVisual item={p} bg={meta.bg} ink="#F4E8D5" title={p.name} num={String(i+1).padStart(2,'0')} variant={i % 4}/>
                     </div>
-                    {p.url && (
-                      <span style={{ fontSize:12, opacity:0.35, flexShrink:0 }}>↗</span>
-                    )}
+                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                      <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }}>{p.name}</div>
+                      {p.url && <span style={{ fontSize:12, opacity:0.35, flexShrink:0 }}>↗</span>}
+                    </div>
                   </Tag>
                 );
               })}

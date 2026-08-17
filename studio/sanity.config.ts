@@ -46,6 +46,36 @@ const equipeStructure = (S: any, context: any) =>
         ])
     );
 
+// Partenaires : une liste triable par glisser-déposer par catégorie (même
+// principe que l'équipe) — l'ordre d'affichage voulu diffère d'une catégorie
+// à l'autre et n'a rien à voir avec l'ordre de création des fiches.
+const partenairesStructure = (S: any, context: any) =>
+  S.listItem()
+    .title('Partenaires')
+    .schemaType('partenaire')
+    .child(
+      S.list()
+        .title('Partenaires')
+        .items([
+          orderableDocumentListDeskItem({
+            type: 'partenaire', id: 'partenaires-territoire', title: 'Action culturelle & territoire',
+            filter: 'type == "Action culturelle & territoire"', S, context,
+          }),
+          orderableDocumentListDeskItem({
+            type: 'partenaire', id: 'partenaires-artistiques', title: 'Partenaires artistiques',
+            filter: 'type == "Partenaires artistiques"', S, context,
+          }),
+          orderableDocumentListDeskItem({
+            type: 'partenaire', id: 'partenaires-institutionnel', title: 'Soutien institutionnel',
+            filter: 'type == "Soutien institutionnel"', S, context,
+          }),
+          orderableDocumentListDeskItem({
+            type: 'partenaire', id: 'partenaires-education', title: 'Éducation',
+            filter: 'type == "Éducation"', S, context,
+          }),
+        ])
+    );
+
 const structure = (S: any, context: any) =>
   S.list()
     .title('Contenu')
@@ -55,7 +85,7 @@ const structure = (S: any, context: any) =>
       S.divider(),
       S.listItem().title('Spectacles').schemaType('spectacle').child(S.documentTypeList('spectacle').title('Spectacles')),
       equipeStructure(S, context),
-      S.listItem().title('Partenaires').schemaType('partenaire').child(S.documentTypeList('partenaire').title('Partenaires')),
+      partenairesStructure(S, context),
       S.listItem().title('Archives').schemaType('archiveArticle').child(S.documentTypeList('archiveArticle').title('Archives')),
       S.divider(),
       ...SINGLETONS.map(([name, title]) =>
