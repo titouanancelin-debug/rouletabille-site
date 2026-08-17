@@ -17,7 +17,8 @@ const QUERY = `{
     ...,
     "day": dateGroup.day, "month": dateGroup.month, "year": dateGroup.year,
     "spectacle": spectacle->slug.current,
-    "image": image.asset->url
+    "image": image.asset->url,
+    "dossier": {"asset": {"url": dossier.asset->url, "originalFilename": dossier.asset->originalFilename}}
   },
   "agendaPage": *[_id == "agendaPage"][0],
   "ateliersPage": *[_id == "ateliersPage"][0],
