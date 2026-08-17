@@ -16,9 +16,21 @@ const portableTextComponents = {
   },
 };
 
+/* Certains champs "Description" (agenda.desc, spectacle.desc) sont un simple
+   textarea Sanity (type "text"), pas du Portable Text : passer une chaîne
+   brute à <PortableText> échoue silencieusement (avertissement "Unknown
+   block type" en console, rien à l'écran). On rend ces cas en paragraphes
+   simples plutôt qu'en Portable Text. */
 export const RichText = ({ content, className, style }) => {
   if (!content || (Array.isArray(content) && content.length === 0)) return null;
   const cls = `rich${className ? ' ' + className : ''}`;
+  if (typeof content === 'string') {
+    return (
+      <div className={cls} style={style}>
+        {content.split(/\n+/).filter(Boolean).map((para, i) => <p key={i}>{para}</p>)}
+      </div>
+    );
+  }
   return (
     <div className={cls} style={style}>
       <PortableText value={content} components={portableTextComponents}/>
