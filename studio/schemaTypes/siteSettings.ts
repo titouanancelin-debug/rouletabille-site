@@ -13,6 +13,7 @@ export const siteSettings = defineType({
     defineField({ name: 'heroLocation', title: 'Localisation (carte hero)', type: 'string' }),
     defineField({ name: 'heroFounded', title: 'Année de création (carte hero)', type: 'string' }),
     defineField({ name: 'instagramUrl', title: 'Instagram', type: 'url' }),
+    defineField({ name: 'youtubeUrl', title: 'YouTube', type: 'url' }),
     defineField({ name: 'facebookUrl', title: 'Facebook', type: 'url' }),
     defineField({ name: 'linkedinUrl', title: 'LinkedIn', type: 'url' }),
     defineField({ name: 'helloAssoUrl', title: 'HelloAsso', type: 'url' }),

@@ -2067,6 +2067,7 @@ const Footer = () => {
   const { FOOTER, MENU, SITE } = useContent();
   const socialLinks = [
     { label: "Instagram", url: SITE?.instagramUrl },
+    { label: "YouTube", url: SITE?.youtubeUrl },
     { label: "Facebook", url: SITE?.facebookUrl },
     { label: "LinkedIn", url: SITE?.linkedinUrl },
     { label: "HelloAsso", url: SITE?.helloAssoUrl },
