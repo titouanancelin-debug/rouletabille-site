@@ -32,7 +32,7 @@ export const agenda = defineType({
     defineField({
       name: 'type', title: 'Type', type: 'array',
       of: [{ type: 'string' }],
-      options: { list: ['spectacle', 'atelier', 'résidence', 'événement', 'médiation', 'projet de territoire'] },
+      options: { list: ['résidence', 'atelier', 'médiation', 'événement', 'projet de territoire', 'spectacle'] },
       validation: (Rule) => Rule.required().min(1),
       fieldset: 'principal',
     }),

@@ -1175,7 +1175,7 @@ const AgendaCard = ({ d, onClick }) => {
     >
       {/* Visual header */}
       <div style={{
-        position:"relative", aspectRatio:"3/2", overflow:"hidden",
+        position:"relative", aspectRatio:"16/9", overflow:"hidden",
         background: spectacleData ? spectacleData.color : (d.cardColor || "var(--paper-warm)"),
       }}>
         {d.image ? (
