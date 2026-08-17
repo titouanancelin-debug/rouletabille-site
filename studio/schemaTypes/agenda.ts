@@ -69,7 +69,13 @@ export const agenda = defineType({
       name: 'dateGroup', title: 'Date (rendez-vous ponctuel)', type: 'object',
       fields: [
         { name: 'day', title: 'Jour (ex: "20" ou "20-24")', type: 'string' },
-        { name: 'month', title: 'Mois (ex: "Juil")', type: 'string' },
+        {
+          name: 'month', title: 'Mois', type: 'string',
+          options: {
+            list: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+          },
+          description: 'Liste à choix fixe : évite qu\'une faute de frappe ou une abréviation inattendue fasse disparaître le rendez-vous du site sans erreur visible.',
+        },
         { name: 'year', title: 'Année', type: 'string' },
       ],
       hidden: ({ document }) => !!(document?.ponctualDates as string[] | undefined)?.length || isRecurrent(document),
