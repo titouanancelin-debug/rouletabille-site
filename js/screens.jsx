@@ -1638,8 +1638,10 @@ const Equipe = ({ setRoute }) => {
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
-              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
-              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+              <div style={{ minHeight:108 }}>
+                <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
+                <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+              </div>
               <RichText content={p.bio} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>
             </div>
           ))}
@@ -1658,8 +1660,10 @@ const Equipe = ({ setRoute }) => {
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
-              <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
-              <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+              <div style={{ minHeight:108 }}>
+                <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
+                <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+              </div>
               <RichText content={p.bio} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>
             </div>
           ))}
@@ -1679,8 +1683,10 @@ const Equipe = ({ setRoute }) => {
                 <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                   <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
                 </div>
-                <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
-                <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+                <div style={{ minHeight:108 }}>
+                  <h3 className="display" style={{ fontSize:24, lineHeight:1.1, marginBottom:6 }}>{p.name}</h3>
+                  <div className="mono" style={{ fontSize:12, color:"var(--terra)", marginBottom:10 }}>{p.role}</div>
+                </div>
                 {p.bio && <RichText content={p.bio} style={{ fontSize:14, lineHeight:1.5, color:"var(--ink-soft)" }}/>}
               </div>
             ))}
@@ -1810,19 +1816,26 @@ const Presse = () => {
       </div>
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>{PRESSE.telechargementsLabel}</div>
-        {pressKit.map(item => (
-          <a key={item.file?.asset?.url || item.label} href={item.file?.asset?.url} download={item.file?.asset?.originalFilename}
-            style={{
-              display:"flex", justifyContent:"space-between", alignItems:"center", gap:16,
-              padding:"18px 0", borderTop:"1px solid var(--rule)", textDecoration:"none", color:"inherit",
-            }}>
-            <div>
-              <div style={{ fontSize:17 }}>{item.label}</div>
-              <div className="mono" style={{ fontSize:12, opacity:0.5, marginTop:4 }}>{item.description}</div>
-            </div>
-            <span style={{ fontSize:20, opacity:0.5, flexShrink:0 }}>↓</span>
-          </a>
-        ))}
+        {pressKit.map(item => {
+          const isLink = !!item.url;
+          const href = isLink ? item.url : item.file?.asset?.url;
+          return (
+            <a key={href || item.label} href={href}
+              {...(isLink
+                ? { target:"_blank", rel:"noopener noreferrer" }
+                : { download: item.file?.asset?.originalFilename })}
+              style={{
+                display:"flex", justifyContent:"space-between", alignItems:"center", gap:16,
+                padding:"18px 0", borderTop:"1px solid var(--rule)", textDecoration:"none", color:"inherit",
+              }}>
+              <div>
+                <div style={{ fontSize:17 }}>{item.label}</div>
+                <div className="mono" style={{ fontSize:12, opacity:0.5, marginTop:4 }}>{item.description}</div>
+              </div>
+              <span style={{ fontSize:20, opacity:0.5, flexShrink:0 }}>{isLink ? "→" : "↓"}</span>
+            </a>
+          );
+        })}
       </div>
     </div>
   </section>

@@ -5,7 +5,7 @@ import { pageHeaderFields } from './pageSections';
 
 export const presse = defineType({
   name: 'presse',
-  title: 'Presse',
+  title: 'Documents',
   type: 'document',
   fields: [
     ...pageHeaderFields,
@@ -13,14 +13,18 @@ export const presse = defineType({
     sectionsLibresField('sectionsHaut', 'Sections libres (haut de page)'),
     defineField({ name: 'telechargementsLabel', title: 'Titre de la liste de téléchargements', type: 'string' }),
     defineField({
-      name: 'pressKit', title: 'Kit presse (téléchargements)', type: 'array',
+      name: 'pressKit', title: 'Documents', type: 'array',
       of: [{
         type: 'object',
         name: 'pressKitItem',
         fields: [
-          { name: 'file', title: 'Fichier', type: 'file' },
           { name: 'label', title: 'Libellé', type: 'string' },
           { name: 'description', title: 'Description', type: 'string' },
+          { name: 'file', title: 'Fichier (pièce jointe)', type: 'file' },
+          {
+            name: 'url', title: 'Lien externe', type: 'url',
+            description: 'À utiliser à la place du fichier pour renvoyer vers une page (ex. la page technique du lieu) plutôt que de joindre un document.',
+          },
         ],
         preview: { select: { title: 'label', subtitle: 'description' } },
       }],
