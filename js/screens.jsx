@@ -1339,6 +1339,15 @@ function getRollingSeasonMonths(monthsAhead = 12, monthsBehind = 0) {
   return out;
 }
 
+/* Le mois est saisi en texte libre dans le Studio ("août" ou "Août") : on le
+   normalise sur l'abréviation canonique (FR_MONTHS_ORDER) avant de comparer
+   aux clés d'onglet, sinon une casse différente fait disparaître le
+   rendez-vous de tous les onglets sans erreur visible. */
+function agendaEntryMonthKey(d) {
+  const idx = FR_MONTHS_IDX[(d.month || "").trim().toLowerCase()];
+  return idx === undefined ? `${d.month} ${d.year}` : `${FR_MONTHS_ORDER[idx]} ${d.year}`;
+}
+
 const Agenda = ({ setRoute }) => {
   const { AGENDA, AGENDA_PAGE, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
   const { typeConfig, get: getType } = useTypeConfig();
@@ -1350,10 +1359,10 @@ const Agenda = ({ setRoute }) => {
 
   const list = useMemo(() => {
     const base = filter === "tout" ? AGENDA : AGENDA.filter(d => d.type?.includes(filter));
-    return base.filter(d => d.month + " " + d.year === month);
+    return base.filter(d => agendaEntryMonthKey(d) === month);
   }, [AGENDA, filter, month]);
 
-  const countForMonth = (key) => AGENDA.filter(d => d.month + " " + d.year === key).length;
+  const countForMonth = (key) => AGENDA.filter(d => agendaEntryMonthKey(d) === key).length;
 
   return (
     <>
