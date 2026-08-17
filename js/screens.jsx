@@ -1319,16 +1319,22 @@ const FR_MONTHS_FULL = {
   Juil:"Juillet", Août:"Août", Sep:"Septembre", Oct:"Octobre", Nov:"Novembre", Déc:"Décembre",
 };
 
-/* Fenêtre glissante de 12 mois à partir du mois en cours — plutôt qu'une
-   liste de mois figée sur une saison qui finit par se retrouver entièrement
-   dans le passé. */
-function getRollingSeasonMonths(monthsAhead = 12) {
+function monthKey(d) {
+  return `${FR_MONTHS_ORDER[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/* Fenêtre glissante de 12 mois à partir du mois en cours (+ monthsBehind
+   mois avant, replié par défaut derrière "Voir les mois passés") — plutôt
+   qu'une liste de mois figée sur une saison qui finit par se retrouver
+   entièrement dans le passé. Les rendez-vous ne sont jamais supprimés : les
+   mois passés restent consultables ici, seulement masqués par défaut. */
+function getRollingSeasonMonths(monthsAhead = 12, monthsBehind = 0) {
   const now = new Date();
   const out = [];
-  for (let i = 0; i < monthsAhead; i++) {
+  for (let i = -monthsBehind; i < monthsAhead; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
     const abbr = FR_MONTHS_ORDER[d.getMonth()];
-    out.push({ key: `${abbr} ${d.getFullYear()}`, label: FR_MONTHS_FULL[abbr] });
+    out.push({ key: `${abbr} ${d.getFullYear()}`, label: FR_MONTHS_FULL[abbr], isPast: i < 0 });
   }
   return out;
 }
@@ -1337,9 +1343,10 @@ const Agenda = ({ setRoute }) => {
   const { AGENDA, AGENDA_PAGE, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
   const { typeConfig, get: getType } = useTypeConfig();
   const agendaFilters = [{ id:"tout", label:"Tout" }, ...typeConfig.map(t => ({ id:t.value, label:t.label }))];
-  const seasonMonths = getRollingSeasonMonths();
+  const [showPast, setShowPast] = useState(false);
+  const seasonMonths = useMemo(() => getRollingSeasonMonths(12, showPast ? 6 : 0), [showPast]);
   const [filter, setFilter] = useState("tout");
-  const [month, setMonth] = useState(seasonMonths[0].key);
+  const [month, setMonth] = useState(() => monthKey(new Date()));
 
   const list = useMemo(() => {
     const base = filter === "tout" ? AGENDA : AGENDA.filter(d => d.type?.includes(filter));
@@ -1362,6 +1369,17 @@ const Agenda = ({ setRoute }) => {
 
       <SectionsLibres doc={{ sections: AGENDA_SECTIONS_HAUT }}/>
 
+      {!showPast && (
+        <div style={{ display:"flex", justifyContent:"flex-end", paddingBottom:8 }}>
+          <button onClick={() => setShowPast(true)} className="mono" style={{
+            background:"none", border:"none", cursor:"pointer", color:"var(--terra)",
+            fontSize:11, letterSpacing:"0.06em", padding:"4px 0",
+          }}>
+            ← Voir les mois passés
+          </button>
+        </div>
+      )}
+
       {/* Barre de navigation mois — sticky sous la nav */}
       <div style={{
         position:"sticky", top:56, zIndex:20,
@@ -1383,6 +1401,7 @@ const Agenda = ({ setRoute }) => {
                 cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:4,
                 transition:"color 0.2s, border-color 0.2s",
                 color: active ? "var(--terra)" : "var(--ink-soft)",
+                opacity: m.isPast && !active ? 0.55 : 1,
               }}>
                 <span style={{ fontFamily:"var(--ff-body)", fontSize:13, fontWeight: active ? 600 : 400, whiteSpace:"nowrap" }}>
                   {m.label}
