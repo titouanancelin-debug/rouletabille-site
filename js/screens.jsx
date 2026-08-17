@@ -23,31 +23,61 @@ async function postForm(formName, data) {
 
 /* Photo réelle pour remplacer un visuel généré (affiche, pastille couleur,
    initiales...) quand elle est renseignée sur l'item. */
-const CardPhoto = ({ item, alt, style, fit = "cover" }) => (
+const CardPhoto = ({ item, alt, style }) => (
   <img
     src={item.image}
     alt={alt || ""}
-    style={{ width: "100%", height: "100%", objectFit: fit, display: "block", ...style }}
+    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
   />
 );
 
-/* Carte équipe/partenaire : motif physalis toujours visible devant, se
-   retourne au survol pour révéler la photo/le logo si elle existe (sinon
-   pas d'effet, rien à montrer au dos). Les photos d'équipe remplissent le
-   cadre (cover) ; les logos de partenaires, eux, ont des proportions très
-   variables (carré, horizontal…) et doivent rester entiers plutôt qu'être
-   rognés — d'où le mode "contain", cadré avec la même couleur de fond que
-   la face avant pour un retournement visuellement harmonieux. */
-const TeamCardVisual = ({ item, bg, ink, title, subtitle, num, variant, photoFit = "cover" }) => (
+/* Carte équipe : motif physalis toujours visible devant, se retourne au
+   survol pour révéler la photo si elle existe (sinon pas d'effet, rien à
+   montrer au dos). */
+const TeamCardVisual = ({ item, bg, ink, title, subtitle, num, variant }) => (
   <div className={`flip-card${item.image ? " has-photo" : ""}`} style={{ position: "absolute", inset: 0 }}>
     <div className="flip-card-inner">
       <div className="flip-card-front">
         <Poster bg={bg} ink={ink} title={title} subtitle={subtitle} num={num} variant={variant} motifOpacity={0.5}/>
       </div>
       {item.image && (
-        <div className="flip-card-back" style={photoFit === "contain" ? { background: bg } : undefined}>
-          <CardPhoto item={item} alt={item.name} fit={photoFit}
-            style={photoFit === "contain" ? { padding: "14%", boxSizing: "border-box" } : undefined}/>
+        <div className="flip-card-back">
+          <CardPhoto item={item} alt={item.name}/>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+/* Carte partenaire : même bascule que TeamCardVisual, mais le nom et le
+   logo sont deux problèmes différents de ceux d'une carte équipe — un nom
+   d'institution peut être bien plus long qu'un prénom, et un logo (souvent
+   large et peu carré) doit rester parfaitement lisible sans être rogné.
+   On garde le décor SVG (hachures + lanternes) de Poster via `hideText`,
+   mais le nom est du HTML normal par-dessus : taille fixe pour que toutes
+   les vignettes restent visuellement homogènes, et retour à la ligne natif
+   du navigateur pour que même un nom long tienne dans le cadre. Le logo,
+   au dos, est centré par flexbox avec un padding réduit pour rester bien
+   visible quel que soit son format. */
+const PartnerCardVisual = ({ item, bg, ink, variant }) => (
+  <div className={`flip-card${item.image ? " has-photo" : ""}`} style={{ position: "absolute", inset: 0 }}>
+    <div className="flip-card-inner">
+      <div className="flip-card-front">
+        <Poster bg={bg} ink={ink} variant={variant} motifOpacity={0.5} hideText/>
+        <div style={{
+          position: "absolute", left: "8%", right: "8%", bottom: "9%",
+          fontFamily: "var(--ff-display)", fontStyle: "italic", fontSize: 21, lineHeight: 1.2,
+          color: ink, overflowWrap: "break-word",
+        }}>
+          {item.name}
+        </div>
+      </div>
+      {item.image && (
+        <div className="flip-card-back" style={{
+          background: bg, display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "10%", boxSizing: "border-box",
+        }}>
+          <img src={item.image} alt={item.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}/>
         </div>
       )}
     </div>
@@ -1778,7 +1808,7 @@ const Partenaires = () => {
                     style={{ textDecoration:'none', color:'inherit', display:'block' }}
                   >
                     <div className="noise" style={{ background: meta.bg, aspectRatio:'4/5', position:'relative', overflow:'hidden', marginBottom:14 }}>
-                      <TeamCardVisual item={p} bg={meta.bg} ink="#F4E8D5" title={p.name} num={String(i+1).padStart(2,'0')} variant={i % 4} photoFit="contain"/>
+                      <PartnerCardVisual item={p} bg={meta.bg} ink="#F4E8D5" variant={i % 4}/>
                     </div>
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                       <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }}>{p.name}</div>

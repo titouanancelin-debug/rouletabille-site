@@ -142,7 +142,7 @@ const MotifMark = ({ size = 28, color = "currentColor" }) => (
 );
 
 /* Poster placeholder — sérigraphie avec lanterne physalis */
-const Poster = ({ bg = "#B84A2E", ink = "#F4E8D5", title = "", subtitle = "", num = "01", variant = 0, motifOpacity = 0.45 }) => {
+const Poster = ({ bg = "#B84A2E", ink = "#F4E8D5", title = "", subtitle = "", num = "01", variant = 0, motifOpacity = 0.45, hideText = false }) => {
   // compositions de lanternes
   const comps = [
     // 0 — une grande lanterne centrée
@@ -188,9 +188,13 @@ const Poster = ({ bg = "#B84A2E", ink = "#F4E8D5", title = "", subtitle = "", nu
         ))}
       </g>
       {comps[variant % comps.length]}
-      <text x="24" y="442" fill={ink} style={{ fontFamily:"var(--ff-display)", fontSize:`${titleSize}px`, fontStyle:"italic", letterSpacing:"-0.02em" }}>{title}</text>
-      {subtitle && (
-        <text x="24" y="470" fill={ink} opacity="0.8" style={{ fontFamily:"var(--ff-mono)", fontSize:"11px", letterSpacing:"2px", textTransform:"uppercase" }}>{subtitle}</text>
+      {!hideText && (
+        <>
+          <text x="24" y="442" fill={ink} style={{ fontFamily:"var(--ff-display)", fontSize:`${titleSize}px`, fontStyle:"italic", letterSpacing:"-0.02em" }}>{title}</text>
+          {subtitle && (
+            <text x="24" y="470" fill={ink} opacity="0.8" style={{ fontFamily:"var(--ff-mono)", fontSize:"11px", letterSpacing:"2px", textTransform:"uppercase" }}>{subtitle}</text>
+          )}
+        </>
       )}
     </svg>
   );
