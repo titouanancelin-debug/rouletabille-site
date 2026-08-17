@@ -23,26 +23,31 @@ async function postForm(formName, data) {
 
 /* Photo réelle pour remplacer un visuel généré (affiche, pastille couleur,
    initiales...) quand elle est renseignée sur l'item. */
-const CardPhoto = ({ item, alt, style }) => (
+const CardPhoto = ({ item, alt, style, fit = "cover" }) => (
   <img
     src={item.image}
     alt={alt || ""}
-    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
+    style={{ width: "100%", height: "100%", objectFit: fit, display: "block", ...style }}
   />
 );
 
-/* Carte équipe : motif physalis toujours visible devant, se retourne au
-   survol pour révéler la photo si elle existe (sinon pas d'effet, rien à
-   montrer au dos). */
-const TeamCardVisual = ({ item, bg, ink, title, subtitle, num, variant }) => (
+/* Carte équipe/partenaire : motif physalis toujours visible devant, se
+   retourne au survol pour révéler la photo/le logo si elle existe (sinon
+   pas d'effet, rien à montrer au dos). Les photos d'équipe remplissent le
+   cadre (cover) ; les logos de partenaires, eux, ont des proportions très
+   variables (carré, horizontal…) et doivent rester entiers plutôt qu'être
+   rognés — d'où le mode "contain", cadré avec la même couleur de fond que
+   la face avant pour un retournement visuellement harmonieux. */
+const TeamCardVisual = ({ item, bg, ink, title, subtitle, num, variant, photoFit = "cover" }) => (
   <div className={`flip-card${item.image ? " has-photo" : ""}`} style={{ position: "absolute", inset: 0 }}>
     <div className="flip-card-inner">
       <div className="flip-card-front">
         <Poster bg={bg} ink={ink} title={title} subtitle={subtitle} num={num} variant={variant} motifOpacity={0.5}/>
       </div>
       {item.image && (
-        <div className="flip-card-back">
-          <CardPhoto item={item} alt={item.name}/>
+        <div className="flip-card-back" style={photoFit === "contain" ? { background: bg } : undefined}>
+          <CardPhoto item={item} alt={item.name} fit={photoFit}
+            style={photoFit === "contain" ? { padding: "14%", boxSizing: "border-box" } : undefined}/>
         </div>
       )}
     </div>
@@ -1773,7 +1778,7 @@ const Partenaires = () => {
                     style={{ textDecoration:'none', color:'inherit', display:'block' }}
                   >
                     <div className="noise" style={{ background: meta.bg, aspectRatio:'4/5', position:'relative', overflow:'hidden', marginBottom:14 }}>
-                      <TeamCardVisual item={p} bg={meta.bg} ink="#F4E8D5" title={p.name} num={String(i+1).padStart(2,'0')} variant={i % 4}/>
+                      <TeamCardVisual item={p} bg={meta.bg} ink="#F4E8D5" title={p.name} num={String(i+1).padStart(2,'0')} variant={i % 4} photoFit="contain"/>
                     </div>
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                       <div style={{ fontFamily:'var(--ff-body)', fontSize:14, fontWeight:500, lineHeight:1.3 }}>{p.name}</div>
