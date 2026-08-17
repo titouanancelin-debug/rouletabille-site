@@ -570,7 +570,14 @@ const HistoireAccordion = () => {
 };
 
 /* ======================= EVENT CAROUSEL ======================= */
-const FR_MONTHS_IDX = {jan:0,fév:1,mar:2,avr:3,mai:4,juin:5,juil:6,août:7,sep:8,oct:9,nov:10,déc:11};
+/* Accepte aussi bien l'abréviation ("sep") que le nom complet ("septembre")
+   saisi dans Sanity : une saisie CMS en toutes lettres ne doit pas, elle non
+   plus, faire disparaître silencieusement un rendez-vous (voir plus bas). */
+const FR_MONTHS_IDX = {
+  jan:0, janvier:0, fév:1, février:1, mar:2, mars:2, avr:3, avril:3, mai:4,
+  juin:5, juil:6, juillet:6, août:7, sep:8, septembre:8, oct:9, octobre:9,
+  nov:10, novembre:10, déc:11, décembre:11,
+};
 
 /* Le champ "jour" accepte du texte libre ("20" ou "20-24" ou "24 au 28") :
    on prend le premier nombre pour la date de début et le dernier pour la
