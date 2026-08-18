@@ -1690,7 +1690,7 @@ const Equipe = ({ setRoute }) => {
         <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
         <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
           {permanents.map((p, i) => (
-            <div key={p.name} style={{ flex:"1 1 240px", maxWidth:296 }}>
+            <div key={p.name} style={{ flex:"1 1 240px" }}>
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
@@ -1712,7 +1712,7 @@ const Equipe = ({ setRoute }) => {
         </div>
         <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
           {associes.map((p, i) => (
-            <div key={p.name} style={{ flex:"1 1 240px", maxWidth:296 }}>
+            <div key={p.name} style={{ flex:"1 1 240px" }}>
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
@@ -1735,7 +1735,7 @@ const Equipe = ({ setRoute }) => {
           </div>
           <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
             {conseilAdmin.map((p, i) => (
-              <div key={p.name} style={{ flex:"1 1 240px", maxWidth:296 }}>
+              <div key={p.name} style={{ flex:"1 1 240px" }}>
                 <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                   <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
                 </div>
