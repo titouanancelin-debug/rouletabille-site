@@ -44,6 +44,7 @@ const TITRE_SIZES  = { moyen: 'clamp(24px, 3vw, 36px)', grand: 'clamp(34px, 4.6v
 const TEXTE_SIZES  = { petit: 14, normal: 16, grand: 20, tresGrand: 26 };
 const ALIGN        = { gauche: 'left', centre: 'center', droite: 'right' };
 const IMG_WIDTH    = { petite: 380, moyenne: 640, pleine: '100%' };
+const TEXTE_WIDTH   = { petite: 480, moyenne: 760, pleine: 1100 };
 const ESPACE       = { petit: 24, moyen: 64, grand: 128 };
 
 const Bloc = ({ s }) => {
@@ -60,7 +61,7 @@ const Bloc = ({ s }) => {
         <RichText content={s.corps} style={{
           fontSize: TEXTE_SIZES[s.taille] || TEXTE_SIZES.normal, lineHeight: 1.65,
           color: s.couleur || 'var(--ink-soft)', textAlign: ALIGN[s.alignement] || 'left',
-          maxWidth: 760, margin: (ALIGN[s.alignement] || 'left') === 'center' ? '0 auto' : undefined,
+          maxWidth: TEXTE_WIDTH[s.largeur] || TEXTE_WIDTH.moyenne, margin: (ALIGN[s.alignement] || 'left') === 'center' ? '0 auto' : undefined,
         }}/>
       );
     case 'imageBloc': {

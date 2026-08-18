@@ -34,6 +34,7 @@ export const texteBlock = defineType({
     defineField({ name: 'taille', title: 'Taille', type: 'string', options: { list: TAILLE_TEXTE } }),
     couleurField('couleur', 'Couleur'),
     defineField({ name: 'alignement', title: 'Alignement', type: 'string', options: { list: ALIGNEMENT } }),
+    defineField({ name: 'largeur', title: 'Largeur', description: 'Moyenne = colonne de lecture (760px). Pleine = occupe toute la largeur de la section.', type: 'string', options: { list: LARGEUR_IMAGE } }),
   ],
   preview: { select: { title: 'corps.0.children.0.text' } },
 });
