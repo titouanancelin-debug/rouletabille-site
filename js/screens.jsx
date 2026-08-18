@@ -579,6 +579,25 @@ const FR_MONTHS_IDX = {
   nov:10, novembre:10, déc:11, décembre:11,
 };
 
+/* Date triable à partir des champs day/month/year (texte libre Sanity) —
+   même analyse que getFeaturedEvents (premier nombre du champ jour, mois
+   insensible à la casse/abrégé) pour trier les listes d'agenda par ordre
+   chronologique. Renvoie null si la date est incomplète/mal formée : ces
+   entrées sont alors reléguées en fin de liste plutôt que de casser le tri. */
+const agendaEntryDate = (d) => {
+  const monthIdx = FR_MONTHS_IDX[(d.month || "").trim().toLowerCase()];
+  const nums = String(d.day || "").match(/\d+/g);
+  if (monthIdx === undefined || !nums || !d.year) return null;
+  return new Date(+d.year, monthIdx, +nums[0]);
+};
+const sortByDate = (list) => [...list].sort((a, b) => {
+  const da = agendaEntryDate(a), db = agendaEntryDate(b);
+  if (!da && !db) return 0;
+  if (!da) return 1;
+  if (!db) return -1;
+  return da - db;
+});
+
 /* Le champ "jour" accepte du texte libre ("20" ou "20-24" ou "24 au 28") :
    on prend le premier nombre pour la date de début et le dernier pour la
    date de fin, afin qu'un rendez-vous encore en cours (ex: résidence du
@@ -930,10 +949,10 @@ const Spectacles = ({ setRoute }) => {
   const travailTabs = (SPECTACLES_PAGE?.travailTabs || []).filter(t => t.value !== "ateliers");
   const tabConfig = (value) => travailTabs.find(t => t.value === value) || {};
   const [tab, setTab] = useState("residences");
-  const residences = AGENDA.filter(d => d.type?.includes("résidence"));
-  const mediations  = AGENDA.filter(d => d.type?.includes("médiation"));
-  const evenements  = AGENDA.filter(d => d.type?.includes("événement"));
-  const territoire  = AGENDA.filter(d => d.type?.includes("projet de territoire"));
+  const residences = sortByDate(AGENDA.filter(d => d.type?.includes("résidence")));
+  const mediations  = sortByDate(AGENDA.filter(d => d.type?.includes("médiation")));
+  const evenements  = sortByDate(AGENDA.filter(d => d.type?.includes("événement")));
+  const territoire  = sortByDate(AGENDA.filter(d => d.type?.includes("projet de territoire")));
 
   const getStatus = (s) => {
     const hasDates = AGENDA.some(d => d.spectacle === s.id);
@@ -998,7 +1017,7 @@ const Spectacles = ({ setRoute }) => {
             <div className="grid-2">
               {residences.map((d, i) => (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer", height:"100%" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     {d.image && (
                       <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
                         <CardPhoto item={d} alt={d.title}/>
@@ -1037,7 +1056,7 @@ const Spectacles = ({ setRoute }) => {
             <div className="grid-2">
               {mediations.map((d, i) => (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div className="card-fx" style={{ border:"1px solid var(--rule)", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                  <div className="card-fx" style={{ border:"1px solid var(--rule)", cursor:"pointer", height:"100%" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     {d.image && (
                       <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
                         <CardPhoto item={d} alt={d.title}/>
@@ -1119,7 +1138,7 @@ const Spectacles = ({ setRoute }) => {
             <div className="grid-2">
               {territoire.map((d, i) => (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer", height:"100%" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     {d.image && (
                       <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
                         <CardPhoto item={d} alt={d.title}/>
@@ -1306,7 +1325,7 @@ const Agenda = ({ setRoute }) => {
 
   const list = useMemo(() => {
     const base = filter === "tout" ? AGENDA : AGENDA.filter(d => d.type?.includes(filter));
-    return base.filter(d => agendaEntryMonthKey(d) === month);
+    return sortByDate(base.filter(d => agendaEntryMonthKey(d) === month));
   }, [AGENDA, filter, month]);
 
   const countForMonth = (key) => AGENDA.filter(d => agendaEntryMonthKey(d) === key).length;
@@ -1674,9 +1693,9 @@ const Equipe = ({ setRoute }) => {
 
       <section className="section" style={{ paddingTop:0 }}>
         <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:32 }}>
+        <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
           {permanents.map((p, i) => (
-            <div key={p.name}>
+            <div key={p.name} style={{ flex:"1 1 240px", maxWidth:296 }}>
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
@@ -1696,9 +1715,9 @@ const Equipe = ({ setRoute }) => {
           <h2 className="section-title">Les artistes <span className="display-italic">associé·es.</span></h2>
           <div className="section-meta">Chaque saison, des artistes rejoignent le projet pour créer, transmettre ou accompagner des résidences. Ils enrichissent notre démarche par leurs univers, leurs disciplines et leurs recherches.</div>
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:32 }}>
+        <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
           {associes.map((p, i) => (
-            <div key={p.name}>
+            <div key={p.name} style={{ flex:"1 1 240px", maxWidth:296 }}>
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
@@ -1719,9 +1738,9 @@ const Equipe = ({ setRoute }) => {
             <h2 className="section-title">Membres fondateurs <span className="display-italic">& conseil d'administration.</span></h2>
             <div className="section-meta">Aujourd'hui, ils et elles font vivre le projet associatif de Rouletabille et poursuivent, collectivement, une histoire commencée il y a plus de trente ans.</div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))", gap:32 }}>
+          <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
             {conseilAdmin.map((p, i) => (
-              <div key={p.name}>
+              <div key={p.name} style={{ flex:"1 1 240px", maxWidth:296 }}>
                 <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                   <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
                 </div>
