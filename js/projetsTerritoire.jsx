@@ -11,9 +11,15 @@ const ArticleBlock = ({ article, index }) => {
   const dateLabel = `${d.getDate()} ${MONTHS_FR[d.getMonth() + 1]} ${d.getFullYear()}`;
   const imgSrc = article.mainImage ? urlFor(article.mainImage).width(900).fit('max').auto('format').url() : null;
 
+  // Le "Reveal" (fade scroll-based) ne doit envelopper que le petit
+  // en-tête : un article avec des dizaines de photos peut faire des
+  // dizaines de milliers de px de haut, et l'IntersectionObserver derrière
+  // Reveal ne déclenche que si 15% de la hauteur de l'élément enveloppé
+  // devient visible — un seuil qu'un élément aussi grand ne peut
+  // structurellement jamais atteindre (il resterait invisible à vie).
   return (
-    <Reveal variant="up" delay={(index % 3) * 70} style={{ marginTop: index === 0 ? 0 : 48 }}>
-      <article>
+    <article>
+      <Reveal variant="up" delay={(index % 3) * 70} style={{ marginTop: index === 0 ? 0 : 48 }}>
         <div className="tag" style={{ color: 'var(--terra)', marginBottom: 8 }}>{dateLabel}</div>
         <h3 className="display" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 16, textWrap: 'balance' }}>
           {article.title}
@@ -30,11 +36,11 @@ const ArticleBlock = ({ article, index }) => {
             />
           </div>
         )}
-        <div className="article-content" style={{ maxWidth: 680, fontSize: 15, lineHeight: 1.7 }}>
-          <PortableText value={article.body} components={portableTextComponents} />
-        </div>
-      </article>
-    </Reveal>
+      </Reveal>
+      <div className="article-content" style={{ maxWidth: 680, fontSize: 15, lineHeight: 1.7 }}>
+        <PortableText value={article.body} components={portableTextComponents} />
+      </div>
+    </article>
   );
 };
 
