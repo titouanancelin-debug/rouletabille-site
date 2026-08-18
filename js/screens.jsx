@@ -937,17 +937,36 @@ const AgendaRow = ({ d, onClick }) => {
 /* ======================= SPECTACLES (liste) ======================= */
 
 const Spectacles = ({ setRoute }) => {
-  const { AGENDA, SPECTACLES_PAGE, SPECTACLES_SECTIONS, SPECTACLES_SECTIONS_HAUT } = useContent();
+  const { AGENDA, AGENDA_PAGE, SPECTACLES_PAGE, SPECTACLES_SECTIONS, SPECTACLES_SECTIONS_HAUT } = useContent();
   const { labels: typeLabels, get: getType } = useTypeConfig();
-  // Les ateliers ont leur propre page dédiée (/ateliers, cf. le composant
-  // Ateliers plus bas) : pas d'onglet ici pour éviter de les afficher deux fois.
-  const travailTabs = (SPECTACLES_PAGE?.travailTabs || []).filter(t => t.value !== "ateliers");
+  const travailTabs = SPECTACLES_PAGE?.travailTabs || [];
   const tabConfig = (value) => travailTabs.find(t => t.value === value) || {};
+  const audienceFilters = buildAudienceFilters(AGENDA_PAGE);
   const [tab, setTab] = useState("residences");
+  const [atelierFilter, setAtelierFilter] = useState("");
+  const [selectedAtelier, setSelectedAtelier] = useState(null);
+  const [formStates, setFormStates] = useState({});
   const residences = sortByDate(AGENDA.filter(d => d.type?.includes("résidence")));
   const mediations  = sortByDate(AGENDA.filter(d => d.type?.includes("médiation")));
   const evenements  = sortByDate(AGENDA.filter(d => d.type?.includes("événement")));
+  const ateliersAgenda = sortByDate(AGENDA.filter(d => d.type?.includes("atelier")));
   const territoire  = sortByDate(AGENDA.filter(d => d.type?.includes("projet de territoire")));
+
+  const handleAtelierSubmit = async (e, atelier) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const key = agendaSlug(atelier);
+    setFormStates(s => ({ ...s, [key]: 'loading' }));
+    const fd = new FormData(e.target);
+    try {
+      await postForm('atelier', { atelier: atelier.title, ...Object.fromEntries(fd) });
+      setFormStates(s => ({ ...s, [key]: 'sent' }));
+    } catch {
+      setFormStates(s => ({ ...s, [key]: 'error' }));
+    }
+  };
+
+  const atelierList = atelierFilter ? ateliersAgenda.filter(a => a.audience?.includes(atelierFilter)) : ateliersAgenda;
 
   const getStatus = (s) => {
     const hasDates = AGENDA.some(d => d.spectacle === s.id);
@@ -1114,6 +1133,89 @@ const Spectacles = ({ setRoute }) => {
             </div>
           ) : (
             <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('evenements').emptyMessage}</p>
+          )}
+        </section>
+      )}
+
+      {/* ── Onglet 4 : Ateliers ── */}
+      {tab === "ateliers" && (
+        <section className="section" style={{ position:"relative", overflow:"hidden" }}>
+          <div ref={useParallax(0.2, 120)} className="motif-bg" style={{ left:-60, top:0, opacity:0.3 }}>
+            <Motif size={380} color="var(--amber-deep)" berryColor="var(--terra)" rotate={-30} seed={3}/>
+          </div>
+          <Reveal variant="up" style={{ marginBottom:32, maxWidth:560 }}>
+            <p style={{ fontSize:18, lineHeight:1.7, color:"var(--ink-soft)", textWrap:"pretty" }}>
+              {tabConfig('ateliers').intro}
+            </p>
+          </Reveal>
+          <div style={{ display:"flex", gap:8, marginBottom:40, flexWrap:"wrap" }}>
+            {audienceFilters.map(f => (
+              <button key={f.id}
+                className={`tweak-pill ${atelierFilter === f.id ? "active" : ""}`}
+                onClick={() => { setAtelierFilter(f.id); setSelectedAtelier(null); }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          {atelierList.length === 0 ? (
+            <p style={{ color:"var(--ink-soft)", fontStyle:"italic" }}>{tabConfig('ateliers').emptyMessage}</p>
+          ) : (
+            <div className="grid-3">
+              {atelierList.map((a,i) => {
+                const key = agendaSlug(a);
+                return (
+                <Reveal key={key} variant="scale" delay={(i % 3) * 80} style={{ display:"flex" }}>
+                  <article className={a.image ? "" : "noise"} style={{ flex:1, background: a.image ? "#000" : a.cardColor, color:a.cardTextColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
+                    onClick={() => setSelectedAtelier(selectedAtelier === key ? null : key)}
+                  >
+                    {a.image ? (
+                      <>
+                        <CardPhoto item={a} alt={a.title} style={{ position:"absolute", inset:0, opacity:0.5 }}/>
+                        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2))" }}/>
+                      </>
+                    ) : (
+                      <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
+                        <Motif size={220} color={a.cardTextColor} berryColor={a.cardTextColor} rotate={20} seed={i+1}/>
+                      </div>
+                    )}
+                    <div style={{ position:"relative", zIndex:2 }}>
+                      <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
+                      <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
+                      <RichText content={a.desc} style={{ fontSize:14, lineHeight:1.5, opacity:0.9, textWrap:"pretty" }}/>
+                    </div>
+                    <div style={{ position:"relative", zIndex:2, paddingTop:24, marginTop:24, borderTop:`1px solid ${a.cardTextColor}`, opacity:0.95 }}>
+                      <div className="mono" style={{ marginBottom:6 }}>{a.time}</div>
+                      <div className="mono" style={{ marginBottom:6, opacity:0.7 }}>{a.venue}</div>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginTop:12 }}>
+                        <strong style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:22 }}>{a.price}</strong>
+                        <span>{selectedAtelier === key ? "S'inscrire ↓" : "→"}</span>
+                      </div>
+                      {selectedAtelier === key && (
+                        formStates[key] === 'sent' ? (
+                          <div onClick={e => e.stopPropagation()} style={{ marginTop:16, fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:18, opacity:0.9 }}>
+                            Demande envoyée — nous revenons vers vous sous 48h.
+                          </div>
+                        ) : (
+                          <form style={{ marginTop:16, display:"grid", gap:8 }} onClick={e => e.stopPropagation()} onSubmit={e => handleAtelierSubmit(e, a)}>
+                            <input type="text" name="bot-field" style={{ display:"none" }} tabIndex="-1" autoComplete="off"/>
+                            <input className="input" name="nom" placeholder="Nom" style={{ borderColor:a.cardTextColor, color:a.cardTextColor }} required/>
+                            <input className="input" name="email" placeholder="Email" type="email" style={{ borderColor:a.cardTextColor, color:a.cardTextColor }} required/>
+                            {formStates[key] === 'error' && (
+                              <p style={{ fontSize:11, margin:0, opacity:0.8 }}>Erreur — réessayez ou écrivez à rouletabilletheatre@gmail.com</p>
+                            )}
+                            <button className="btn btn-amber" type="submit" disabled={formStates[key] === 'loading'} style={{ width:"100%", justifyContent:"center", opacity: formStates[key] === 'loading' ? 0.6 : 1 }}>
+                              {formStates[key] === 'loading' ? 'Envoi…' : 'Envoyer la demande'}
+                            </button>
+                          </form>
+                        )
+                      )}
+                    </div>
+                  </article>
+                </Reveal>
+                );
+              })}
+            </div>
           )}
         </section>
       )}
