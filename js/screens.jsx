@@ -590,6 +590,22 @@ const sortByDate = (list) => [...list].sort((a, b) => {
   return da - db;
 });
 
+/* Un atelier récurrent est éclaté par expandRecurrence en une occurrence par
+   date (même _id Sanity, seule la date change) : on regroupe ici par _id
+   pour n'afficher qu'une carte par atelier, avec la liste de toutes ses
+   dates plutôt qu'un doublon par séance. */
+const groupAteliers = (list) => {
+  const byId = new Map();
+  for (const a of list) {
+    if (!byId.has(a._id)) byId.set(a._id, []);
+    byId.get(a._id).push(a);
+  }
+  return sortByDate(Array.from(byId.values()).map((occurrences) => {
+    const dates = sortByDate(occurrences);
+    return { ...dates[0], dates };
+  }));
+};
+
 /* Le champ "jour" accepte du texte libre ("20" ou "20-24" ou "24 au 28") :
    on prend le premier nombre pour la date de début et le dernier pour la
    date de fin, afin qu'un rendez-vous encore en cours (ex: résidence du
@@ -949,7 +965,7 @@ const Spectacles = ({ setRoute }) => {
   const residences = sortByDate(AGENDA.filter(d => d.type?.includes("résidence")));
   const mediations  = sortByDate(AGENDA.filter(d => d.type?.includes("médiation")));
   const evenements  = sortByDate(AGENDA.filter(d => d.type?.includes("événement")));
-  const ateliersAgenda = sortByDate(AGENDA.filter(d => d.type?.includes("atelier")));
+  const ateliersAgenda = groupAteliers(AGENDA.filter(d => d.type?.includes("atelier")));
   const territoire  = sortByDate(AGENDA.filter(d => d.type?.includes("projet de territoire")));
 
   const handleAtelierSubmit = async (e, atelier) => {
@@ -1192,12 +1208,25 @@ const Spectacles = ({ setRoute }) => {
                         <span>{selectedAtelier === key ? "S'inscrire ↓" : "→"}</span>
                       </div>
                       {selectedAtelier === key && (
-                        formStates[key] === 'sent' ? (
-                          <div onClick={e => e.stopPropagation()} style={{ marginTop:16, fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:18, opacity:0.9 }}>
-                            Demande envoyée — nous revenons vers vous sous 48h.
-                          </div>
-                        ) : (
-                          <form style={{ marginTop:16, display:"grid", gap:8 }} onClick={e => e.stopPropagation()} onSubmit={e => handleAtelierSubmit(e, a)}>
+                        <div onClick={e => e.stopPropagation()} style={{ marginTop:16 }}>
+                          {a.dates.length > 1 && (
+                            <div style={{ marginBottom:16 }}>
+                              <div className="mono" style={{ fontSize:11, opacity:0.7, marginBottom:8 }}>TOUTES LES DATES</div>
+                              <div style={{ display:"grid", gap:4, maxHeight:160, overflowY:"auto" }}>
+                                {a.dates.map((occ, di) => (
+                                  <div key={di} style={{ fontSize:13, opacity:0.9 }}>
+                                    {occ.day} {occ.month} {occ.year}{occ.time ? ` · ${occ.time}` : ""}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {formStates[key] === 'sent' ? (
+                            <div style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:18, opacity:0.9 }}>
+                              Demande envoyée — nous revenons vers vous sous 48h.
+                            </div>
+                          ) : (
+                          <form style={{ display:"grid", gap:8 }} onSubmit={e => handleAtelierSubmit(e, a)}>
                             <input type="text" name="bot-field" style={{ display:"none" }} tabIndex="-1" autoComplete="off"/>
                             <input className="input" name="nom" placeholder="Nom" style={{ borderColor:a.cardTextColor, color:a.cardTextColor }} required/>
                             <input className="input" name="email" placeholder="Email" type="email" style={{ borderColor:a.cardTextColor, color:a.cardTextColor }} required/>
@@ -1208,7 +1237,8 @@ const Spectacles = ({ setRoute }) => {
                               {formStates[key] === 'loading' ? 'Envoi…' : 'Envoyer la demande'}
                             </button>
                           </form>
-                        )
+                          )}
+                        </div>
                       )}
                     </div>
                   </article>
