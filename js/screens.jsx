@@ -571,24 +571,38 @@ const FR_MONTHS_IDX = {
   nov:10, novembre:10, déc:11, décembre:11,
 };
 
-/* Date triable à partir des champs day/month/year (texte libre Sanity) —
-   même analyse que getFeaturedEvents (premier nombre du champ jour, mois
-   insensible à la casse/abrégé) pour trier les listes d'agenda par ordre
-   chronologique. Renvoie null si la date est incomplète/mal formée : ces
-   entrées sont alors reléguées en fin de liste plutôt que de casser le tri. */
+/* Plage de dates à partir des champs day/month/year (texte libre Sanity) —
+   même analyse que getFeaturedEvents (premier/dernier nombre du champ jour
+   pour gérer les plages "20 au 24", mois insensible à la casse/abrégé).
+   Renvoie null si la date est incomplète/mal formée : ces entrées sont
+   alors reléguées en fin de liste plutôt que de casser le tri. */
 const agendaEntryDate = (d) => {
   const monthIdx = FR_MONTHS_IDX[(d.month || "").trim().toLowerCase()];
   const nums = String(d.day || "").match(/\d+/g);
   if (monthIdx === undefined || !nums || !d.year) return null;
-  return new Date(+d.year, monthIdx, +nums[0]);
+  return {
+    start: new Date(+d.year, monthIdx, +nums[0]),
+    end: new Date(+d.year, monthIdx, +nums[nums.length - 1]),
+  };
 };
-const sortByDate = (list) => [...list].sort((a, b) => {
-  const da = agendaEntryDate(a), db = agendaEntryDate(b);
-  if (!da && !db) return 0;
-  if (!da) return 1;
-  if (!db) return -1;
-  return da - db;
-});
+/* Trie par proximité avec aujourd'hui plutôt que par ordre chronologique
+   brut : à venir (ou en cours) d'abord, du plus proche au plus lointain,
+   puis le passé (le plus récemment terminé en premier) — sinon un
+   rendez-vous déjà passé depuis des mois se retrouvait affiché avant les
+   prochains, simplement parce que sa date est "plus petite". */
+const sortByDate = (list) => {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return [...list].sort((a, b) => {
+    const ra = agendaEntryDate(a), rb = agendaEntryDate(b);
+    if (!ra && !rb) return 0;
+    if (!ra) return 1;
+    if (!rb) return -1;
+    const aFuture = ra.end >= today;
+    const bFuture = rb.end >= today;
+    if (aFuture !== bFuture) return aFuture ? -1 : 1;
+    return aFuture ? ra.start - rb.start : rb.start - ra.start;
+  });
+};
 
 /* Un atelier récurrent est éclaté par expandRecurrence en une occurrence par
    date (même _id Sanity, seule la date change) : on regroupe ici par _id
