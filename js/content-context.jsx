@@ -40,7 +40,14 @@ const QUERY = `{
     ...,
     projects[]{
       ...,
-      articles[]->{title, "slug": slug.current, publishedAt, author, mainImage, body}
+      articles[]->{
+        title, "slug": slug.current, publishedAt, author,
+        "mainImage": mainImage{..., "dims": asset->metadata.dimensions},
+        body[]{
+          ...,
+          _type == "image" => { "dims": asset->metadata.dimensions }
+        }
+      }
     }
   }
 }`;

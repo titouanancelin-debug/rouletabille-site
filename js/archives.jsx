@@ -14,7 +14,12 @@ const LIST_QUERY = `*[_type == "archiveArticle"] | order(publishedAt desc) {
 }`;
 
 const DETAIL_QUERY = `*[_type == "archiveArticle" && slug.current == $slug][0] {
-  title, publishedAt, author, mainImage, body
+  title, publishedAt, author,
+  "mainImage": mainImage{..., "dims": asset->metadata.dimensions},
+  body[]{
+    ...,
+    _type == "image" => { "dims": asset->metadata.dimensions }
+  }
 }`;
 
 function useArchiveList() {
@@ -44,14 +49,27 @@ function groupByYearMonth(articles) {
 
 export const portableTextComponents = {
   types: {
-    image: ({ value }) => (
-      <img
-        src={urlFor(value).width(1200).fit('max').auto('format').url()}
-        alt=""
-        loading="lazy"
-        style={{ width: '100%', height: 'auto', display: 'block', margin: '32px 0' }}
-      />
-    ),
+    // Le wrapper (pas l'<img>) réserve l'espace via aspect-ratio : la règle
+    // globale ".article-content img { width/height: auto !important }"
+    // (volontaire, pour ne pas étirer les images) empêche sinon le
+    // navigateur de réserver une hauteur avant le chargement de l'image —
+    // très visible dès qu'une page cumule beaucoup de photos en lazy-load.
+    image: ({ value }) => {
+      const w = value.dims?.width;
+      const h = value.dims?.height;
+      return (
+        <div style={{ margin: '32px auto', aspectRatio: w && h ? `${w} / ${h}` : undefined }}>
+          <img
+            src={urlFor(value).width(1200).fit('max').auto('format').url()}
+            alt=""
+            loading="lazy"
+            width={w}
+            height={h}
+            style={{ margin: 0 }}
+          />
+        </div>
+      );
+    },
   },
 };
 

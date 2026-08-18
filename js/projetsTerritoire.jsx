@@ -20,7 +20,14 @@ const ArticleBlock = ({ article, index }) => {
         </h3>
         {imgSrc && (
           <div style={{ marginBottom: 20, maxWidth: 640 }}>
-            <img src={imgSrc} alt="" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <img
+              src={imgSrc}
+              alt=""
+              loading="lazy"
+              width={article.mainImage?.dims?.width}
+              height={article.mainImage?.dims?.height}
+              style={{ width: '100%', height: 'auto', display: 'block', aspectRatio: article.mainImage?.dims?.aspectRatio || undefined }}
+            />
           </div>
         )}
         <div className="article-content" style={{ maxWidth: 680, fontSize: 15, lineHeight: 1.7 }}>
