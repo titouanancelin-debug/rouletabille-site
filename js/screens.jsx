@@ -261,13 +261,6 @@ const BotanicHero = ({ setRoute }) => {
         <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>
           Voir notre travail →
         </button>
-        <button
-          className="btn btn-ghost"
-          onClick={() => setRoute("agenda")}
-          style={{ color: "var(--paper)", borderColor: "color-mix(in oklab, var(--paper) 35%, transparent)" }}
-        >
-          Voir l'agenda
-        </button>
       </Reveal>
 
       {/* Petit fil conducteur — date de fondation */}
@@ -463,7 +456,6 @@ const ScrollExpandHero = ({ setRoute }) => {
                 </Reveal>
                 <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
                   <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Voir notre travail →</button>
-                  <button className="btn btn-ghost" onClick={() => setRoute("agenda")} style={{ color: "var(--paper)", borderColor: "color-mix(in oklab, var(--paper) 35%, transparent)" }}>Voir l'agenda</button>
                 </Reveal>
                 <Reveal variant="fade" delay={900} style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, color: "color-mix(in oklab, var(--paper) 36%, transparent)", fontSize: 11, letterSpacing: "0.1em", fontFamily: "var(--ff-mono)", textTransform: "uppercase" }}>
                   <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
@@ -826,9 +818,12 @@ const Home = ({ setRoute }) => {
       <Reveal variant="up" className="section-head" style={{ marginBottom:40 }}>
         <div className="section-num">{HOME.eventsHeader?.eyebrow}</div>
         <h2 className="section-title">{HOME.eventsHeader?.titleMain}<br/><span className="display-italic">{HOME.eventsHeader?.titleItalic}</span></h2>
-        <div className="section-meta">{HOME.eventsHeader?.meta} <a className="link-underline" onClick={() => setRoute("agenda")}>Calendrier complet →</a></div>
+        <div className="section-meta">{HOME.eventsHeader?.meta}</div>
       </Reveal>
       <EventCarousel setRoute={setRoute}/>
+      <Reveal variant="up" style={{ marginTop: 40, textAlign: "center" }}>
+        <button className="btn btn-ghost" onClick={() => setRoute("agenda")}>Voir tout l'agenda →</button>
+      </Reveal>
     </section>
 
     {/* HISTOIRE D'UN PROJET */}
