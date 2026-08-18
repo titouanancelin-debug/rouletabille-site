@@ -1668,11 +1668,30 @@ const Ateliers = ({ audience = "" }) => {
 /* ======================= ÉQUIPE ======================= */
 const TEAM_PALETTE = ["#B84A2E","#9B7AA8","#E8B542","#3A1B2E","#8E3620","#C89420","#9B7AA8","#3A1B2E"];
 
+/* Choisit un nombre de colonnes (entre 2 et 5) qui divise exactement le
+   nombre de membres d'une section : les cartes gardent toutes la même
+   taille et aucune ligne n'est incomplète, plutôt que d'étirer les
+   dernières cartes (disproportionné) ou de laisser un vide (centré ou
+   aligné). Recalculé à chaque ajout/retrait de membre dans Sanity. Si
+   aucun diviseur ne convient (nombre premier, ex: 7 ou 11 membres), on
+   retombe sur 4 colonnes — cas rare, dernière ligne alors incomplète. */
+const pickTeamColumns = (n) => {
+  if (n <= 0) return 4;
+  if (n <= 5) return n;
+  for (let c = 5; c >= 2; c--) {
+    if (n % c === 0) return c;
+  }
+  return 4;
+};
+
 const Equipe = ({ setRoute }) => {
   const { EQUIPE, EQUIPE_PAGE, EQUIPE_SECTIONS, EQUIPE_SECTIONS_HAUT } = useContent();
   const permanents = useMemo(() => EQUIPE.filter(p => p.categorie === "permanente"), [EQUIPE]);
   const associes = useMemo(() => EQUIPE.filter(p => p.categorie === "associee"), [EQUIPE]);
   const conseilAdmin = useMemo(() => EQUIPE.filter(p => p.categorie === "conseil_administration"), [EQUIPE]);
+  const permCols = pickTeamColumns(permanents.length);
+  const assocCols = pickTeamColumns(associes.length);
+  const conseilCols = pickTeamColumns(conseilAdmin.length);
 
   return (
     <>
@@ -1688,9 +1707,9 @@ const Equipe = ({ setRoute }) => {
 
       <section className="section" style={{ paddingTop:0 }}>
         <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
-        <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
+        <div className="team-grid" style={{ "--cols": permCols }}>
           {permanents.map((p, i) => (
-            <div key={p.name} style={{ flex:"1 1 240px" }}>
+            <div key={p.name}>
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[i % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
@@ -1710,9 +1729,9 @@ const Equipe = ({ setRoute }) => {
           <h2 className="section-title">Les artistes <span className="display-italic">associé·es.</span></h2>
           <div className="section-meta">Chaque saison, des artistes rejoignent le projet pour créer, transmettre ou accompagner des résidences. Ils enrichissent notre démarche par leurs univers, leurs disciplines et leurs recherches.</div>
         </div>
-        <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
+        <div className="team-grid" style={{ "--cols": assocCols }}>
           {associes.map((p, i) => (
-            <div key={p.name} style={{ flex:"1 1 240px" }}>
+            <div key={p.name}>
               <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                 <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+3) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" — ")[0].split(",")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
               </div>
@@ -1733,9 +1752,9 @@ const Equipe = ({ setRoute }) => {
             <h2 className="section-title">Membres fondateurs <span className="display-italic">& conseil d'administration.</span></h2>
             <div className="section-meta">Aujourd'hui, ils et elles font vivre le projet associatif de Rouletabille et poursuivent, collectivement, une histoire commencée il y a plus de trente ans.</div>
           </div>
-          <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:32 }}>
+          <div className="team-grid" style={{ "--cols": conseilCols }}>
             {conseilAdmin.map((p, i) => (
-              <div key={p.name} style={{ flex:"1 1 240px" }}>
+              <div key={p.name}>
                 <div className="noise" style={{ background:"var(--paper)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
                   <TeamCardVisual item={p} bg={TEAM_PALETTE[(i+5) % TEAM_PALETTE.length]} ink="#F4E8D5" title={p.name.split(" ")[0]} subtitle={p.role.split(" • ")[0]} num={String(i+1).padStart(2,"0")} variant={i % 4}/>
                 </div>
@@ -1751,7 +1770,7 @@ const Equipe = ({ setRoute }) => {
       )}
 
       <section className="section">
-        <div className="col-duo" style={{ gap:80, alignItems:"start" }}>
+        <div className="col-duo" style={{ gap:80, alignItems:"stretch" }}>
           <div>
             <div className="eyebrow" style={{ marginBottom:20 }}>{EQUIPE_PAGE?.compagnonsBlock?.eyebrow}</div>
             <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", textWrap:"pretty" }}>
@@ -1761,12 +1780,12 @@ const Equipe = ({ setRoute }) => {
               {(EQUIPE_PAGE?.compagnonsBlock?.noms || []).join(", ")}
             </p>
           </div>
-          <div>
+          <div style={{ display:"flex", flexDirection:"column" }}>
             <div className="eyebrow" style={{ marginBottom:20 }}>{EQUIPE_PAGE?.benevolesBlock?.eyebrow}</div>
             <p style={{ fontSize:18, lineHeight:1.6, color:"var(--ink-soft)", marginBottom:24, textWrap:"pretty" }}>
               {EQUIPE_PAGE?.benevolesBlock?.texte}
             </p>
-            <button className="btn btn-amber" onClick={() => setRoute("contact")}>{EQUIPE_PAGE?.benevolesBlock?.ctaLabel}</button>
+            <button className="btn btn-amber" style={{ marginTop:"auto", alignSelf:"start" }} onClick={() => setRoute("contact")}>{EQUIPE_PAGE?.benevolesBlock?.ctaLabel}</button>
           </div>
         </div>
       </section>

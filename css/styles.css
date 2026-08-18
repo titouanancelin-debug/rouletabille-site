@@ -581,6 +581,7 @@ html { scroll-behavior: smooth; }
 .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--grid-gap); }
 .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--grid-gap); }
 .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--grid-gap); }
+.team-grid { display:grid; grid-template-columns:repeat(var(--cols,4),1fr); gap:32px; }
 .col-duo   { display:grid; grid-template-columns:1fr 1.3fr; }
 .col-split { display:grid; grid-template-columns:1fr 1.2fr; }
 .col-newsletter { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; }
@@ -632,6 +633,7 @@ html { scroll-behavior: smooth; }
   .grid-4 { grid-template-columns: repeat(2,1fr); }
   .grid-3 { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr; }
   .col-duo   { grid-template-columns: 1fr; }
   .col-split { grid-template-columns: 1fr; }
   .col-newsletter { grid-template-columns: 1fr; gap: 28px; }
