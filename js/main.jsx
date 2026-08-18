@@ -5,6 +5,8 @@ import { initFX } from './fx.jsx';
 import { ContentProvider } from './content-context.jsx';
 import { Nav, Home, Spectacles, FicheSpectacle, Agenda, FicheAgenda, Ateliers, Equipe, Partenaires, Presse, MentionsLegales, Contact, Footer } from './screens.jsx';
 import { Archives, FicheArchive } from './archives.jsx';
+import { CreationsCompagnie } from './creationsCompagnie.jsx';
+import { ProjetsTerritoire } from './projetsTerritoire.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "default",
@@ -67,6 +69,8 @@ function App() {
         <Route path="/partenaires" element={<Partenaires/>}/>
         <Route path="/presse" element={<Presse/>}/>
         <Route path="/archives" element={<Archives/>}/>
+        <Route path="/archives/creations-de-la-compagnie" element={<CreationsCompagnie/>}/>
+        <Route path="/archives/projets-de-territoire" element={<ProjetsTerritoire/>}/>
         <Route path="/archives/:slug" element={<FicheArchive/>}/>
         <Route path="/mentions-legales" element={<MentionsLegales/>}/>
         <Route path="/contact" element={<Contact/>}/>

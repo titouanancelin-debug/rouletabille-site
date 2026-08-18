@@ -6,7 +6,7 @@ import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
 
-const MONTHS_FR = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+export const MONTHS_FR = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
 const LIST_QUERY = `*[_type == "archiveArticle"] | order(publishedAt desc) {
@@ -42,7 +42,7 @@ function groupByYearMonth(articles) {
   return map;
 }
 
-const portableTextComponents = {
+export const portableTextComponents = {
   types: {
     image: ({ value }) => (
       <img
@@ -150,26 +150,44 @@ const Archives = () => {
         margin: '0 calc(-1 * var(--pad-x))',
         padding: '0 var(--pad-x)',
       }}>
-        <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {years.map((y) => {
-            const count = Object.values(archiveData[y]).reduce((a, b) => a + b.length, 0);
-            const active = activeYear === y;
-            return (
-              <button
-                key={y}
-                onClick={() => { setYear(y); setMonth(null); setSearch(''); }}
-                style={{
-                  flexShrink: 0, padding: '16px 20px 14px', background: 'none', border: 'none',
-                  borderBottom: active ? '2px solid var(--terra)' : '2px solid transparent',
-                  cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                  transition: 'color 0.2s, border-color 0.2s', color: active ? 'var(--terra)' : 'var(--ink-soft)',
-                }}
-              >
-                <span style={{ fontFamily: 'var(--ff-body)', fontSize: 13, fontWeight: active ? 600 : 400 }}>{y}</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 10, opacity: 0.55 }}>{count}</span>
-              </button>
-            );
-          })}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' }}>
+            {years.map((y) => {
+              const count = Object.values(archiveData[y]).reduce((a, b) => a + b.length, 0);
+              const active = activeYear === y;
+              return (
+                <button
+                  key={y}
+                  onClick={() => { setYear(y); setMonth(null); setSearch(''); }}
+                  style={{
+                    flexShrink: 0, padding: '16px 20px 14px', background: 'none', border: 'none',
+                    borderBottom: active ? '2px solid var(--terra)' : '2px solid transparent',
+                    cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                    transition: 'color 0.2s, border-color 0.2s', color: active ? 'var(--terra)' : 'var(--ink-soft)',
+                  }}
+                >
+                  <span style={{ fontFamily: 'var(--ff-body)', fontSize: 13, fontWeight: active ? 600 : 400 }}>{y}</span>
+                  <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 10, opacity: 0.55 }}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ display: 'flex', flexShrink: 0, gap: 24 }}>
+            <Link
+              to="/archives/creations-de-la-compagnie"
+              className="nav-link"
+              style={{ fontSize: 13, whiteSpace: 'nowrap', padding: 0 }}
+            >
+              Spectacles de la compagnie
+            </Link>
+            <Link
+              to="/archives/projets-de-territoire"
+              className="nav-link"
+              style={{ fontSize: 13, whiteSpace: 'nowrap', padding: 0 }}
+            >
+              Projets de territoire
+            </Link>
+          </div>
         </div>
       </div>
 

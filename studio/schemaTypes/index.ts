@@ -12,6 +12,8 @@ import { newsletter } from './newsletter';
 import { menu } from './menu';
 import { siteSettings } from './siteSettings';
 import { agendaPage, spectaclesPage, equipePage, partenairesPage, ateliersPage, archivesPage } from './pageSections';
+import { creationsCompagniePage } from './creationsCompagniePage';
+import { projetsTerritoirePage } from './projetsTerritoirePage';
 import {
   titreBlock, texteBlock, imageBloc, imageTexteBlock, encartBlock, citationBlock, espaceBlock,
 } from './shared/sectionsLibres';
@@ -38,6 +40,8 @@ export const schemaTypes = [
   partenairesPage,
   ateliersPage,
   archivesPage,
+  creationsCompagniePage,
+  projetsTerritoirePage,
 
   // Blocs des sections libres (objets, pas des documents autonomes)
   titreBlock, texteBlock, imageBloc, imageTexteBlock, encartBlock, citationBlock, espaceBlock,

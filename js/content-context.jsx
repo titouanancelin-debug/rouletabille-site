@@ -34,7 +34,15 @@ const QUERY = `{
   "newsletter": *[_id == "newsletter"][0],
   "menu": *[_id == "menu"][0],
   "siteSettings": *[_id == "siteSettings"][0],
-  "archivesPage": *[_id == "archivesPage"][0]
+  "archivesPage": *[_id == "archivesPage"][0],
+  "creationsCompagniePage": *[_id == "creationsCompagniePage"][0],
+  "projetsTerritoirePage": *[_id == "projetsTerritoirePage"][0]{
+    ...,
+    projects[]{
+      ...,
+      articles[]->{title, "slug": slug.current, publishedAt, author, mainImage, body}
+    }
+  }
 }`;
 
 const ContentContext = createContext(null);
@@ -90,6 +98,8 @@ export function ContentProvider({ children }) {
     MENU: data.menu,
     SITE: data.siteSettings,
     ARCHIVES_PAGE: data.archivesPage,
+    CREATIONS_COMPAGNIE_PAGE: data.creationsCompagniePage,
+    PROJETS_TERRITOIRE_PAGE: data.projetsTerritoirePage,
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
 }
