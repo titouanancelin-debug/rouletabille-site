@@ -24,6 +24,10 @@ function App() {
   const [atelierAudience, setAtelierAudience] = useState("");
 
   useEffect(() => { initFX(); }, []);
+  // Les <Link> (notamment ceux du Footer) ne passent pas par setRoute() et
+  // ne déclenchaient donc aucun scroll : sans ce reset, on atterrit sur une
+  // nouvelle page avec le défilement hérité de la précédente.
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
 
   const [tweaks, setTweaks] = useState(TWEAK_DEFAULTS);
   const [tweaksOpen, setTweaksOpen] = useState(false);
