@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { pageHeaderFields } from './pageSections';
+import { richTextField } from './shared/richText';
 
 // Page "Spectacles de la compagnie" dans Archives : reprend le contenu de
 // l'ancienne page de blog Overblog "Les créations de la compagnie"
@@ -27,7 +28,7 @@ export const creationsCompagniePage = defineType({
             description: 'Ex. "2024", ou "2012/2013" pour une création à cheval sur deux saisons. Laisser vide si inconnue.',
           }),
           defineField({ name: 'title', title: 'Titre', type: 'string', validation: (Rule) => Rule.required() }),
-          defineField({ name: 'description', title: 'Description', type: 'text' }),
+          defineField({ name: 'description', title: 'Description', ...richTextField }),
           defineField({
             name: 'videoUrl',
             title: 'Vidéo (lien YouTube, optionnel)',

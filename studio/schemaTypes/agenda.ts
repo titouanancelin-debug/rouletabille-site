@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { MultiDateCalendarInput } from './components/MultiDateCalendarInput';
+import { richTextField } from './shared/richText';
 
 // Collection centrale voulue par l'équipe : spectacles, ateliers, résidences,
 // événements... tout au même endroit, avec récurrence portée par l'entrée
@@ -38,7 +39,7 @@ export const agenda = defineType({
     }),
     defineField({ name: 'status', title: 'Statut', type: 'string', options: { list: ['available', 'few', 'sold', 'free'] }, fieldset: 'principal' }),
     defineField({ name: 'spectacle', title: 'Spectacle lié', type: 'reference', to: [{ type: 'spectacle' }], fieldset: 'principal' }),
-    defineField({ name: 'desc', title: 'Description', type: 'text', fieldset: 'principal' }),
+    defineField({ name: 'desc', title: 'Description', ...richTextField, fieldset: 'principal' }),
 
     defineField({ name: 'venue', title: 'Lieu', type: 'string', fieldset: 'pratique' }),
     defineField({ name: 'time', title: 'Horaire (texte libre)', type: 'string', fieldset: 'pratique' }),

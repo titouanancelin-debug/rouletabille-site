@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { pageHeaderFields } from './pageSections';
+import { richTextField } from './shared/richText';
 
 // Page "Projets de territoire" dans Archives : regroupe par projet des
 // articles déjà migrés depuis le blog Overblog (voir archiveArticle), plutôt
@@ -22,7 +23,7 @@ export const projetsTerritoirePage = defineType({
         name: 'territoryProject',
         fields: [
           defineField({ name: 'title', title: 'Titre du projet', type: 'string', validation: (Rule) => Rule.required() }),
-          defineField({ name: 'description', title: 'Chapô / présentation du projet', type: 'text' }),
+          defineField({ name: 'description', title: 'Chapô / présentation du projet', ...richTextField }),
           defineField({
             name: 'articles',
             title: 'Articles d\'archive repris pour ce projet',

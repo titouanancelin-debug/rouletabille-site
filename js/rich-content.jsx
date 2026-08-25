@@ -8,10 +8,27 @@
 import { PortableText } from '@portabletext/react';
 import { urlFor } from './sanity-client.js';
 
+/* Les liens dans le texte riche (agenda, créations/projets d'archive,
+   sections libres...) s'ouvrent dans une vraie fenêtre popup navigateur
+   plutôt qu'un nouvel onglet ou une navigation sur place — demande
+   explicite de l'équipe. */
+const openInPopup = (href) => window.open(href, '_blank', 'noopener,noreferrer,width=900,height=700');
+
 const portableTextComponents = {
   types: {
     image: ({ value }) => (
       <img src={urlFor(value).width(1200).fit('max').auto('format').url()} alt="" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }}/>
+    ),
+  },
+  marks: {
+    link: ({ value, children }) => (
+      <a
+        href={value?.href}
+        rel="noopener noreferrer"
+        onClick={(e) => { if (value?.href) { e.preventDefault(); openInPopup(value.href); } }}
+      >
+        {children}
+      </a>
     ),
   },
 };
