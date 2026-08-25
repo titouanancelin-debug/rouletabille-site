@@ -10,5 +10,6 @@ studio/.sanity/
 scripts/node_modules/
 scripts/.env
 scripts/.image-asset-cache.json
+scripts/.two-articles-assets/
 .dev.vars
 .wrangler/
