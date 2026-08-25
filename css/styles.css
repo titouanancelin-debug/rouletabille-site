@@ -621,7 +621,7 @@ html { scroll-behavior: smooth; }
 
 /* ===================== BREAKPOINT 768px ===================== */
 @media (max-width: 768px) {
-  :root { --pad-x: 18px; --pad-y: 56px; --grid-gap: 14px; }
+  :root { --pad-x: 12px; --pad-y: 56px; --grid-gap: 14px; }
 
   .nav { padding: 10px 18px; }
   .nav-menu { display: none; }
@@ -647,7 +647,7 @@ html { scroll-behavior: smooth; }
 }
 
 @media (max-width: 480px) {
-  :root { --pad-x: 14px; }
+  :root { --pad-x: 8px; }
   .grid-4 { grid-template-columns: 1fr; }
   .col-footer { grid-template-columns: 1fr; }
 }

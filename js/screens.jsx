@@ -4,8 +4,10 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Motif, MotifHero, Poster } from './motif.jsx';
 import { useContent } from './content-context.jsx';
+import { urlFor } from './sanity-client.js';
 import { RichText, SectionsLibres } from './rich-content.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
+import { FR_MONTHS_IDX, agendaSlug, agendaEntryDate, sortByDate, sortByWeekday, splitArchivedAgenda } from './agenda-archive.js';
 
 /* ─── Formulaires : Cloudflare Pages Functions ─────────────────────────────
    Chaque formulaire poste en JSON vers /api/<nom> (voir functions/api/),
@@ -43,6 +45,24 @@ const TeamCardVisual = ({ item, bg, ink, title, subtitle, num, variant }) => (
       {item.image && (
         <div className="flip-card-back">
           <CardPhoto item={item} alt={item.name}/>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+/* Carte atelier : même bascule que TeamCardVisual (motif devant, photo au
+   dos si renseignée) — remplace l'ancien fond photo statique en superposition
+   sombre pour rester cohérent avec les cartes équipe/partenaires. */
+const AtelierCardVisual = ({ item, variant = 0 }) => (
+  <div className={`flip-card${item.image ? " has-photo" : ""}`} style={{ position: "absolute", inset: 0 }}>
+    <div className="flip-card-inner">
+      <div className="flip-card-front">
+        <Poster bg={item.cardColor} ink={item.cardTextColor} variant={variant} motifOpacity={0.5} hideText/>
+      </div>
+      {item.image && (
+        <div className="flip-card-back">
+          <CardPhoto item={item} alt={item.title} />
         </div>
       )}
     </div>
@@ -100,13 +120,6 @@ const toPath = (id) => (id === "home" ? "/" : "/" + id);
    spectacles) — le slug est dérivé du titre + de la date, ce qui est stable
    tant que ces champs ne changent pas et fonctionne aussi bien pour les
    entrées JSON que pour les occurrences d'ateliers générées à la volée. */
-const slugify = (s) => (s || "")
-  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-")
-  .replace(/^-+|-+$/g, "");
-
-const agendaSlug = (d) => slugify(`${d.title || ""}-${d.day || ""}-${d.month || ""}-${d.year || ""}`);
 
 const Nav = ({ route }) => {
   const { MENU, SITE } = useContent();
@@ -562,59 +575,21 @@ const HistoireAccordion = () => {
 };
 
 /* ======================= EVENT CAROUSEL ======================= */
-/* Accepte aussi bien l'abréviation ("sep") que le nom complet ("septembre")
-   saisi dans Sanity : une saisie CMS en toutes lettres ne doit pas, elle non
-   plus, faire disparaître silencieusement un rendez-vous (voir plus bas). */
-const FR_MONTHS_IDX = {
-  jan:0, janvier:0, fév:1, février:1, mar:2, mars:2, avr:3, avril:3, mai:4,
-  juin:5, juil:6, juillet:6, août:7, sep:8, septembre:8, oct:9, octobre:9,
-  nov:10, novembre:10, déc:11, décembre:11,
-};
-
-/* Plage de dates à partir des champs day/month/year (texte libre Sanity) —
-   même analyse que getFeaturedEvents (premier/dernier nombre du champ jour
-   pour gérer les plages "20 au 24", mois insensible à la casse/abrégé).
-   Renvoie null si la date est incomplète/mal formée : ces entrées sont
-   alors reléguées en fin de liste plutôt que de casser le tri. */
-const agendaEntryDate = (d) => {
-  const monthIdx = FR_MONTHS_IDX[(d.month || "").trim().toLowerCase()];
-  const nums = String(d.day || "").match(/\d+/g);
-  if (monthIdx === undefined || !nums || !d.year) return null;
-  return {
-    start: new Date(+d.year, monthIdx, +nums[0]),
-    end: new Date(+d.year, monthIdx, +nums[nums.length - 1]),
-  };
-};
-/* Trie par proximité avec aujourd'hui plutôt que par ordre chronologique
-   brut : à venir (ou en cours) d'abord, du plus proche au plus lointain,
-   puis le passé (le plus récemment terminé en premier) — sinon un
-   rendez-vous déjà passé depuis des mois se retrouvait affiché avant les
-   prochains, simplement parce que sa date est "plus petite". */
-const sortByDate = (list) => {
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  return [...list].sort((a, b) => {
-    const ra = agendaEntryDate(a), rb = agendaEntryDate(b);
-    if (!ra && !rb) return 0;
-    if (!ra) return 1;
-    if (!rb) return -1;
-    const aFuture = ra.end >= today;
-    const bFuture = rb.end >= today;
-    if (aFuture !== bFuture) return aFuture ? -1 : 1;
-    return aFuture ? ra.start - rb.start : rb.start - ra.start;
-  });
-};
 
 /* Un atelier récurrent est éclaté par expandRecurrence en une occurrence par
    date (même _id Sanity, seule la date change) : on regroupe ici par _id
    pour n'afficher qu'une carte par atelier, avec la liste de toutes ses
-   dates plutôt qu'un doublon par séance. */
+   dates plutôt qu'un doublon par séance. La liste de cartes elle-même est
+   triée par jour de semaine (lundi→dimanche, cf. tâche "ateliers réguliers")
+   plutôt que par date calendaire ; les occurrences à l'intérieur d'un même
+   atelier restent, elles, triées chronologiquement. */
 const groupAteliers = (list) => {
   const byId = new Map();
   for (const a of list) {
     if (!byId.has(a._id)) byId.set(a._id, []);
     byId.get(a._id).push(a);
   }
-  return sortByDate(Array.from(byId.values()).map((occurrences) => {
+  return sortByWeekday(Array.from(byId.values()).map((occurrences) => {
     const dates = sortByDate(occurrences);
     return { ...dates[0], dates };
   }));
@@ -968,6 +943,7 @@ const AgendaRow = ({ d, onClick }) => {
 
 const Spectacles = ({ setRoute }) => {
   const { AGENDA, AGENDA_PAGE, SPECTACLES_PAGE, SPECTACLES_SECTIONS, SPECTACLES_SECTIONS_HAUT } = useContent();
+  const { current: liveAgenda } = useMemo(() => splitArchivedAgenda(AGENDA), [AGENDA]);
   const { labels: typeLabels, get: getType } = useTypeConfig();
   const travailTabs = SPECTACLES_PAGE?.travailTabs || [];
   const tabConfig = (value) => travailTabs.find(t => t.value === value) || {};
@@ -976,11 +952,11 @@ const Spectacles = ({ setRoute }) => {
   const [atelierFilter, setAtelierFilter] = useState("");
   const [selectedAtelier, setSelectedAtelier] = useState(null);
   const [formStates, setFormStates] = useState({});
-  const residences = sortByDate(AGENDA.filter(d => d.type?.includes("résidence")));
-  const mediations  = sortByDate(AGENDA.filter(d => d.type?.includes("médiation")));
-  const evenements  = sortByDate(AGENDA.filter(d => d.type?.includes("événement")));
-  const ateliersAgenda = groupAteliers(AGENDA.filter(d => d.type?.includes("atelier")));
-  const territoire  = sortByDate(AGENDA.filter(d => d.type?.includes("projet de territoire")));
+  const residences = sortByDate(liveAgenda.filter(d => d.type?.includes("résidence")));
+  const mediations  = sortByDate(liveAgenda.filter(d => d.type?.includes("médiation")));
+  const evenements  = sortByDate(liveAgenda.filter(d => d.type?.includes("événement")));
+  const ateliersAgenda = groupAteliers(liveAgenda.filter(d => d.type?.includes("atelier")));
+  const territoire  = sortByDate(liveAgenda.filter(d => d.type?.includes("projet de territoire")));
 
   const handleAtelierSubmit = async (e, atelier) => {
     e.preventDefault();
@@ -999,7 +975,7 @@ const Spectacles = ({ setRoute }) => {
   const atelierList = atelierFilter ? ateliersAgenda.filter(a => a.audience?.includes(atelierFilter)) : ateliersAgenda;
 
   const getStatus = (s) => {
-    const hasDates = AGENDA.some(d => d.spectacle === s.id);
+    const hasDates = liveAgenda.some(d => d.spectacle === s.id);
     if (hasDates) return { label:"En diffusion", color:"var(--terra)" };
     return { label:"Répertoire", color:"var(--ink-soft)" };
   };
@@ -1196,19 +1172,10 @@ const Spectacles = ({ setRoute }) => {
                 const key = agendaSlug(a);
                 return (
                 <Reveal key={key} variant="scale" delay={(i % 3) * 80} style={{ display:"flex" }}>
-                  <article className={a.image ? "" : "noise"} style={{ flex:1, background: a.image ? "#000" : a.cardColor, color:a.cardTextColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
+                  <article style={{ flex:1, background:a.cardColor, color:a.cardTextColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
                     onClick={() => setSelectedAtelier(selectedAtelier === key ? null : key)}
                   >
-                    {a.image ? (
-                      <>
-                        <CardPhoto item={a} alt={a.title} style={{ position:"absolute", inset:0, opacity:0.5 }}/>
-                        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2))" }}/>
-                      </>
-                    ) : (
-                      <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
-                        <Motif size={220} color={a.cardTextColor} berryColor={a.cardTextColor} rotate={20} seed={i+1}/>
-                      </div>
-                    )}
+                    <AtelierCardVisual item={a} variant={i % 4}/>
                     <div style={{ position:"relative", zIndex:2 }}>
                       <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
                       <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
@@ -1228,8 +1195,10 @@ const Spectacles = ({ setRoute }) => {
                               <div className="mono" style={{ fontSize:11, opacity:0.7, marginBottom:8 }}>TOUTES LES DATES</div>
                               <div style={{ display:"grid", gap:4, maxHeight:160, overflowY:"auto" }}>
                                 {a.dates.map((occ, di) => (
-                                  <div key={di} style={{ fontSize:13, opacity:0.9 }}>
-                                    {occ.day} {occ.month} {occ.year}{occ.time ? ` · ${occ.time}` : ""}
+                                  <div key={di} style={{ display:"grid", gridTemplateColumns:"28px 1fr auto", gap:8, fontSize:13, opacity:0.9 }}>
+                                    <span style={{ fontVariantNumeric:"tabular-nums" }}>{occ.day}</span>
+                                    <span>{occ.month} {occ.year}</span>
+                                    <span style={{ opacity:0.75 }}>{occ.time}</span>
                                   </div>
                                 ))}
                               </div>
@@ -1274,6 +1243,9 @@ const Spectacles = ({ setRoute }) => {
             <p style={{ fontSize:18, lineHeight:1.7, color:"rgba(242,228,200,0.75)", textWrap:"pretty" }}>
               {tabConfig('territoire').intro}
             </p>
+            <Link to="/archives/projets-de-territoire" className="btn" style={{ marginTop:24, display:"inline-flex" }}>
+              Voir les projets archivés →
+            </Link>
           </Reveal>
           {territoire.length > 0 ? (
             <div className="grid-2">
@@ -1312,7 +1284,7 @@ const FicheSpectacle = ({ setRoute }) => {
   const { id } = useParams();
   const { SPECTACLES, AGENDA } = useContent();
   const s = SPECTACLES.find(x => x.id === id) || SPECTACLES[0];
-  const dates = AGENDA.filter(a => a.spectacle === s.id);
+  const dates = splitArchivedAgenda(AGENDA).current.filter(a => a.spectacle === s.id);
   return (
     <>
       <section className="section" style={{ paddingBottom:40 }}>
@@ -1457,6 +1429,7 @@ function agendaEntryMonthKey(d) {
 
 const Agenda = ({ setRoute }) => {
   const { AGENDA, AGENDA_PAGE, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
+  const { current: liveAgenda } = useMemo(() => splitArchivedAgenda(AGENDA), [AGENDA]);
   const { typeConfig, get: getType } = useTypeConfig();
   const agendaFilters = [{ id:"tout", label:"Tout" }, ...typeConfig.map(t => ({ id:t.value, label:t.label }))];
   const [showPast, setShowPast] = useState(false);
@@ -1465,11 +1438,11 @@ const Agenda = ({ setRoute }) => {
   const [month, setMonth] = useState(() => monthKey(new Date()));
 
   const list = useMemo(() => {
-    const base = filter === "tout" ? AGENDA : AGENDA.filter(d => d.type?.includes(filter));
+    const base = filter === "tout" ? liveAgenda : liveAgenda.filter(d => d.type?.includes(filter));
     return sortByDate(base.filter(d => agendaEntryMonthKey(d) === month));
-  }, [AGENDA, filter, month]);
+  }, [liveAgenda, filter, month]);
 
-  const countForMonth = (key) => AGENDA.filter(d => agendaEntryMonthKey(d) === key).length;
+  const countForMonth = (key) => liveAgenda.filter(d => agendaEntryMonthKey(d) === key).length;
 
   return (
     <>
@@ -1697,7 +1670,7 @@ const Ateliers = ({ audience = "" }) => {
   const { AGENDA, AGENDA_PAGE, SPECTACLES_PAGE, ATELIERS_PAGE, ATELIERS_SECTIONS, ATELIERS_SECTIONS_HAUT } = useContent();
   const audienceFilters = buildAudienceFilters(AGENDA_PAGE);
   const ateliersEmptyMessage = SPECTACLES_PAGE?.travailTabs?.find(t => t.value === 'ateliers')?.emptyMessage;
-  const ateliersAgenda = useMemo(() => AGENDA.filter(d => d.type?.includes("atelier")), [AGENDA]);
+  const ateliersAgenda = useMemo(() => groupAteliers(splitArchivedAgenda(AGENDA).current.filter(d => d.type?.includes("atelier"))), [AGENDA]);
   const [filter, setFilter] = useState(audience);
   const [selected, setSelected] = useState(null);
   const [formStates, setFormStates] = useState({}); // slug -> idle | loading | sent | error
@@ -1754,19 +1727,10 @@ const Ateliers = ({ audience = "" }) => {
               const key = agendaSlug(a);
               return (
               <Reveal key={key} variant="scale" delay={(i % 3) * 80} style={{ display:"flex" }}>
-              <article className={a.image ? "" : "noise"} style={{ flex:1, background: a.image ? "#000" : a.cardColor, color:a.cardTextColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
+              <article style={{ flex:1, background:a.cardColor, color:a.cardTextColor, padding:32, position:"relative", overflow:"hidden", minHeight:340, cursor:"pointer", display:"flex", flexDirection:"column", justifyContent:"space-between" }}
                 onClick={() => setSelected(selected === key ? null : key)}
               >
-                {a.image ? (
-                  <>
-                    <CardPhoto item={a} alt={a.title} style={{ position:"absolute", inset:0, opacity:0.5 }}/>
-                    <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2))" }}/>
-                  </>
-                ) : (
-                  <div style={{ position:"absolute", right:-30, bottom:-40, opacity:0.18 }}>
-                    <Motif size={220} color={a.cardTextColor} berryColor={a.cardTextColor} rotate={20} seed={i+1}/>
-                  </div>
-                )}
+                <AtelierCardVisual item={a} variant={i % 4}/>
                 <div style={{ position:"relative", zIndex:2 }}>
                   <h3 className="display" style={{ fontSize:36, lineHeight:1, marginBottom:14 }}>{a.title}</h3>
                   <div style={{ fontSize:14, opacity:0.85, marginBottom:18 }}>{a.who}</div>
@@ -1853,7 +1817,7 @@ const Equipe = ({ setRoute }) => {
 
       <section className="section" style={{ paddingTop:0 }}>
         <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
-        <div className="team-grid" style={{ "--cols": permCols }}>
+        <div className="team-grid" style={{ "--cols": permCols, maxWidth:860, margin:"0 auto" }}>
           {permanents.map((p, i) => (
             <div key={p.name}>
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
@@ -2099,6 +2063,31 @@ const Contact = () => {
 
         <div className="col-duo" style={{ gap:80 }}>
           <div>
+            {CONTACT.image && (
+              <div style={{ position:"relative", aspectRatio:"4/3", overflow:"hidden", marginBottom:32 }}>
+                <img
+                  src={urlFor(CONTACT.image).width(800).height(600).fit('crop').auto('format').url()}
+                  alt={CONTACT.addressName || ""}
+                  loading="lazy"
+                  style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+                />
+                {CONTACT.mapUrl && (
+                  <a
+                    href={CONTACT.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="noise"
+                    style={{
+                      position:"absolute", left:16, bottom:16, display:"inline-flex", alignItems:"center", gap:8,
+                      background:"var(--terra)", color:"#fff", padding:"10px 16px", textDecoration:"none",
+                      fontFamily:"var(--ff-mono)", fontSize:12, letterSpacing:"0.04em", textTransform:"uppercase",
+                    }}
+                  >
+                    Voir sur Google Maps →
+                  </a>
+                )}
+              </div>
+            )}
             <div style={{ marginBottom:32 }}>
               <div className="mono" style={{ marginBottom:8, opacity:0.5 }}>Adresse</div>
               <div style={{ fontFamily:"var(--ff-display)", fontStyle:"italic", fontSize:28, lineHeight:1.2 }}>

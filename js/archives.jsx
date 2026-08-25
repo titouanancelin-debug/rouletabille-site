@@ -5,6 +5,7 @@ import { sanityClient, urlFor } from './sanity-client.js';
 import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
+import { agendaSlug, agendaEntryDate, splitArchivedAgenda } from './agenda-archive.js';
 
 export const MONTHS_FR = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -47,6 +48,11 @@ function groupByYearMonth(articles) {
   return map;
 }
 
+/* Les liens du corps d'article s'ouvrent dans une vraie fenêtre popup
+   navigateur (même comportement que le texte riche agenda/archives, voir
+   js/rich-content.jsx). */
+const openInPopup = (href) => window.open(href, '_blank', 'noopener,noreferrer,width=900,height=700');
+
 export const portableTextComponents = {
   types: {
     // Le wrapper (pas l'<img>) réserve l'espace via aspect-ratio : la règle
@@ -71,16 +77,48 @@ export const portableTextComponents = {
       );
     },
   },
+  marks: {
+    link: ({ value, children }) => (
+      <a
+        href={value?.href}
+        rel="noopener noreferrer"
+        onClick={(e) => { if (value?.href) { e.preventDefault(); openInPopup(value.href); } }}
+      >
+        {children}
+      </a>
+    ),
+  },
+};
+
+/* Convertit un rendez-vous d'agenda archivé (>1 an, hors spectacle/projet de
+   territoire, cf. splitArchivedAgenda) en un objet de la même forme qu'un
+   archiveArticle, pour qu'ArchiveCard et le regroupement par année/mois
+   puissent traiter les deux sans distinction. `mainImage` est ici déjà une
+   URL (agenda.image est résolu côté GROQ en `image.asset->url`), contrairement
+   au mainImage d'un archiveArticle qui est une référence d'asset Sanity brute
+   — ArchiveCard gère les deux cas. */
+const agendaToArchiveItem = (entry) => {
+  const start = agendaEntryDate(entry)?.start;
+  const slug = agendaSlug(entry);
+  return {
+    title: entry.title,
+    slug,
+    href: `/agenda/${slug}`,
+    publishedAt: (start || new Date(0)).toISOString(),
+    mainImage: entry.image || null,
+  };
 };
 
 /* ── Carte d'un article ── */
 const ArchiveCard = ({ art }) => {
   const d = new Date(art.publishedAt);
   const dateLabel = `${d.getDate()} ${MONTHS_FR[d.getMonth() + 1]} ${d.getFullYear()}`;
-  const imgSrc = art.mainImage ? urlFor(art.mainImage).width(600).height(450).fit('crop').auto('format').url() : null;
+  const imgSrc = art.mainImage
+    ? (typeof art.mainImage === 'string' ? art.mainImage : urlFor(art.mainImage).width(600).height(450).fit('crop').auto('format').url())
+    : null;
 
   return (
-    <Link to={`/archives/${art.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <Link to={art.href || `/archives/${art.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <article className="card card-fx" style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}>
         <div className="card-img" style={{ aspectRatio: '4/3' }}>
           {imgSrc ? (
@@ -109,14 +147,20 @@ const ArchiveCard = ({ art }) => {
 
 /* ── Écran Archives (liste) ── */
 const Archives = () => {
-  const { ARCHIVES_PAGE } = useContent();
+  const { ARCHIVES_PAGE, AGENDA } = useContent();
   const articles = useArchiveList();
   const [year, setYear] = useState(null);
   const [month, setMonth] = useState(null);
   const [search, setSearch] = useState('');
   const motifRef = useParallax(0.18, 110);
 
-  const archiveData = useMemo(() => groupByYearMonth(articles), [articles]);
+  const allItems = useMemo(() => {
+    if (!articles) return articles;
+    const archivedAgenda = splitArchivedAgenda(AGENDA || []).archivedGeneral.map(agendaToArchiveItem);
+    return [...articles, ...archivedAgenda];
+  }, [articles, AGENDA]);
+
+  const archiveData = useMemo(() => groupByYearMonth(allItems), [allItems]);
   const years = useMemo(() => Object.keys(archiveData).map(Number).sort((a, b) => b - a), [archiveData]);
   const activeYear = year ?? years[0];
 
@@ -155,7 +199,7 @@ const Archives = () => {
             {ARCHIVES_PAGE?.headerTitleMain}<br /><span className="display-italic">{ARCHIVES_PAGE?.headerTitleItalic}</span>
           </h2>
           <div className="section-meta">
-            {articles.length} publications · {years[years.length - 1]} — {years[0]} · {ARCHIVES_PAGE?.headerMeta}
+            {allItems.length} publications · {years[years.length - 1]} — {years[0]} · {ARCHIVES_PAGE?.headerMeta}
           </div>
         </Reveal>
       </section>
@@ -190,7 +234,7 @@ const Archives = () => {
               );
             })}
           </div>
-          <div style={{ display: 'flex', flexShrink: 0, gap: 24 }}>
+          <div style={{ display: 'flex', flexShrink: 0, gap: 24, marginRight: 32 }}>
             <Link
               to="/archives/creations-de-la-compagnie"
               className="nav-link"
@@ -439,4 +483,4 @@ const FicheArchive = () => {
   );
 };
 
-export { Archives, FicheArchive };
+export { Archives, FicheArchive, ArchiveCard, agendaToArchiveItem };

@@ -1,7 +1,11 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
+import { splitArchivedAgenda } from './agenda-archive.js';
+import { ArchiveCard, agendaToArchiveItem } from './archives.jsx';
+import { RichText } from './rich-content.jsx';
 
 // Extrait un id vidéo YouTube depuis n'importe quelle forme d'URL usuelle
 // (watch?v=, youtu.be/, déjà en /embed/) pour construire l'iframe d'intégration.
@@ -32,9 +36,7 @@ const CreationRow = ({ creation, index }) => {
             {creation.title}
           </h3>
           {creation.description && (
-            <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--ink-soft)', maxWidth: 720, marginBottom: embedUrl ? 20 : 0 }}>
-              {creation.description}
-            </p>
+            <RichText content={creation.description} style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--ink-soft)', maxWidth: 720, marginBottom: embedUrl ? 20 : 0 }}/>
           )}
           {embedUrl && (
             <div style={{ maxWidth: 560, aspectRatio: '16/9', marginTop: 4 }}>
@@ -55,9 +57,16 @@ const CreationRow = ({ creation, index }) => {
 };
 
 const CreationsCompagnie = () => {
-  const { CREATIONS_COMPAGNIE_PAGE } = useContent();
+  const { CREATIONS_COMPAGNIE_PAGE, AGENDA } = useContent();
   const motifRef = useParallax(0.18, 110);
   const creations = CREATIONS_COMPAGNIE_PAGE?.creations || [];
+  // Rendez-vous d'agenda de type "spectacle" archivés automatiquement après
+  // 1 an (voir js/agenda-archive.js) : viennent s'ajouter aux créations
+  // curées manuellement ci-dessus, sans les remplacer.
+  const archivedSpectacles = useMemo(
+    () => splitArchivedAgenda(AGENDA || []).archivedSpectacles.map(agendaToArchiveItem),
+    [AGENDA]
+  );
 
   return (
     <>
@@ -93,6 +102,15 @@ const CreationsCompagnie = () => {
           </div>
         )}
       </section>
+
+      {archivedSpectacles.length > 0 && (
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="eyebrow" style={{ marginBottom: 24 }}>Autres spectacles archivés</div>
+          <div className="grid-3">
+            {archivedSpectacles.map((art) => <ArchiveCard key={art.slug} art={art} />)}
+          </div>
+        </section>
+      )}
     </>
   );
 };

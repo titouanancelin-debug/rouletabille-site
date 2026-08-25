@@ -10,6 +10,12 @@ export const contact = defineType({
     ...pageHeaderFields,
     defineField({ name: 'meta', title: 'Mention (horaires/accueil)', type: 'text' }),
     sectionsLibresField('sectionsHaut', 'Sections libres (haut de page)'),
+    defineField({ name: 'image', title: 'Photo du lieu', type: 'image' }),
+    defineField({
+      name: 'mapUrl', title: 'Lien Google Maps', type: 'url',
+      description: 'Lien direct vers le lieu sur Google Maps (copier-coller depuis le bouton "Partager" de la fiche du lieu) — affiché en incrustation sur la photo.',
+      validation: (Rule) => Rule.uri({ allowRelative: false, scheme: ['http', 'https'] }),
+    }),
     defineField({ name: 'addressName', title: 'Nom du lieu', type: 'string' }),
     defineField({ name: 'addressLine1', title: 'Adresse — ligne 1', type: 'string' }),
     defineField({ name: 'addressLine2', title: 'Adresse — ligne 2', type: 'string' }),

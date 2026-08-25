@@ -1,10 +1,13 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { PortableText } from '@portabletext/react';
 import { urlFor } from './sanity-client.js';
 import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
-import { portableTextComponents, MONTHS_FR } from './archives.jsx';
+import { portableTextComponents, MONTHS_FR, ArchiveCard, agendaToArchiveItem } from './archives.jsx';
+import { splitArchivedAgenda } from './agenda-archive.js';
+import { RichText } from './rich-content.jsx';
 
 const ArticleBlock = ({ article, index }) => {
   const d = new Date(article.publishedAt);
@@ -51,9 +54,7 @@ const ProjectSection = ({ project, index }) => (
         {project.title}
       </h2>
       {project.description && (
-        <p style={{ fontSize: 16, lineHeight: 1.6, color: 'var(--ink-soft)', maxWidth: 640, marginBottom: 32 }}>
-          {project.description}
-        </p>
+        <RichText content={project.description} style={{ fontSize: 16, lineHeight: 1.6, color: 'var(--ink-soft)', maxWidth: 640, marginBottom: 32 }}/>
       )}
     </Reveal>
     <div>
@@ -65,9 +66,16 @@ const ProjectSection = ({ project, index }) => (
 );
 
 const ProjetsTerritoire = () => {
-  const { PROJETS_TERRITOIRE_PAGE } = useContent();
+  const { PROJETS_TERRITOIRE_PAGE, AGENDA } = useContent();
   const motifRef = useParallax(0.18, 110);
   const projects = PROJETS_TERRITOIRE_PAGE?.projects || [];
+  // Rendez-vous d'agenda de type "projet de territoire" archivés
+  // automatiquement après 1 an (js/agenda-archive.js) : viennent s'ajouter
+  // aux projets curés manuellement ci-dessus, sans les remplacer.
+  const archivedTerritoire = useMemo(
+    () => splitArchivedAgenda(AGENDA || []).archivedTerritoire.map(agendaToArchiveItem),
+    [AGENDA]
+  );
 
   return (
     <>
@@ -100,6 +108,15 @@ const ProjetsTerritoire = () => {
         projects.map((project, i) => (
           <ProjectSection key={project._key || i} project={project} index={i} />
         ))
+      )}
+
+      {archivedTerritoire.length > 0 && (
+        <section className="section" style={{ borderTop: projects.length > 0 ? '1px solid var(--rule-strong)' : 'none' }}>
+          <div className="eyebrow" style={{ marginBottom: 24 }}>Autres projets archivés</div>
+          <div className="grid-3">
+            {archivedTerritoire.map((art) => <ArchiveCard key={art.slug} art={art} />)}
+          </div>
+        </section>
       )}
     </>
   );
