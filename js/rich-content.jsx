@@ -136,12 +136,25 @@ const Bloc = ({ s }) => {
   }
 };
 
+/* Rendu brut des blocs, sans l'emballage `<section className="section">`
+   (padding/largeur de page) qu'impose SectionsLibres — pour insérer des
+   sections libres à l'intérieur d'un composant déjà contraint (ex: une ligne
+   de la liste "Spectacles de la compagnie"). */
+export const SectionsBlocks = ({ sections, gap = 40 }) => {
+  if (!sections?.length) return null;
+  return (
+    <div style={{ display: 'grid', gap }}>
+      {sections.map((s, i) => <Bloc key={s._key ?? i} s={s}/>)}
+    </div>
+  );
+};
+
 export const SectionsLibres = ({ doc, background }) => {
   const sections = doc?.sections;
   if (!sections?.length) return null;
   return (
-    <section className="section" style={{ background, display: 'grid', gap: 40 }}>
-      {sections.map((s, i) => <Bloc key={s._key ?? i} s={s}/>)}
+    <section className="section" style={{ background }}>
+      <SectionsBlocks sections={sections}/>
     </section>
   );
 };

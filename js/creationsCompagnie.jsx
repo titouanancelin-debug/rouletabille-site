@@ -5,7 +5,7 @@ import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
 import { splitArchivedAgenda } from './agenda-archive.js';
 import { ArchiveCard, agendaToArchiveItem } from './archives.jsx';
-import { RichText } from './rich-content.jsx';
+import { RichText, SectionsBlocks } from './rich-content.jsx';
 
 // Extrait un id vidéo YouTube depuis n'importe quelle forme d'URL usuelle
 // (watch?v=, youtu.be/, déjà en /embed/) pour construire l'iframe d'intégration.
@@ -48,6 +48,11 @@ const CreationRow = ({ creation, index }) => {
                 allowFullScreen
                 style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
               />
+            </div>
+          )}
+          {creation.sections?.length > 0 && (
+            <div style={{ marginTop: 24, maxWidth: 720 }}>
+              <SectionsBlocks sections={creation.sections} gap={24}/>
             </div>
           )}
         </div>

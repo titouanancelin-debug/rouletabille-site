@@ -1,6 +1,7 @@
 import { defineField, defineType } from 'sanity';
 import { pageHeaderFields } from './pageSections';
 import { richTextField } from './shared/richText';
+import { sectionsLibresField } from './shared/sectionsLibres';
 
 // Page "Spectacles de la compagnie" dans Archives : reprend le contenu de
 // l'ancienne page de blog Overblog "Les créations de la compagnie"
@@ -35,6 +36,7 @@ export const creationsCompagniePage = defineType({
             type: 'url',
             validation: (Rule) => Rule.uri({ allowRelative: false, scheme: ['http', 'https'] }),
           }),
+          sectionsLibresField('sections', 'Sections (photos, texte, citation...) — optionnel, pour enrichir la fiche au-delà de la description'),
         ],
         preview: { select: { title: 'title', subtitle: 'year' } },
       }],
