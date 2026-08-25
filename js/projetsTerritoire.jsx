@@ -1,49 +1,79 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { PortableText } from '@portabletext/react';
 import { urlFor } from './sanity-client.js';
 import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
-import { portableTextComponents, MONTHS_FR, ArchiveCard, agendaToArchiveItem } from './archives.jsx';
+import { MONTHS_FR, ArchiveCard, agendaToArchiveItem } from './archives.jsx';
 import { splitArchivedAgenda } from './agenda-archive.js';
 import { RichText } from './rich-content.jsx';
+
+// Un article d'archive repris ici peut contenir des dizaines de photos
+// (reportage photo Overblog) — les afficher toutes pleine largeur rendait la
+// page ingérable (des dizaines de milliers de px de haut). On montre à la
+// place un extrait du texte + une galerie compacte, avec un lien vers la
+// fiche archive complète (même route que /archives) pour qui veut tout lire.
+const GALLERY_CAP = 8;
+
+const excerptFromBody = (body, maxLen = 200) => {
+  const text = (body || [])
+    .filter((b) => b._type === 'block')
+    .map((b) => (b.children || []).map((c) => c.text || '').join(''))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!text) return '';
+  return text.length <= maxLen ? text : text.slice(0, maxLen).replace(/\s+\S*$/, '') + '…';
+};
 
 const ArticleBlock = ({ article, index }) => {
   const d = new Date(article.publishedAt);
   const dateLabel = `${d.getDate()} ${MONTHS_FR[d.getMonth() + 1]} ${d.getFullYear()}`;
-  const imgSrc = article.mainImage ? urlFor(article.mainImage).width(900).fit('max').auto('format').url() : null;
+  const excerpt = excerptFromBody(article.body);
+  const bodyImages = (article.body || []).filter((b) => b._type === 'image');
+  const coverImage = article.mainImage || bodyImages[0];
+  const galleryImages = (article.mainImage ? bodyImages : bodyImages.slice(1)).slice(0, GALLERY_CAP);
+  const remaining = (article.mainImage ? bodyImages.length : bodyImages.length - 1) - galleryImages.length;
+  const coverSrc = coverImage ? urlFor(coverImage).width(900).fit('max').auto('format').url() : null;
 
-  // Le "Reveal" (fade scroll-based) ne doit envelopper que le petit
-  // en-tête : un article avec des dizaines de photos peut faire des
-  // dizaines de milliers de px de haut, et l'IntersectionObserver derrière
-  // Reveal ne déclenche que si 15% de la hauteur de l'élément enveloppé
-  // devient visible — un seuil qu'un élément aussi grand ne peut
-  // structurellement jamais atteindre (il resterait invisible à vie).
   return (
-    <article>
-      <Reveal variant="up" delay={(index % 3) * 70} style={{ marginTop: index === 0 ? 0 : 48 }}>
-        <div className="tag" style={{ color: 'var(--terra)', marginBottom: 8 }}>{dateLabel}</div>
-        <h3 className="display" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 16, textWrap: 'balance' }}>
-          {article.title}
-        </h3>
-        {imgSrc && (
-          <div style={{ marginBottom: 20, maxWidth: 640 }}>
-            <img
-              src={imgSrc}
-              alt=""
-              loading="lazy"
-              width={article.mainImage?.dims?.width}
-              height={article.mainImage?.dims?.height}
-              style={{ width: '100%', height: 'auto', display: 'block', aspectRatio: article.mainImage?.dims?.aspectRatio || undefined }}
-            />
-          </div>
-        )}
-      </Reveal>
-      <div className="article-content" style={{ maxWidth: 680, fontSize: 15, lineHeight: 1.7 }}>
-        <PortableText value={article.body} components={portableTextComponents} />
-      </div>
-    </article>
+    <Reveal as="article" variant="up" delay={(index % 3) * 70} style={{ marginTop: index === 0 ? 0 : 48 }}>
+      <div className="tag" style={{ color: 'var(--terra)', marginBottom: 8 }}>{dateLabel}</div>
+      <h3 className="display" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 16, textWrap: 'balance' }}>
+        {article.title}
+      </h3>
+      {coverSrc && (
+        <div style={{ marginBottom: 16, maxWidth: 640 }}>
+          <img src={coverSrc} alt="" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }}/>
+        </div>
+      )}
+      {excerpt && (
+        <p style={{ maxWidth: 640, fontSize: 15, lineHeight: 1.7, color: 'var(--ink-soft)', marginBottom: 16 }}>
+          {excerpt}
+        </p>
+      )}
+      {galleryImages.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: 6, maxWidth: 640, marginBottom: 20 }}>
+          {galleryImages.map((img, i) => {
+            const isLast = i === galleryImages.length - 1 && remaining > 0;
+            const src = urlFor(img).width(200).height(200).fit('crop').auto('format').url();
+            return (
+              <div key={img._key || i} style={{ position: 'relative', aspectRatio: '1/1', overflow: 'hidden' }}>
+                <img src={src} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}/>
+                {isLast && (
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--ff-mono)', fontSize: 13 }}>
+                    +{remaining}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <Link to={`/archives/${article.slug}`} className="nav-link" style={{ padding: 0, fontSize: 13 }}>
+        Lire l'article complet →
+      </Link>
+    </Reveal>
   );
 };
 
