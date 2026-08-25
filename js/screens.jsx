@@ -1817,7 +1817,7 @@ const Equipe = ({ setRoute }) => {
 
       <section className="section" style={{ paddingTop:0 }}>
         <div className="eyebrow" style={{ marginBottom:24 }}>Équipe permanente</div>
-        <div className="team-grid" style={{ "--cols": permCols, maxWidth:860, margin:"0 auto" }}>
+        <div className="team-grid" style={{ "--cols": permCols }}>
           {permanents.map((p, i) => (
             <div key={p.name}>
               <div className="noise" style={{ background:"var(--paper-warm)", aspectRatio:"4/5", position:"relative", overflow:"hidden", marginBottom:16 }}>
