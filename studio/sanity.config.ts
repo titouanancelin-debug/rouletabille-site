@@ -18,6 +18,8 @@ const SINGLETONS = [
   ['partenairesPage', 'Page Partenaires (sections)'],
   ['ateliersPage', 'Page Ateliers (sections)'],
   ['archivesPage', 'Page Archives (sections)'],
+  ['creationsCompagniePage', 'Page Spectacles de la compagnie'],
+  ['projetsTerritoirePage', 'Page Projets de territoire'],
 ];
 
 // Équipe : trois listes triables par glisser-déposer (une par catégorie),

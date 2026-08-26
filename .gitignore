@@ -13,3 +13,4 @@ scripts/.image-asset-cache.json
 scripts/.two-articles-assets/
 .dev.vars
 .wrangler/
+.claude/

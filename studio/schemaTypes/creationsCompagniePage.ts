@@ -29,6 +29,13 @@ export const creationsCompagniePage = defineType({
             description: 'Ex. "2024", ou "2012/2013" pour une création à cheval sur deux saisons. Laisser vide si inconnue.',
           }),
           defineField({ name: 'title', title: 'Titre', type: 'string', validation: (Rule) => Rule.required() }),
+          defineField({
+            name: 'photo',
+            title: 'Photo',
+            type: 'image',
+            options: { hotspot: true },
+            description: 'Optionnelle. Affichée en vignette à côté du titre dans la liste.',
+          }),
           defineField({ name: 'description', title: 'Description', ...richTextField }),
           defineField({
             name: 'videoUrl',
@@ -38,7 +45,7 @@ export const creationsCompagniePage = defineType({
           }),
           sectionsLibresField('sections', 'Sections (photos, texte, citation...) — optionnel, pour enrichir la fiche au-delà de la description'),
         ],
-        preview: { select: { title: 'title', subtitle: 'year' } },
+        preview: { select: { title: 'title', subtitle: 'year', media: 'photo' } },
       }],
     }),
   ],

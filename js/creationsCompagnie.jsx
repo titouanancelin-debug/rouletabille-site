@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { urlFor } from './sanity-client.js';
 import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
@@ -17,12 +18,15 @@ function youtubeEmbedUrl(url) {
 
 const CreationRow = ({ creation, index }) => {
   const embedUrl = youtubeEmbedUrl(creation.videoUrl);
+  const photoSrc = creation.photo
+    ? urlFor(creation.photo).width(280).height(210).fit('crop').auto('format').url()
+    : null;
 
   return (
     <Reveal variant="up" delay={(index % 4) * 60}>
-      <article style={{
+      <article className="creation-row" style={{
         display: 'grid',
-        gridTemplateColumns: embedUrl ? '120px 1fr' : '120px 1fr',
+        gridTemplateColumns: photoSrc ? '120px 140px 1fr' : '120px 1fr',
         gap: 24,
         padding: '28px 0',
         borderTop: '1px solid var(--rule)',
@@ -31,6 +35,16 @@ const CreationRow = ({ creation, index }) => {
         <div className="mono" style={{ fontSize: 14, color: 'var(--terra)', paddingTop: 4 }}>
           {creation.year || '—'}
         </div>
+        {photoSrc && (
+          <div style={{ aspectRatio: '4/3', overflow: 'hidden' }}>
+            <img
+              src={photoSrc}
+              alt=""
+              loading="lazy"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          </div>
+        )}
         <div>
           <h3 className="display" style={{ fontSize: 24, lineHeight: 1.15, marginBottom: 10, textWrap: 'balance' }}>
             {creation.title}

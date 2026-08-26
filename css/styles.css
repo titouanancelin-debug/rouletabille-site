@@ -595,6 +595,7 @@ html { scroll-behavior: smooth; }
 .nav-burger {
   display:none; flex-direction:column; gap:5px;
   background:none; border:none; cursor:pointer; padding:8px; color:var(--ink);
+  position:relative; z-index:1001; /* rester au-dessus de .nav-mobile (z-index:1000) une fois ouvert */
 }
 .nav-burger span {
   display:block; width:22px; height:2px;
@@ -618,6 +619,9 @@ html { scroll-behavior: smooth; }
   transition:color 0.15s, padding-left 0.15s;
 }
 .nav-mobile-link:hover, .nav-mobile-link.active { color:var(--terra); padding-left:8px; }
+
+/* Empêche la page de défiler derrière le panneau plein écran pendant qu'il est ouvert (voir Nav dans js/screens.jsx) */
+body.nav-mobile-active { overflow: hidden; }
 
 /* ===================== BREAKPOINT 768px ===================== */
 @media (max-width: 768px) {
@@ -840,6 +844,15 @@ html { scroll-behavior: smooth; }
 @media (max-width: 600px) {
   .article-reader-body aside {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Fiche création (page "Spectacles de la compagnie") : la vignette photo
+   optionnelle fait passer la ligne à 3 colonnes fixes (année/photo/texte),
+   trop étroit en mobile — on empile tout. */
+@media (max-width: 640px) {
+  .creation-row {
+    grid-template-columns: 1fr !important;
   }
 }
 

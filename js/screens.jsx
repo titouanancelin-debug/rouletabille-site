@@ -133,6 +133,11 @@ const Nav = ({ route }) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.classList.toggle("nav-mobile-active", mobileOpen);
+    return () => document.body.classList.remove("nav-mobile-active");
+  }, [mobileOpen]);
+
   const items = [
     { id:"home", label:MENU.labelHome },
     { id:"spectacles", label:MENU.labelSpectacles },
