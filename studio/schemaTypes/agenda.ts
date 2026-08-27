@@ -25,7 +25,7 @@ export const agenda = defineType({
     { name: 'fichier', title: 'Pièce jointe (dossier PDF)', options: { collapsible: true, collapsed: true } },
     {
       name: 'dates', title: 'Dates',
-      description: 'Choisir UNE seule des trois méthodes ci-dessous, selon le rendez-vous : "Date" pour une date ou une plage de dates fixe, "Dates ponctuelles" pour un atelier avec plusieurs jours cochés au calendrier, ou "Récurrence" pour un rendez-vous qui revient chaque semaine/mois.',
+      description: 'Choisir UNE seule des trois méthodes ci-dessous, selon le rendez-vous : "Date" pour une date ou une plage de dates fixe, "Dates ponctuelles" pour un atelier ou un projet de territoire avec plusieurs jours cochés au calendrier (même sur des mois différents), ou "Récurrence" pour un rendez-vous qui revient chaque semaine/mois.',
     },
   ],
   fields: [
@@ -83,11 +83,14 @@ export const agenda = defineType({
       fieldset: 'dates',
     }),
     defineField({
-      name: 'ponctualDates', title: 'Dates ponctuelles (atelier) — cocher les jours sur le calendrier', type: 'array',
+      name: 'ponctualDates', title: 'Dates ponctuelles (atelier, projet de territoire) — cocher les jours sur le calendrier', type: 'array',
       of: [{ type: 'string' }],
       components: { input: MultiDateCalendarInput },
-      hidden: ({ document }) => !(document?.type as string[] | undefined)?.includes('atelier'),
-      description: 'Pour un atelier avec plusieurs dates ponctuelles (pas de récurrence régulière) : coche chaque date sur le calendrier plutôt que de remplir "Date" ci-dessus.',
+      hidden: ({ document }) => {
+        const types = (document?.type as string[] | undefined) || [];
+        return !types.includes('atelier') && !types.includes('projet de territoire');
+      },
+      description: 'Pour un atelier ou un projet de territoire avec plusieurs dates ponctuelles, y compris sur plusieurs mois différents (pas de récurrence régulière) : coche chaque date sur le calendrier plutôt que de remplir "Date" ci-dessus.',
       fieldset: 'dates',
     }),
     defineField({
