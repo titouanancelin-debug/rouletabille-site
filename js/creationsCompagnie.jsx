@@ -7,14 +7,7 @@ import { useContent } from './content-context.jsx';
 import { splitArchivedAgenda } from './agenda-archive.js';
 import { ArchiveCard, agendaToArchiveItem } from './archives.jsx';
 import { RichText, SectionsBlocks } from './rich-content.jsx';
-
-// Extrait un id vidéo YouTube depuis n'importe quelle forme d'URL usuelle
-// (watch?v=, youtu.be/, déjà en /embed/) pour construire l'iframe d'intégration.
-function youtubeEmbedUrl(url) {
-  if (!url) return null;
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=|shorts\/))([\w-]{6,})/);
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
-}
+import { youtubeEmbedUrl } from './youtube.js';
 
 const CreationRow = ({ creation, index }) => {
   const embedUrl = youtubeEmbedUrl(creation.videoUrl);

@@ -6,6 +6,7 @@ import { Reveal, useParallax } from './fx.jsx';
 import { Motif } from './motif.jsx';
 import { useContent } from './content-context.jsx';
 import { agendaSlug, agendaEntryDate, splitArchivedAgenda } from './agenda-archive.js';
+import { youtubeEmbedUrl } from './youtube.js';
 
 export const MONTHS_FR = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -95,6 +96,22 @@ export const portableTextComponents = {
             width={w}
             height={h}
             style={{ margin: 0 }}
+          />
+        </div>
+      );
+    },
+    archiveVideo: ({ value }) => {
+      const embedUrl = youtubeEmbedUrl(value.url);
+      if (!embedUrl) return null;
+      return (
+        <div style={{ margin: '32px auto', maxWidth: 640, aspectRatio: '16/9' }}>
+          <iframe
+            src={embedUrl}
+            title="Vidéo"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
           />
         </div>
       );

@@ -42,6 +42,15 @@ export const archiveArticle = defineType({
       of: [
         { type: 'block' },
         { type: 'image' },
+        {
+          type: 'object',
+          name: 'archiveVideo',
+          title: 'Vidéo',
+          fields: [
+            defineField({ name: 'url', title: 'URL YouTube', type: 'url', validation: (Rule) => Rule.required() }),
+          ],
+          preview: { select: { subtitle: 'url' }, prepare: ({ subtitle }) => ({ title: 'Vidéo', subtitle }) },
+        },
       ],
     }),
   ],

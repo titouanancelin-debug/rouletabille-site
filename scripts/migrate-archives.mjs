@@ -40,7 +40,11 @@ const blockContentSchema = Schema.compile({
         {
           name: 'body',
           type: 'array',
-          of: [{ type: 'block' }, { type: 'image' }],
+          of: [
+            { type: 'block' },
+            { type: 'image' },
+            { type: 'object', name: 'archiveVideo', fields: [{ name: 'url', type: 'url' }] },
+          ],
         },
       ],
     },
@@ -88,7 +92,11 @@ async function convertToBlocks(html, imgSrcToAssetId) {
     rules: [
       {
         deserialize(el, next, block) {
-          if (el.tagName?.toLowerCase() !== 'img') return undefined;
+          const tag = el.tagName?.toLowerCase();
+          if (tag === 'archive-video') {
+            return block({ _type: 'archiveVideo', url: `https://www.youtube.com/watch?v=${el.getAttribute('data-id')}` });
+          }
+          if (tag !== 'img') return undefined;
           const src = el.getAttribute('src') || '';
           const assetId = imgSrcToAssetId.get(src);
           if (!assetId) return [];
@@ -106,15 +114,53 @@ async function convertToBlocks(html, imgSrcToAssetId) {
   });
 }
 
+// ID YouTube extrait d'un iframe embedly Overblog (le src encode l'URL
+// YouTube d'origine dans son paramètre `url=`/`src=`, elle-même
+// URL-encodée) — même famille de regex que js/youtube.js pour une URL
+// YouTube "normale".
+function extractYoutubeId(iframeSrc) {
+  const decoded = decodeURIComponent(iframeSrc || '');
+  const match = decoded.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=|shorts\/))([\w-]{6,})/);
+  return match ? match[1] : null;
+}
+
 function sanitizePostContent(doc) {
   const content = doc.querySelector('.post-content');
   if (!content) return null;
 
-  // Widget Overblog "à lire aussi" (vignette + titre + extrait + URL d'un
-  // site tiers, sans rapport avec l'article) et scripts de carrousel : pure
-  // pollution qui, si on les laisse passer, apparaît comme un faux dernier
-  // paragraphe de l'article avec un lien externe hors-sujet.
-  content.querySelectorAll('.ob-ctn--withImage, script').forEach((el) => el.remove());
+  content.querySelectorAll('script').forEach((el) => el.remove());
+
+  // Widget Overblog "lien enrichi" (vignette + titre + extrait + URL) : dans
+  // les articles observés, toujours un ajout volontaire de l'autrice/auteur
+  // (revue de presse, lien vers une vidéo, page d'un partenaire) introduit
+  // par une phrase du type "La presse en parle :" — jamais une suggestion
+  // générée par la plateforme. On ne garde que le titre en lien cliquable :
+  // la vignette (souvent un simple favicon 170x170, flou une fois agrandi)
+  // et l'extrait auto-généré n'apportent rien.
+  content.querySelectorAll('.ob-ctn--withImage').forEach((widget) => {
+    const titleLink = widget.querySelector('.ob-title a[href]');
+    if (!titleLink) { widget.remove(); return; }
+    const p = doc.createElement('p');
+    const a = doc.createElement('a');
+    a.setAttribute('href', titleLink.getAttribute('href'));
+    a.textContent = titleLink.textContent.trim();
+    p.appendChild(a);
+    widget.replaceWith(p);
+  });
+
+  // Vidéo YouTube intégrée (carrousel Overblog via embedly) : convertie en
+  // marqueur <archive-video> (élément custom, pas une balise standard :
+  // il doit survivre à la purge des divs vides ci-dessous, laquelle ne
+  // regarde que <div>) porteur de l'id YouTube, repris par la règle
+  // personnalisée de convertToBlocks.
+  content.querySelectorAll('.ob-video, .ob-media.ob-video').forEach((videoEl) => {
+    const iframe = videoEl.querySelector('iframe[src]');
+    const id = iframe && extractYoutubeId(iframe.getAttribute('src'));
+    if (!id) { videoEl.remove(); return; }
+    const marker = doc.createElement('archive-video');
+    marker.setAttribute('data-id', id);
+    videoEl.replaceWith(marker);
+  });
 
   content.querySelectorAll('img[src]').forEach((img) => {
     const fixed = resolveImgSrc(img.getAttribute('src') || '');
@@ -133,7 +179,7 @@ function sanitizePostContent(doc) {
   while (changed) {
     changed = false;
     content.querySelectorAll('div').forEach((div) => {
-      const hasImg = div.querySelector('img');
+      const hasImg = div.querySelector('img, archive-video');
       const hasText = div.textContent.trim().length > 0;
       if (!hasImg && !hasText) {
         div.remove();
@@ -195,9 +241,18 @@ async function migrateArticle(art, index, total) {
 async function main() {
   const articlesPath = path.join(SITE_DIR, 'articles.json');
   const articles = JSON.parse(fs.readFileSync(articlesPath, 'utf8'));
-  const toMigrate = articles.filter((a) => !LIEN_RE.test(a.title.trim()));
+  let toMigrate = articles.filter((a) => !LIEN_RE.test(a.title.trim()));
 
-  console.log(`${articles.length} articles au total, ${toMigrate.length} à migrer (bulletins "Le Lien" exclus).\n`);
+  // Filtre optionnel : node migrate-archives.mjs slug-1,slug-2 pour ne
+  // (re)migrer que certains articles au lieu des 275, ex. après une
+  // correction ciblée de sanitizePostContent/convertToBlocks.
+  const onlySlugs = process.argv[2]?.split(',').map((s) => s.trim()).filter(Boolean);
+  if (onlySlugs?.length) {
+    const slugOf = (a) => a.file.replace(/^articles\//, '').replace(/\.html$/, '');
+    toMigrate = toMigrate.filter((a) => onlySlugs.includes(slugOf(a)));
+  }
+
+  console.log(`${articles.length} articles au total, ${toMigrate.length} à migrer${onlySlugs?.length ? ` (filtré sur ${onlySlugs.length} slug(s))` : ' (bulletins "Le Lien" exclus)'}.\n`);
 
   const results = [];
   for (let i = 0; i < toMigrate.length; i++) {
