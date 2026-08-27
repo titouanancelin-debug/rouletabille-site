@@ -209,11 +209,10 @@ const Archives = () => {
         background: 'color-mix(in oklab, var(--paper) 96%, transparent)',
         backdropFilter: 'blur(10px)',
         borderBottom: '1px solid var(--rule-strong)',
-        margin: '0 calc(-1 * var(--pad-x))',
         padding: '0 var(--pad-x)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-          <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', minWidth: 0 }}>
             {years.map((y) => {
               const count = Object.values(archiveData[y]).reduce((a, b) => a + b.length, 0);
               const active = activeYear === y;

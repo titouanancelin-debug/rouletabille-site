@@ -10,7 +10,7 @@ import { ProjetsTerritoire } from './projetsTerritoire.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "default",
-  "density": "airy",
+  "density": "default",
   "anim": "normal",
   "dark": false
 }/*EDITMODE-END*/;

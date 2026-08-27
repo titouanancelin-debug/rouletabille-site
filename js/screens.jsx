@@ -1006,9 +1006,10 @@ const Spectacles = ({ setRoute }) => {
         borderBottom:"1px solid var(--rule-strong)",
       }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"0 var(--pad-x)" }}>
-          <div style={{ display:"flex" }}>
+          <div style={{ display:"flex", overflowX:"auto", scrollbarWidth:"none", minWidth:0 }}>
             {travailTabs.map(t => (
               <button key={t.value} onClick={() => setTab(t.value)} style={{
+                flexShrink:0,
                 padding:"16px 24px 14px",
                 background:"none", border:"none",
                 borderBottom: tab === t.value ? "2px solid var(--terra)" : "2px solid transparent",
@@ -1016,12 +1017,12 @@ const Spectacles = ({ setRoute }) => {
                 transition:"color 0.2s, border-color 0.2s",
                 color: tab === t.value ? "var(--terra)" : "var(--ink-soft)",
               }}>
-                <span style={{ fontFamily:"var(--ff-body)", fontSize:13, fontWeight: tab === t.value ? 600 : 400 }}>{t.label}</span>
+                <span style={{ fontFamily:"var(--ff-body)", fontSize:13, fontWeight: tab === t.value ? 600 : 400, whiteSpace:"nowrap" }}>{t.label}</span>
               </button>
             ))}
           </div>
           {/* Titre de la section active */}
-          <span className="display-italic" style={{ fontSize:"clamp(18px, 2vw, 26px)", color:"var(--terra)", opacity:0.85, paddingRight:4 }}>
+          <span className="display-italic" style={{ flexShrink:0, fontSize:"clamp(18px, 2vw, 26px)", color:"var(--terra)", opacity:0.85, paddingRight:4 }}>
             {travailTabs.find(t => t.value === tab)?.title}
           </span>
         </div>
