@@ -64,8 +64,8 @@ function App() {
       <Nav route={screenLabel}/>
       <Routes>
         <Route path="/" element={<Home setRoute={setRoute}/>}/>
-        <Route path="/spectacles" element={<Spectacles setRoute={setRoute}/>}/>
-        <Route path="/spectacles/:id" element={<FicheSpectacle setRoute={setRoute}/>}/>
+        <Route path="/notre-travail" element={<Spectacles setRoute={setRoute}/>}/>
+        <Route path="/notre-travail/:id" element={<FicheSpectacle setRoute={setRoute}/>}/>
         <Route path="/agenda" element={<Agenda setRoute={setRoute}/>}/>
         <Route path="/agenda/:slug" element={<FicheAgenda setRoute={setRoute}/>}/>
         <Route path="/ateliers" element={<Ateliers audience={atelierAudience}/>}/>

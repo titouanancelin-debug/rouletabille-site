@@ -140,7 +140,7 @@ const Nav = ({ route }) => {
 
   const items = [
     { id:"home", label:MENU.labelHome },
-    { id:"spectacles", label:MENU.labelSpectacles },
+    { id:"notre-travail", label:MENU.labelSpectacles },
     { id:"agenda", label:MENU.labelAgenda },
     { id:"equipe", label:MENU.labelEquipe },
     { id:"partenaires", label:MENU.labelPartenaires },
@@ -276,7 +276,7 @@ const BotanicHero = ({ setRoute }) => {
       </Reveal>
 
       <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>
+        <button className="btn btn-amber" onClick={() => setRoute("notre-travail")}>
           Voir notre travail →
         </button>
       </Reveal>
@@ -473,7 +473,7 @@ const ScrollExpandHero = ({ setRoute }) => {
                   <RichText content={HOME.heroIntro}/>
                 </Reveal>
                 <Reveal variant="up" delay={640} style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-                  <button className="btn btn-amber" onClick={() => setRoute("spectacles")}>Voir notre travail →</button>
+                  <button className="btn btn-amber" onClick={() => setRoute("notre-travail")}>Voir notre travail →</button>
                 </Reveal>
                 <Reveal variant="fade" delay={900} style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, color: "color-mix(in oklab, var(--paper) 36%, transparent)", fontSize: 11, letterSpacing: "0.1em", fontFamily: "var(--ff-mono)", textTransform: "uppercase" }}>
                   <span style={{ display: "block", width: 32, height: "1px", background: "currentColor", flexShrink: 0 }}/>
@@ -1294,7 +1294,7 @@ const FicheSpectacle = ({ setRoute }) => {
   return (
     <>
       <section className="section" style={{ paddingBottom:40 }}>
-        <button className="nav-link" onClick={() => setRoute("spectacles")} style={{ paddingLeft:0, marginBottom:24 }}>← Notre travail</button>
+        <button className="nav-link" onClick={() => setRoute("notre-travail")} style={{ paddingLeft:0, marginBottom:24 }}>← Notre travail</button>
         <div className="col-split" style={{ gap:64, alignItems:"start" }}>
           <div className="noise" style={{ position:"relative", aspectRatio:"4/5", overflow:"hidden" }}>
             {s.image ? <CardPhoto item={s} alt={s.title}/> : <Poster bg={s.color} ink={s.textColor} title={s.title} subtitle={s.tag} num={s.num} variant={2}/>}
@@ -1635,7 +1635,7 @@ const FicheAgenda = ({ setRoute }) => {
             <>
               {!d.desc && <RichText content={sp.desc} style={{ fontSize:18, lineHeight:1.5, marginBottom:32, color:"var(--ink-soft)", textWrap:"pretty" }}/>}
               <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-                <button className="btn btn-amber" onClick={() => setRoute("spectacles/" + sp.id)}>Voir le spectacle →</button>
+                <button className="btn btn-amber" onClick={() => setRoute("notre-travail/" + sp.id)}>Voir le spectacle →</button>
                 <button className="btn btn-ghost" onClick={() => setRoute("contact")}>Nous contacter</button>
               </div>
             </>
@@ -2304,7 +2304,7 @@ const Footer = () => {
       <div>
         <div className="mono" style={{ marginBottom:14, opacity:0.5 }}>{FOOTER.colDecouvrirTitle}</div>
         <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8, fontSize:14 }}>
-          <li><Link to="/spectacles" style={footerLinkStyle}>{MENU.labelSpectacles}</Link></li>
+          <li><Link to="/notre-travail" style={footerLinkStyle}>{MENU.labelSpectacles}</Link></li>
           <li><Link to="/agenda" style={footerLinkStyle}>{MENU.labelAgenda}</Link></li>
           <li><Link to="/equipe" style={footerLinkStyle}>{MENU.labelEquipe}</Link></li>
           <li><Link to="/partenaires" style={footerLinkStyle}>{MENU.labelPartenaires}</Link></li>
