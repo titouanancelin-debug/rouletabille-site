@@ -1433,6 +1433,17 @@ function agendaEntryMonthKey(d) {
   return idx === undefined ? `${d.month} ${d.year}` : `${FR_MONTHS_ORDER[idx]} ${d.year}`;
 }
 
+// Ordre voulu pour l'onglet "Tout" : projets de territoire d'abord, puis le
+// reste (événements, résidences, médiations, ateliers) — plutôt que le tri
+// purement chronologique utilisé quand un type précis est filtré. Le tri
+// par date (sortByDate) reste appliqué au sein de chaque catégorie grâce à
+// la stabilité du tri JS (on trie par catégorie un tableau déjà trié par date).
+const AGENDA_TOUT_ORDER = ["projet de territoire", "événement", "résidence", "médiation", "atelier"];
+const agendaTypeRank = (d) => {
+  const idx = AGENDA_TOUT_ORDER.findIndex((t) => d.type?.includes(t));
+  return idx === -1 ? AGENDA_TOUT_ORDER.length : idx;
+};
+
 const Agenda = ({ setRoute }) => {
   const { AGENDA, AGENDA_PAGE, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
   const { current: liveAgenda } = useMemo(() => splitArchivedAgenda(AGENDA), [AGENDA]);
@@ -1445,7 +1456,8 @@ const Agenda = ({ setRoute }) => {
 
   const list = useMemo(() => {
     const base = filter === "tout" ? liveAgenda : liveAgenda.filter(d => d.type?.includes(filter));
-    return sortByDate(base.filter(d => agendaEntryMonthKey(d) === month));
+    const sorted = sortByDate(base.filter(d => agendaEntryMonthKey(d) === month));
+    return filter === "tout" ? [...sorted].sort((a, b) => agendaTypeRank(a) - agendaTypeRank(b)) : sorted;
   }, [liveAgenda, filter, month]);
 
   const countForMonth = (key) => liveAgenda.filter(d => agendaEntryMonthKey(d) === key).length;
