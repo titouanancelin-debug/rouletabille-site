@@ -132,9 +132,17 @@ h1, h2, h3 { font-family: var(--ff-display); font-weight: 400; letter-spacing:-0
   position: sticky; top:0; z-index:50;
   display:flex; align-items:center; justify-content:space-between;
   padding: 14px var(--pad-x);
+  border-bottom: 1px solid var(--rule);
+}
+/* Fond flouté sur un pseudo-élément plutôt que directement sur .nav : un
+   backdrop-filter sur .nav en ferait le containing block de son enfant
+   .nav-mobile (position:fixed), confinant ce panneau plein écran à la
+   hauteur de la barre de nav au lieu du viewport entier. z-index:-1 le
+   maintient sous le contenu de la barre (logo/liens/burger). */
+.nav::before {
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
   background: color-mix(in oklab, var(--paper) 92%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--rule);
 }
 .nav-logo {
   font-family: var(--ff-display);
