@@ -25,7 +25,7 @@ export const agenda = defineType({
     { name: 'fichier', title: 'Pièce jointe (dossier PDF)', options: { collapsible: true, collapsed: true } },
     {
       name: 'dates', title: 'Dates',
-      description: 'Choisir UNE seule des trois méthodes ci-dessous, selon le rendez-vous : "Date" pour une date ou une plage de dates fixe, "Dates ponctuelles" pour un atelier ou un projet de territoire avec plusieurs jours cochés au calendrier (même sur des mois différents), ou "Récurrence" pour un rendez-vous qui revient chaque semaine/mois.',
+      description: 'Choisir UNE seule des quatre méthodes ci-dessous, selon le rendez-vous : "Date" pour une date ou une plage de dates fixe, "Dates ponctuelles" pour un atelier ou un projet de territoire avec plusieurs jours cochés au calendrier (même sur des mois différents), "Période" pour un projet de territoire qui s\'étend sur plusieurs mois/années sans dates précises, ou "Récurrence" pour un rendez-vous qui revient chaque semaine/mois.',
     },
   ],
   fields: [
@@ -79,7 +79,10 @@ export const agenda = defineType({
         },
         { name: 'year', title: 'Année', type: 'string' },
       ],
-      hidden: ({ document }) => !!(document?.ponctualDates as string[] | undefined)?.length || isRecurrent(document),
+      hidden: ({ document }) =>
+        !!(document?.ponctualDates as string[] | undefined)?.length ||
+        isRecurrent(document) ||
+        !!document?.periodStart,
       fieldset: 'dates',
     }),
     defineField({
@@ -88,9 +91,21 @@ export const agenda = defineType({
       components: { input: MultiDateCalendarInput },
       hidden: ({ document }) => {
         const types = (document?.type as string[] | undefined) || [];
-        return !types.includes('atelier') && !types.includes('projet de territoire');
+        return (!types.includes('atelier') && !types.includes('projet de territoire')) || !!document?.periodStart;
       },
-      description: 'Pour un atelier ou un projet de territoire avec plusieurs dates ponctuelles, y compris sur plusieurs mois différents (pas de récurrence régulière) : coche chaque date sur le calendrier plutôt que de remplir "Date" ci-dessus.',
+      description: 'Pour un atelier ou un projet de territoire avec plusieurs dates ponctuelles précises, y compris sur plusieurs mois différents (pas de récurrence régulière) : coche chaque date sur le calendrier plutôt que de remplir "Date" ci-dessus.',
+      fieldset: 'dates',
+    }),
+    defineField({
+      name: 'periodStart', title: 'Période — début', type: 'date',
+      hidden: ({ document }) => !(document?.type as string[] | undefined)?.includes('projet de territoire'),
+      description: 'Pour un projet de territoire qui s\'étend sur une longue durée (plusieurs mois, plusieurs années) sans dates précises à cocher une par une : renseigner un début (et une fin ci-dessous) plutôt que "Date" ou "Dates ponctuelles". Affiché sous la forme "Mois Année".',
+      fieldset: 'dates',
+    }),
+    defineField({
+      name: 'periodEnd', title: 'Période — fin (optionnel)', type: 'date',
+      hidden: ({ document }) => !document?.periodStart,
+      description: 'Laisser vide si le projet est toujours en cours / la fin n\'est pas encore connue.',
       fieldset: 'dates',
     }),
     defineField({

@@ -22,14 +22,26 @@ export const slugify = (s) => (s || "")
   .replace(/[^a-z0-9]+/g, "-")
   .replace(/^-+|-+$/g, "");
 
-export const agendaSlug = (d) => slugify(`${d.title || ""}-${d.day || ""}-${d.month || ""}-${d.year || ""}`);
+export const agendaSlug = (d) => slugify(
+  d.periodStart
+    ? `${d.title || ""}-${d.periodStart}-${d.periodEnd || ""}`
+    : `${d.title || ""}-${d.day || ""}-${d.month || ""}-${d.year || ""}`
+);
 
 /* Plage de dates à partir des champs day/month/year (texte libre Sanity) —
    premier/dernier nombre du champ jour pour gérer les plages "20 au 24", mois
    insensible à la casse/abrégé. Renvoie null si la date est incomplète/mal
    formée : ces entrées sont alors reléguées en fin de liste plutôt que de
-   casser le tri. */
+   casser le tri.
+
+   Un projet de territoire de longue durée (periodStart/periodEnd, voir
+   "Période" dans le Studio) n'a pas de day/month/year : sa plage vient
+   directement de ces deux dates ISO. */
 export const agendaEntryDate = (d) => {
+  if (d.periodStart) {
+    const start = new Date(d.periodStart);
+    return { start, end: d.periodEnd ? new Date(d.periodEnd) : start };
+  }
   const monthIdx = FR_MONTHS_IDX[(d.month || "").trim().toLowerCase()];
   const nums = String(d.day || "").match(/\d+/g);
   if (monthIdx === undefined || !nums || !d.year) return null;
@@ -37,6 +49,27 @@ export const agendaEntryDate = (d) => {
     start: new Date(+d.year, monthIdx, +nums[0]),
     end: new Date(+d.year, monthIdx, +nums[nums.length - 1]),
   };
+};
+
+const FR_MONTHS_FULL_NAMES = [
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+];
+
+/* Libellé affiché pour la date d'une entrée d'agenda : "20 Mars 2026" pour
+   une entrée classique, ou "Septembre 2024 → Mars 2026" pour un projet de
+   territoire en "Période" (même mois/année de début et de fin : un seul
+   "Mois Année", pas de flèche). */
+export const formatAgendaDate = (d) => {
+  if (d.periodStart) {
+    const start = new Date(d.periodStart);
+    const startLabel = `${FR_MONTHS_FULL_NAMES[start.getMonth()]} ${start.getFullYear()}`;
+    if (!d.periodEnd) return startLabel;
+    const end = new Date(d.periodEnd);
+    if (end.getFullYear() === start.getFullYear() && end.getMonth() === start.getMonth()) return startLabel;
+    return `${startLabel} → ${FR_MONTHS_FULL_NAMES[end.getMonth()]} ${end.getFullYear()}`;
+  }
+  return [d.day, d.month, d.year].filter(Boolean).join(" ");
 };
 
 /* Trie par proximité avec aujourd'hui plutôt que par ordre chronologique

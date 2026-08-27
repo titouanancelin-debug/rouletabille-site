@@ -7,7 +7,7 @@ import { useContent } from './content-context.jsx';
 import { urlFor } from './sanity-client.js';
 import { RichText, SectionsLibres } from './rich-content.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
-import { FR_MONTHS_IDX, agendaSlug, agendaEntryDate, sortByDate, sortByWeekday, splitArchivedAgenda } from './agenda-archive.js';
+import { FR_MONTHS_IDX, agendaSlug, agendaEntryDate, formatAgendaDate, sortByDate, sortByWeekday, splitArchivedAgenda } from './agenda-archive.js';
 
 /* ─── Formulaires : Cloudflare Pages Functions ─────────────────────────────
    Chaque formulaire poste en JSON vers /api/<nom> (voir functions/api/),
@@ -1266,7 +1266,7 @@ const Spectacles = ({ setRoute }) => {
                     <div style={{ padding:32 }}>
                     <div style={{ display:"inline-block", background:getType('projet de territoire').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>{typeLabels(['projet de territoire'])}</div>
                     <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
-                    <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.time}</div>
+                    <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{formatAgendaDate(d)}</div>
                     <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
                     {d.desc && <RichText content={d.desc} style={{ fontSize:14, lineHeight:1.6, color:"rgba(242,228,200,0.8)" }}/>}
                     </div>
@@ -1386,7 +1386,7 @@ const AgendaCard = ({ d, onClick }) => {
       <div style={{ padding:"14px 0 8px", borderTop:"1px solid var(--rule)", marginTop:0 }}>
         <h4 className="display" style={{ fontSize:20, lineHeight:1.05, marginBottom:6 }}>{d.title}</h4>
         <div style={{ fontSize:12, color:"var(--ink-soft)", marginBottom:8, letterSpacing:"0.02em" }}>
-          {d.day} {d.month} {d.year} · <span>{d.venue}</span>
+          {formatAgendaDate(d)} · <span>{d.venue}</span>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:6 }}>
           <span style={{ width:5, height:5, borderRadius:"50%", background:sc.color, flexShrink:0 }}/>
@@ -1605,7 +1605,7 @@ const FicheAgenda = ({ setRoute }) => {
           </h1>
 
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, padding:"24px 0", borderTop:"1px solid var(--rule)", borderBottom:"1px solid var(--rule)", marginBottom:32 }}>
-            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Date</div><div>{d.day} {d.month} {d.year}</div></div>
+            <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Date</div><div>{formatAgendaDate(d)}</div></div>
             <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Horaire</div><div>{d.time}</div></div>
             <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Lieu</div><div>{d.venue}</div></div>
             <div><div className="mono" style={{ opacity:0.5, marginBottom:6 }}>Tarif</div><div>{d.price}</div></div>
