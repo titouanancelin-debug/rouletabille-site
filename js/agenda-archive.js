@@ -115,6 +115,7 @@ const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
    peuvent donc être "vieilles de plus d'un an". */
 export const isArchived = (entry, now = new Date()) => {
   if (entry.recurrence && entry.recurrence !== "ponctuel") return false;
+  if (entry.periodStart && !entry.periodEnd) return false; // projet en cours, fin pas encore connue
   const range = agendaEntryDate(entry);
   if (!range) return false;
   return now - range.end > ONE_YEAR_MS;

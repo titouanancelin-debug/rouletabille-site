@@ -1433,6 +1433,28 @@ function agendaEntryMonthKey(d) {
   return idx === undefined ? `${d.month} ${d.year}` : `${FR_MONTHS_ORDER[idx]} ${d.year}`;
 }
 
+/* Un projet de territoire en "Période" (voir studio/schemaTypes/agenda.ts)
+   n'a pas de mois unique : il doit apparaître dans TOUS les onglets mois
+   couverts par [periodStart, periodEnd], pas dans un seul (contrairement à
+   une entrée classique day/month/year, comparée via agendaEntryMonthKey). Si
+   periodEnd est vide (fin pas encore connue), le projet reste affiché sans
+   limite dans le futur. */
+function entryMatchesMonth(d, key) {
+  if (d.periodStart) {
+    const [abbr, year] = key.split(" ");
+    const monthIdx = FR_MONTHS_ORDER.indexOf(abbr);
+    if (monthIdx === -1) return false;
+    const targetOrdinal = +year * 12 + monthIdx;
+    const start = new Date(d.periodStart);
+    const startOrdinal = start.getFullYear() * 12 + start.getMonth();
+    if (targetOrdinal < startOrdinal) return false;
+    if (!d.periodEnd) return true;
+    const end = new Date(d.periodEnd);
+    return targetOrdinal <= end.getFullYear() * 12 + end.getMonth();
+  }
+  return agendaEntryMonthKey(d) === key;
+}
+
 // Ordre voulu pour l'onglet "Tout" : projets de territoire d'abord, puis le
 // reste (événements, résidences, médiations, ateliers) — plutôt que le tri
 // purement chronologique utilisé quand un type précis est filtré. Le tri
@@ -1456,11 +1478,11 @@ const Agenda = ({ setRoute }) => {
 
   const list = useMemo(() => {
     const base = filter === "tout" ? liveAgenda : liveAgenda.filter(d => d.type?.includes(filter));
-    const sorted = sortByDate(base.filter(d => agendaEntryMonthKey(d) === month));
+    const sorted = sortByDate(base.filter(d => entryMatchesMonth(d, month)));
     return filter === "tout" ? [...sorted].sort((a, b) => agendaTypeRank(a) - agendaTypeRank(b)) : sorted;
   }, [liveAgenda, filter, month]);
 
-  const countForMonth = (key) => liveAgenda.filter(d => agendaEntryMonthKey(d) === key).length;
+  const countForMonth = (key) => liveAgenda.filter(d => entryMatchesMonth(d, key)).length;
 
   return (
     <>
