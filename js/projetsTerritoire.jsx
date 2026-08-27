@@ -88,9 +88,11 @@ const ProjectSection = ({ project, index }) => (
       )}
     </Reveal>
     <div>
-      {(project.articles || []).map((article, i) => (
-        <ArticleBlock key={article.slug} article={article} index={i} />
-      ))}
+      {[...(project.articles || [])]
+        .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+        .map((article, i) => (
+          <ArticleBlock key={article.slug} article={article} index={i} />
+        ))}
     </div>
   </section>
 );
@@ -103,7 +105,9 @@ const ProjetsTerritoire = () => {
   // automatiquement après 1 an (js/agenda-archive.js) : viennent s'ajouter
   // aux projets curés manuellement ci-dessus, sans les remplacer.
   const archivedTerritoire = useMemo(
-    () => splitArchivedAgenda(AGENDA || []).archivedTerritoire.map(agendaToArchiveItem),
+    () => splitArchivedAgenda(AGENDA || []).archivedTerritoire
+      .map(agendaToArchiveItem)
+      .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)),
     [AGENDA]
   );
 

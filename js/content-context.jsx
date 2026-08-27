@@ -35,7 +35,13 @@ const QUERY = `{
   "menu": *[_id == "menu"][0],
   "siteSettings": *[_id == "siteSettings"][0],
   "archivesPage": *[_id == "archivesPage"][0],
-  "creationsCompagniePage": *[_id == "creationsCompagniePage"][0],
+  "creationsCompagniePage": *[_id == "creationsCompagniePage"][0]{
+    ...,
+    creations[]{
+      ...,
+      "archiveArticle": archiveArticle->{"slug": slug.current}
+    }
+  },
   "projetsTerritoirePage": *[_id == "projetsTerritoirePage"][0]{
     ...,
     projects[]{

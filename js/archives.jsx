@@ -53,6 +53,29 @@ function groupByYearMonth(articles) {
    js/rich-content.jsx). */
 const openInPopup = (href) => window.open(href, '_blank', 'noopener,noreferrer,width=900,height=700');
 
+/* Les articles migrés depuis Overblog contiennent souvent de longues séries
+   de photos consécutives (reportages, résidences...) qui, sur le blog
+   d'origine, s'affichaient en petite galerie compacte. Rendues telles
+   quelles (une image pleine largeur après l'autre), elles produisaient des
+   pages interminables avec un espacement qui paraissait cassé. On regroupe
+   ici les images consécutives du corps d'article en un seul bloc "galerie"
+   affiché en grille, une image isolée restant traitée comme avant. */
+function groupImageRuns(body) {
+  const out = [];
+  let run = [];
+  const flushRun = () => {
+    if (run.length === 0) return;
+    out.push(run.length === 1 ? run[0] : { _type: 'imageGroup', _key: `group-${run[0]._key}`, images: run });
+    run = [];
+  };
+  for (const block of body || []) {
+    if (block._type === 'image') run.push(block);
+    else { flushRun(); out.push(block); }
+  }
+  flushRun();
+  return out;
+}
+
 export const portableTextComponents = {
   types: {
     // Le wrapper (pas l'<img>) réserve l'espace via aspect-ratio : la règle
@@ -76,6 +99,42 @@ export const portableTextComponents = {
         </div>
       );
     },
+    // Série de photos consécutives : grille compacte et régulière plutôt
+    // qu'un empilement plein largeur. Clic = photo en grand dans une popup
+    // (même logique que les liens du corps d'article).
+    imageGroup: ({ value }) => (
+      <div style={{
+        margin: '32px auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+        gap: 10,
+      }}>
+        {value.images.map((img) => {
+          const w = img.dims?.width;
+          const h = img.dims?.height;
+          const thumbSrc = urlFor(img).width(500).height(375).fit('crop').auto('format').url();
+          const fullSrc = urlFor(img).width(1600).fit('max').auto('format').url();
+          return (
+            <button
+              key={img._key}
+              type="button"
+              onClick={() => openInPopup(fullSrc)}
+              style={{
+                padding: 0, border: 'none', background: 'none', cursor: 'zoom-in',
+                aspectRatio: w && h ? `${w} / ${h}` : '4 / 3', overflow: 'hidden',
+              }}
+            >
+              <img
+                src={thumbSrc}
+                alt=""
+                loading="lazy"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', margin: 0 }}
+              />
+            </button>
+          );
+        })}
+      </div>
+    ),
   },
   marks: {
     link: ({ value, children }) => (
@@ -420,7 +479,7 @@ const FicheArchive = () => {
           </div>
 
           <div className="article-content article-content-rich">
-            <PortableText value={article.body} components={portableTextComponents} />
+            <PortableText value={groupImageRuns(article.body)} components={portableTextComponents} />
           </div>
 
           <div style={{ marginTop: 64, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>

@@ -110,6 +110,12 @@ function sanitizePostContent(doc) {
   const content = doc.querySelector('.post-content');
   if (!content) return null;
 
+  // Widget Overblog "à lire aussi" (vignette + titre + extrait + URL d'un
+  // site tiers, sans rapport avec l'article) et scripts de carrousel : pure
+  // pollution qui, si on les laisse passer, apparaît comme un faux dernier
+  // paragraphe de l'article avec un lien externe hors-sujet.
+  content.querySelectorAll('.ob-ctn--withImage, script').forEach((el) => el.remove());
+
   content.querySelectorAll('img[src]').forEach((img) => {
     const fixed = resolveImgSrc(img.getAttribute('src') || '');
     img.setAttribute('src', fixed);

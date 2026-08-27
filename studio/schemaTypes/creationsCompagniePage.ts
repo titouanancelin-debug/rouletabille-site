@@ -30,6 +30,13 @@ export const creationsCompagniePage = defineType({
           }),
           defineField({ name: 'title', title: 'Titre', type: 'string', validation: (Rule) => Rule.required() }),
           defineField({
+            name: 'archiveArticle',
+            title: 'Article d\'archive lié',
+            type: 'reference',
+            to: [{ type: 'archiveArticle' }],
+            description: 'Optionnel. Si renseigné, le titre de la création devient un lien vers cet article d\'archive.',
+          }),
+          defineField({
             name: 'photo',
             title: 'Photo',
             type: 'image',

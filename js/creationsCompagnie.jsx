@@ -47,7 +47,11 @@ const CreationRow = ({ creation, index }) => {
         )}
         <div>
           <h3 className="display" style={{ fontSize: 24, lineHeight: 1.15, marginBottom: 10, textWrap: 'balance' }}>
-            {creation.title}
+            {creation.archiveArticle?.slug ? (
+              <Link to={`/archives/${creation.archiveArticle.slug}`} style={{ color: 'inherit' }}>
+                {creation.title} <span aria-hidden="true" style={{ color: 'var(--terra)' }}>→</span>
+              </Link>
+            ) : creation.title}
           </h3>
           {creation.description && (
             <RichText content={creation.description} style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--ink-soft)', maxWidth: 720, marginBottom: embedUrl ? 20 : 0 }}/>
