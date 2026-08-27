@@ -100,7 +100,15 @@ const ProjectSection = ({ project, index }) => (
 const ProjetsTerritoire = () => {
   const { PROJETS_TERRITOIRE_PAGE, AGENDA } = useContent();
   const motifRef = useParallax(0.18, 110);
-  const projects = PROJETS_TERRITOIRE_PAGE?.projects || [];
+  // Les projets eux-mêmes sont classés par la date de leur article le plus
+  // récent (et pas seulement les articles à l'intérieur de chaque projet) :
+  // le projet le plus récemment alimenté apparaît en premier.
+  const mostRecentDate = (project) =>
+    Math.max(0, ...(project.articles || []).map((a) => new Date(a.publishedAt).getTime() || 0));
+  const projects = useMemo(
+    () => [...(PROJETS_TERRITOIRE_PAGE?.projects || [])].sort((a, b) => mostRecentDate(b) - mostRecentDate(a)),
+    [PROJETS_TERRITOIRE_PAGE]
+  );
   // Rendez-vous d'agenda de type "projet de territoire" archivés
   // automatiquement après 1 an (js/agenda-archive.js) : viennent s'ajouter
   // aux projets curés manuellement ci-dessus, sans les remplacer.
