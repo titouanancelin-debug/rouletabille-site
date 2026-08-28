@@ -1503,7 +1503,7 @@ const Agenda = ({ setRoute }) => {
   const { AGENDA, AGENDA_PAGE, AGENDA_SECTIONS, AGENDA_SECTIONS_HAUT } = useContent();
   const { current: liveAgenda } = useMemo(() => splitArchivedAgenda(AGENDA), [AGENDA]);
   const { typeConfig, get: getType } = useTypeConfig();
-  const agendaFilters = [{ id:"tout", label:"Tout" }, ...typeConfig.map(t => ({ id:t.value, label:t.label }))];
+  const agendaFilters = [{ id:"tout", label:"Tout" }, ...typeConfig.filter(t => t.value !== "spectacle").map(t => ({ id:t.value, label:t.label }))];
   const [showPast, setShowPast] = useState(false);
   const seasonMonths = useMemo(() => getRollingSeasonMonths(12, showPast ? 6 : 0), [showPast]);
   const [filter, setFilter] = useState("tout");
