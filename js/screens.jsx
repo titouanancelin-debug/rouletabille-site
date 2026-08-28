@@ -7,7 +7,7 @@ import { useContent } from './content-context.jsx';
 import { urlFor } from './sanity-client.js';
 import { RichText, SectionsLibres } from './rich-content.jsx';
 import { prefersReduced, Reveal, KineticTitle, useParallax } from './fx.jsx';
-import { FR_MONTHS_IDX, agendaSlug, agendaEntryDate, formatAgendaDate, sortByDate, sortByWeekday, splitArchivedAgenda } from './agenda-archive.js';
+import { FR_MONTHS_IDX, agendaSlug, agendaEntryDate, formatAgendaDate, sortByDate, sortByWeekday, splitArchivedAgenda, isPastEvent } from './agenda-archive.js';
 
 /* ─── Formulaires : Cloudflare Pages Functions ─────────────────────────────
    Chaque formulaire poste en JSON vers /api/<nom> (voir functions/api/),
@@ -946,6 +946,15 @@ const AgendaRow = ({ d, onClick }) => {
 
 /* ======================= SPECTACLES (liste) ======================= */
 
+/* Pastille grise "Terminé" — même gabarit que les pastilles de type, posée
+   à côté pour signaler une date déjà passée sans attendre l'archivage
+   automatique (>1 an, voir agenda-archive.js). */
+const PastBadge = () => (
+  <span style={{ display:"inline-block", background:"var(--ink-soft)", color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase" }}>
+    Terminé
+  </span>
+);
+
 const Spectacles = ({ setRoute }) => {
   const { AGENDA, AGENDA_PAGE, SPECTACLES_PAGE, SPECTACLES_SECTIONS, SPECTACLES_SECTIONS_HAUT } = useContent();
   const { current: liveAgenda } = useMemo(() => splitArchivedAgenda(AGENDA), [AGENDA]);
@@ -1041,16 +1050,21 @@ const Spectacles = ({ setRoute }) => {
           </Reveal>
           {residences.length > 0 ? (
             <div className="grid-2">
-              {residences.map((d, i) => (
+              {residences.map((d, i) => {
+                const past = isPastEvent(d);
+                return (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer", height:"100%" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer", height:"100%", opacity: past ? 0.65 : 1, transition:"opacity 0.2s" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     {d.image && (
                       <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
                         <CardPhoto item={d} alt={d.title}/>
                       </div>
                     )}
                     <div style={{ padding:32 }}>
-                    <div style={{ display:"inline-block", background:getType('résidence').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>{typeLabels(['résidence'])}</div>
+                    <div style={{ display:"flex", gap:8, marginBottom:24 }}>
+                      <div style={{ display:"inline-block", background:getType('résidence').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase" }}>{typeLabels(['résidence'])}</div>
+                      {past && <PastBadge/>}
+                    </div>
                     <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
                     <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
@@ -1059,7 +1073,8 @@ const Spectacles = ({ setRoute }) => {
                     </div>
                   </div>
                 </Reveal>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('residences').emptyMessage}</p>
@@ -1080,16 +1095,21 @@ const Spectacles = ({ setRoute }) => {
           </Reveal>
           {mediations.length > 0 ? (
             <div className="grid-2">
-              {mediations.map((d, i) => (
+              {mediations.map((d, i) => {
+                const past = isPastEvent(d);
+                return (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div className="card-fx" style={{ border:"1px solid var(--rule)", cursor:"pointer", height:"100%" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                  <div className="card-fx" style={{ border:"1px solid var(--rule)", cursor:"pointer", height:"100%", opacity: past ? 0.65 : 1, transition:"opacity 0.2s" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     {d.image && (
                       <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
                         <CardPhoto item={d} alt={d.title}/>
                       </div>
                     )}
                     <div style={{ padding:32 }}>
-                      <div style={{ display:"inline-block", background:getType('médiation').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>{typeLabels(['médiation'])}</div>
+                      <div style={{ display:"flex", gap:8, marginBottom:24 }}>
+                        <div style={{ display:"inline-block", background:getType('médiation').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase" }}>{typeLabels(['médiation'])}</div>
+                        {past && <PastBadge/>}
+                      </div>
                       <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                       <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{d.day} {d.month} {d.year}</div>
                       <div style={{ fontSize:14, opacity:0.7, marginBottom: d.desc ? 16 : 0, color:"var(--ink-soft)" }}>{d.venue}</div>
@@ -1097,7 +1117,8 @@ const Spectacles = ({ setRoute }) => {
                     </div>
                   </div>
                 </Reveal>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('mediations').emptyMessage}</p>
@@ -1118,9 +1139,11 @@ const Spectacles = ({ setRoute }) => {
           </Reveal>
           {evenements.length > 0 ? (
             <div style={{ display:"flex", flexDirection:"column" }}>
-              {evenements.map((d, i) => (
+              {evenements.map((d, i) => {
+                const past = isPastEvent(d);
+                return (
                 <Reveal key={i} variant="up" delay={i * 80}>
-                  <div className="card-fx" style={{ padding:"28px 0", borderTop:"1px solid var(--rule)", display:"flex", gap:32, alignItems:"flex-start", cursor:"pointer" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                  <div className="card-fx" style={{ padding:"28px 0", borderTop:"1px solid var(--rule)", display:"flex", gap:32, alignItems:"flex-start", cursor:"pointer", opacity: past ? 0.65 : 1, transition:"opacity 0.2s" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     <div style={{ minWidth:64, textAlign:"center" }}>
                       <div className="display" style={{ fontSize:42, lineHeight:1 }}>{d.day}</div>
                       <div className="mono" style={{ fontSize:11, marginTop:4, opacity:0.55 }}>{d.month} {d.year}</div>
@@ -1131,8 +1154,11 @@ const Spectacles = ({ setRoute }) => {
                       </div>
                     )}
                     <div style={{ flex:1 }}>
-                      <div style={{ display:"inline-block", background:d.cardColor || "var(--amber)", color:d.cardTextColor || "var(--ink)", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"3px 10px", textTransform:"uppercase", marginBottom:10 }}>
-                        {typeLabels(d.type)}
+                      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+                        <div style={{ display:"inline-block", background:d.cardColor || "var(--amber)", color:d.cardTextColor || "var(--ink)", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"3px 10px", textTransform:"uppercase" }}>
+                          {typeLabels(d.type)}
+                        </div>
+                        {past && <PastBadge/>}
                       </div>
                       <h3 className="display" style={{ fontSize:"clamp(20px, 2.4vw, 28px)", lineHeight:1.05, marginBottom:8 }}>{d.title}<span className="card-arrow">→</span></h3>
                       <div style={{ fontSize:14, color:"var(--ink-soft)" }}>{d.venue}</div>
@@ -1141,7 +1167,8 @@ const Spectacles = ({ setRoute }) => {
                     </div>
                   </div>
                 </Reveal>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('evenements').emptyMessage}</p>
@@ -1255,16 +1282,21 @@ const Spectacles = ({ setRoute }) => {
           </Reveal>
           {territoire.length > 0 ? (
             <div className="grid-2">
-              {territoire.map((d, i) => (
+              {territoire.map((d, i) => {
+                const past = isPastEvent(d);
+                return (
                 <Reveal key={i} variant="up" delay={i * 100}>
-                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer", height:"100%" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
+                  <div className="card-fx" style={{ border:"1px solid rgba(242,228,200,0.15)", cursor:"pointer", height:"100%", opacity: past ? 0.65 : 1, transition:"opacity 0.2s" }} onClick={() => setRoute("agenda/" + agendaSlug(d))}>
                     {d.image && (
                       <div style={{ position:"relative", aspectRatio:"16/9", overflow:"hidden" }}>
                         <CardPhoto item={d} alt={d.title}/>
                       </div>
                     )}
                     <div style={{ padding:32 }}>
-                    <div style={{ display:"inline-block", background:getType('projet de territoire').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase", marginBottom:24 }}>{typeLabels(['projet de territoire'])}</div>
+                    <div style={{ display:"flex", gap:8, marginBottom:24 }}>
+                      <div style={{ display:"inline-block", background:getType('projet de territoire').color, color:"#fff", fontSize:10, fontWeight:700, letterSpacing:"0.08em", padding:"4px 10px", textTransform:"uppercase" }}>{typeLabels(['projet de territoire'])}</div>
+                      {past && <PastBadge/>}
+                    </div>
                     <h3 className="display" style={{ fontSize:"clamp(24px, 3vw, 36px)", marginBottom:12, lineHeight:1.05 }}>{d.title}<span className="card-arrow">→</span></h3>
                     <div className="mono" style={{ opacity:0.5, marginBottom:6 }}>{formatAgendaDate(d)}</div>
                     <div style={{ fontSize:14, opacity:0.7, marginBottom:12 }}>{d.venue}</div>
@@ -1272,7 +1304,8 @@ const Spectacles = ({ setRoute }) => {
                     </div>
                   </div>
                 </Reveal>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p style={{ fontStyle:"italic", opacity:0.45, fontSize:18 }}>{tabConfig('territoire').emptyMessage}</p>

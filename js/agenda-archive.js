@@ -121,6 +121,20 @@ export const isArchived = (entry, now = new Date()) => {
   return now - range.end > ONE_YEAR_MS;
 };
 
+/* Une entrée est "passée" dès que sa date de fin est dépassée — contrairement
+   à isArchived (seuil d'un an), sert juste à griser visuellement une entrée
+   encore affichée dans Notre travail/Agenda mais déjà terminée. Mêmes
+   exceptions que isArchived : récurrent et période en cours ne sont jamais
+   "passés". */
+export const isPastEvent = (entry, now = new Date()) => {
+  if (entry.recurrence && entry.recurrence !== "ponctuel") return false;
+  if (entry.periodStart && !entry.periodEnd) return false;
+  const range = agendaEntryDate(entry);
+  if (!range) return false;
+  const today = new Date(now); today.setHours(0, 0, 0, 0);
+  return range.end < today;
+};
+
 /* Répartit l'agenda entre rendez-vous actifs et rendez-vous archivés
    (>1 an), ces derniers classés par type vers la section d'archives qui leur
    correspond : Spectacles de la compagnie / Projets de territoire / archives
