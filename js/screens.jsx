@@ -1,7 +1,7 @@
 /* Écrans : Home, Spectacles, FicheSpectacle, Agenda, Ateliers, Équipe, Partenaires, Contact */
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { Motif, MotifHero, Poster } from './motif.jsx';
 import { useContent } from './content-context.jsx';
 import { urlFor } from './sanity-client.js';
@@ -122,9 +122,10 @@ const toPath = (id) => (id === "home" ? "/" : "/" + id);
    entrées JSON que pour les occurrences d'ateliers générées à la volée. */
 
 const Nav = ({ route }) => {
-  const { MENU, SITE } = useContent();
+  const { MENU, SITE, SPECTACLES_PAGE } = useContent();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const travailTabs = SPECTACLES_PAGE?.travailTabs || [];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -173,9 +174,20 @@ const Nav = ({ route }) => {
       {/* Overlay mobile */}
       <div className={`nav-mobile ${mobileOpen ? "open" : ""}`}>
         {items.map(it => (
-          <Link key={it.id} to={toPath(it.id)} className={`nav-mobile-link ${route.startsWith(it.id) ? "active" : ""}`} onClick={() => setMobileOpen(false)} style={{ textDecoration:"none" }}>
-            {it.label}
-          </Link>
+          <Fragment key={it.id}>
+            <Link to={toPath(it.id)} className={`nav-mobile-link ${route.startsWith(it.id) ? "active" : ""}`} onClick={() => setMobileOpen(false)} style={{ textDecoration:"none" }}>
+              {it.label}
+            </Link>
+            {it.id === "notre-travail" && travailTabs.length > 0 && (
+              <div className="nav-mobile-sub">
+                {travailTabs.map(t => (
+                  <Link key={t.value} to={`/notre-travail?tab=${t.value}`} className="nav-mobile-sublink" onClick={() => setMobileOpen(false)} style={{ textDecoration:"none" }}>
+                    {t.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </Fragment>
         ))}
         <Link to="/archives" className={`nav-mobile-link ${route.startsWith("archives") ? "active" : ""}`} style={{ textDecoration:"none" }} onClick={() => setMobileOpen(false)}>{MENU.labelArchives}</Link>
       </div>
@@ -962,7 +974,14 @@ const Spectacles = ({ setRoute }) => {
   const travailTabs = SPECTACLES_PAGE?.travailTabs || [];
   const tabConfig = (value) => travailTabs.find(t => t.value === value) || {};
   const audienceFilters = buildAudienceFilters(AGENDA_PAGE);
+  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState("residences");
+
+  // Permet au menu mobile de pointer directement vers un onglet (ex: /notre-travail?tab=ateliers)
+  useEffect(() => {
+    const requested = searchParams.get("tab");
+    if (requested && travailTabs.some(t => t.value === requested)) setTab(requested);
+  }, [searchParams, travailTabs]);
   const [atelierFilter, setAtelierFilter] = useState("");
   const [selectedAtelier, setSelectedAtelier] = useState(null);
   const [formStates, setFormStates] = useState({});
@@ -1030,8 +1049,8 @@ const Spectacles = ({ setRoute }) => {
               </button>
             ))}
           </div>
-          {/* Titre de la section active */}
-          <span className="display-italic" style={{ flexShrink:0, fontSize:"clamp(18px, 2vw, 26px)", color:"var(--terra)", opacity:0.85, paddingRight:4 }}>
+          {/* Titre de la section active — masqué sur mobile pour laisser toute la largeur aux onglets scrollables */}
+          <span className="display-italic travail-tab-caption" style={{ flexShrink:0, fontSize:"clamp(18px, 2vw, 26px)", color:"var(--terra)", opacity:0.85, paddingRight:4 }}>
             {travailTabs.find(t => t.value === tab)?.title}
           </span>
         </div>

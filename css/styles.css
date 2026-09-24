@@ -627,6 +627,13 @@ html { scroll-behavior: smooth; }
   transition:color 0.15s, padding-left 0.15s;
 }
 .nav-mobile-link:hover, .nav-mobile-link.active { color:var(--terra); padding-left:8px; }
+.nav-mobile-sub { display:flex; flex-direction:column; padding:2px 0 10px 18px; }
+.nav-mobile-sublink {
+  background:none; border:none; text-align:left; font-family:var(--ff-body);
+  font-size:16px; color:var(--ink-soft); cursor:pointer; padding:9px 0;
+  transition:color 0.15s, padding-left 0.15s;
+}
+.nav-mobile-sublink:hover, .nav-mobile-sublink:active { color:var(--terra); padding-left:6px; }
 
 /* Empêche la page de défiler derrière le panneau plein écran pendant qu'il est ouvert (voir Nav dans js/screens.jsx) */
 body.nav-mobile-active { overflow: hidden; }
@@ -656,6 +663,8 @@ body.nav-mobile-active { overflow: hidden; }
 
   .agenda-row-grid { grid-template-columns: 72px 1fr auto; }
   .agenda-col-venue, .agenda-col-price, .agenda-col-arrow { display: none; }
+
+  .travail-tab-caption { display: none; }
 }
 
 @media (max-width: 480px) {
